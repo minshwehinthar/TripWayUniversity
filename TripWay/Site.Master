@@ -408,15 +408,16 @@
         .tw-msg-them { background: #f3f4f6; color: #111827; border-bottom-left-radius: 0.125rem; }
 
         /* ---- toasts -------------------------------------------------------- */
-        [data-tw-toast] {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            z-index: 3000;
-            display: flex;
-            flex-direction: column;
-            gap: .5rem;
-        }
+        /* No rule for [data-tw-toast] any more.
+           These server panels used to be positioned here in the bottom right corner, which
+           fought the real toast stack: that one is injected by tw-toast.js into the top right.
+           A message coming from a server panel therefore painted twice, as two unrelated
+           toasts in two corners. tw-toast.js now parks the panel with tw-panel-parked as soon
+           as it has lifted the text, so the panel never shows and only the toast does.
+
+           With no rule of their own the panels also fall back to rendering inline in the spot
+           the page declared, which is what should happen if tw-toast.js fails to load at all:
+           the message is still readable rather than stranded in a corner of its own. */
 
         /* A server panel meant to be shown in the lightbox stays hidden until it is moved.
            The server renders it with this class so nothing flashes in its declared spot. */

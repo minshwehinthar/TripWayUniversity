@@ -136,7 +136,19 @@
             if (panel.getAttribute('data-tw-sent') === '1') continue;
             panel.setAttribute('data-tw-sent', '1');
             var text = (panel.textContent || '').replace(/\s+/g, ' ').trim();
+            // Once the text has been lifted into a toast the panel has nothing left to say,
+            // and leaving it in the document showed the same message twice: the panel was
+            // positioned in the bottom right corner while the toast stack sits in the top
+            // right, so one message appeared as two unrelated toasts in different corners.
+            //
+            // Parked rather than removed, which is what tw-panel-parked is for. The class is
+            // display:none, so the panel stops painting, but textContent above still reads it
+            // and the next postback renders a fresh panel that this runs against again.
+            //
+            // Parked after reading the text and the colour, both of which are read off the
+            // element itself.
             if (text) show(text, kindFrom(panel));
+            panel.classList.add('tw-panel-parked');
         }
     }
 
