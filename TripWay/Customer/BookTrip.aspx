@@ -1862,7 +1862,10 @@
         function handleConfirmResult() {
             var res = <%= ConfirmToastJson %>;
             if (!res) return;
-            if (res.kind === 'error' && res.text) TwToast.error(res.text, 5200);
+            // No duration passed, so this takes the shared 4s default like every other toast
+            // and dismisses itself. It used to ask for 5.2s, which was the one message on the
+            // site that outlived the rest.
+            if (res.kind === 'error' && res.text) TwToast.error(res.text);
         }
 
         // Registered before the page's own initialisation below, and deliberately not part of

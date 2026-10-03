@@ -777,7 +777,10 @@
         </div>
     </form>
 
-    <script src="<%= ResolveUrl("~/Scripts/tw-toast.js") %>"></script>
+    <%-- Version query keyed off the file's own timestamp: busts the browser cache when the
+         file changes, stays cached when it does not. Without it a stale tw-toast.js keeps
+         serving the old behaviour and the pages look unfixed. --%>
+    <script src="<%= ResolveUrl("~/Scripts/tw-toast.js") %>?v=<%= System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/tw-toast.js")).Ticks %>"></script>
     <script src="<%= ResolveUrl("~/Scripts/tw-upload.js") %>"></script>
     <script src="<%= ResolveUrl("~/Scripts/tw-eta.js") %>"></script>
     <script src="<%= ResolveUrl("~/Scripts/tripway-scroll.js") %>"></script>
