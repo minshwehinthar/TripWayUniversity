@@ -22,5 +22,6 @@ namespace TripWay
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl mainContentArea;
         protected global::System.Web.UI.WebControls.Panel pnlFooter;
         protected global::System.Web.UI.WebControls.ContentPlaceHolder MainContent;
+        protected global::System.Web.UI.WebControls.ContentPlaceHolder BreadcrumbContent;
     }
 }

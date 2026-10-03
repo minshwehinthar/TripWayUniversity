@@ -272,6 +272,24 @@
             .tw-detail-grid { grid-template-columns: 1fr; }
             .tw-table th, .tw-table td { padding-left: 1rem; padding-right: 1rem; }
         }
+
+        /* ---- collapsible app sidebar ---------------------------------------
+           The rail is laid out at every width and the toggle narrows it to an
+           icon-only column. Hiding it outright below a breakpoint, as this did
+           with "hidden lg:flex", left a narrow window with no way to the nav at
+           all, because there was no mobile fallback for it. */
+        #sideNav { width: 18rem; }
+        #sideNav.tw-collapsed { width: 4rem; }
+        #sideNav .nav-item { width: 100%; }
+        #sideNav.tw-collapsed .tw-nav-label { display: none; }
+        #sideNav.tw-collapsed .tw-badge { display: none; }
+        #sideNav.tw-collapsed .nav-item,
+        #sideNav.tw-collapsed .tw-side-head,
+        #sideNav.tw-collapsed .tw-logout {
+            justify-content: center;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
@@ -293,44 +311,70 @@
                         <asp:LinkButton ID="lnkPublicLogout" runat="server" CssClass="tw-btn-outline"
                                         OnClick="lnkLogout_Click">Log out</asp:LinkButton>
                     </nav>
+                    <button type="button" id="btnPublicMenu" onclick="togglePublicMenu()" aria-label="Toggle menu"
+                            class="md:hidden flex size-10 items-center justify-center rounded-md text-gray-700 transition-colors hover:bg-gray-100">
+                        <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    </button>
+                </div>
+                <%-- Narrow screens have no room for the row above, and the desktop nav is hidden
+                     below md, so without this the public header was a logo with no way to navigate. --%>
+                <div id="publicMobileNav" class="hidden pb-3 px-4 pt-2 flex flex-col gap-1 text-sm font-medium border-t border-gray-200">
+                    <a href="<%= ResolveUrl("~/Default.aspx") %>" class="px-3 py-2 rounded-md text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900">Home</a>
+                    <a href="<%= ResolveUrl("~/Services.aspx") %>" class="px-3 py-2 rounded-md text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900">Services</a>
+                    <a href="<%= ResolveUrl("~/FAQs.aspx") %>" class="px-3 py-2 rounded-md text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900">FAQs</a>
+                    <a href="<%= ResolveUrl("~/AboutUs.aspx") %>" class="px-3 py-2 rounded-md text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900">About Us</a>
+                    <a href="<%= ResolveUrl("~/ContactUs.aspx") %>" class="px-3 py-2 rounded-md text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900">Contact Us</a>
+                    <asp:HyperLink ID="lnkMobileLogin" runat="server" NavigateUrl="~/Login.aspx"
+                                    CssClass="mt-1 tw-btn-outline w-full">Log in</asp:HyperLink>
+                    <asp:LinkButton ID="lnkMobileLogout" runat="server" Visible="false" OnClick="lnkLogout_Click"
+                                    CausesValidation="false" CssClass="mt-1 tw-btn-outline w-full">Log out</asp:LinkButton>
                 </div>
             </asp:Panel>
 
             <%-- Application shell: sidebar plus content, for signed-in pages --%>
             <div class="flex min-h-screen">
-                <asp:Panel ID="pnlSidebar" runat="server" CssClass="hidden lg:flex lg:w-64 flex-col border-r border-gray-200 bg-white shrink-0">
-                    <div class="flex items-center gap-2 px-4 py-5">
-                        <img src="<%= ResolveUrl("~/Images/logo.jpeg") %>" alt="TripWay logo"
-                             class="size-9 rounded-lg object-contain shrink-0" />
-                        <asp:Literal ID="litSidebarTitle" runat="server" />
-                    </div>
-                    <nav class="flex-1 overflow-y-auto pb-4">
-                        <asp:Repeater ID="rptSidebarLinks" runat="server" OnItemDataBound="rptSidebarLinks_ItemDataBound">
-                            <ItemTemplate>
-                                <span class="flex items-center gap-2">
-                                    <a id="navLink" runat="server"
+                <asp:Panel ID="pnlSidebar" runat="server" CssClass="flex shrink-0">
+                    <div id="sideNav" class="flex flex-col h-screen border-r border-gray-200 bg-white transition-all duration-300 ease-in-out">
+                        <div class="tw-side-head flex items-center gap-2 px-4 py-5">
+                            <img src="<%= ResolveUrl("~/Images/logo.jpeg") %>" alt="TripWay logo"
+                                 class="size-9 rounded-lg object-contain shrink-0" />
+                            <span class="tw-nav-label"><asp:Literal ID="litSidebarTitle" runat="server" /></span>
+                        </div>
+                        <button id="btnSideToggle" type="button" onclick="toggleSidebar()" aria-label="Collapse sidebar"
+                                class="absolute left-full top-5 z-50 -ml-3 flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-600">
+                            <%= TripWay.Helper.Heroicons.SvgFromName("arrow-left", "size-3.5") %>
+                        </button>
+                        <nav class="flex-1 overflow-y-auto pb-4">
+                            <asp:Repeater ID="rptSidebarLinks" runat="server" OnItemDataBound="rptSidebarLinks_ItemDataBound">
+                                <ItemTemplate>
+                                    <a id="navLink" runat="server" href='<%# Eval("Url") %>'
                                        class="nav-item flex items-center gap-3 py-2.5 px-4 text-[13px] rounded-lg font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900">
-                                        <asp:Literal ID="navIcon" runat="server" />
-                                        <asp:Literal ID="navText" runat="server" />
+                                        <%# TripWay.Helper.Heroicons.SvgFromName(Eval("Icon").ToString(), "size-4") %>
+                                        <span class="tw-nav-label leading-tight"><%# Eval("Text") %></span>
+                                        <span id="navBadge" runat="server" visible="false" class="tw-badge tw-avatar-blue ml-auto"></span>
                                     </a>
-                                    <span id="navBadge" runat="server" class="tw-badge tw-avatar-blue"></span>
-                                </span>
-                            </ItemTemplate>
-                        </asp:Repeater>
-                    </nav>
-                    <div class="border-t border-gray-200 p-3">
-                        <asp:LinkButton ID="lnkLogout" runat="server" CssClass="tw-btn-outline w-full"
-                                        OnClick="lnkLogout_Click">Log out</asp:LinkButton>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </nav>
+                        <div class="border-t border-gray-200 p-3">
+                            <asp:LinkButton ID="lnkLogout" runat="server" CssClass="tw-btn-outline tw-logout w-full"
+                                            OnClick="lnkLogout_Click">
+                                <%= TripWay.Helper.Heroicons.SvgFromName("arrow-right", "size-4") %>
+                                <span class="tw-nav-label">Log out</span>
+                            </asp:LinkButton>
+                        </div>
                     </div>
                 </asp:Panel>
 
                 <div class="flex min-w-0 flex-1 flex-col">
                     <asp:Panel ID="pnlAppHeader" runat="server" CssClass="border-b border-gray-200 bg-white">
                         <div class="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
+                            <%-- The mobile login and log out buttons now live in the public header's
+                                 mobile menu. This panel and pnlPublicHeader can never both render,
+                                 since one wants a signed in visitor on a private page and the other
+                                 wants a public page or a signed out one, so moving them cannot put two
+                                 controls with the same ID on the page. --%>
                             <div class="flex items-center gap-2">
-                                <asp:HyperLink ID="lnkMobileLogin" runat="server" CssClass="tw-btn-outline md:hidden">Log in</asp:HyperLink>
-                                <asp:LinkButton ID="lnkMobileLogout" runat="server" CssClass="tw-btn-outline md:hidden"
-                                                OnClick="lnkLogout_Click">Log out</asp:LinkButton>
                                 <asp:Literal ID="litUserInfo" runat="server" />
                             </div>
                         </div>
@@ -378,6 +422,47 @@
     <script src="<%= ResolveUrl("~/Scripts/tw-upload.js") %>"></script>
     <script src="<%= ResolveUrl("~/Scripts/tripway-scroll.js") %>"></script>
     <script>
+        // ---- collapsible app sidebar -------------------------------------------
+        // Narrows the rail to an icon-only column rather than hiding it, so the nav
+        // stays reachable at every width. The choice is remembered per browser.
+        function toggleSidebar() {
+            var s = document.getElementById('sideNav');
+            if (!s) return;
+            var collapsed = s.classList.toggle('tw-collapsed');
+            var btn = document.getElementById('btnSideToggle');
+            if (btn) {
+                btn.innerHTML = collapsed
+                    ? '<%= TripWay.Helper.Heroicons.SvgFromName("arrow-right", "size-3.5") %>'
+                    : '<%= TripWay.Helper.Heroicons.SvgFromName("arrow-left", "size-3.5") %>';
+            }
+            try { localStorage.setItem('tw-side', collapsed ? '1' : '0'); } catch (e) { }
+        }
+
+        // ---- public header mobile menu ------------------------------------------
+        function togglePublicMenu() {
+            var m = document.getElementById('publicMobileNav');
+            if (!m) return;
+            m.classList.toggle('hidden');
+            m.classList.toggle('flex');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var s = document.getElementById('sideNav');
+            if (s) {
+                var collapsed = false;
+                try { collapsed = localStorage.getItem('tw-side') === '1'; } catch (e) { }
+                // Never start collapsed on a narrow screen: the rail plus the content
+                // has to leave the page usable on a phone.
+                if (collapsed && window.innerWidth >= 640) {
+                    s.classList.add('tw-collapsed');
+                    var btn = document.getElementById('btnSideToggle');
+                    if (btn) {
+                        btn.innerHTML = '<%= TripWay.Helper.Heroicons.SvgFromName("arrow-right", "size-3.5") %>';
+                    }
+                }
+            }
+        });
+
         // Every width appOpenModal knows how to swap. Anything a page asks for has to be in here,
         // otherwise two max-w-* classes can end up on the panel at once.
         function appOpenModal(html, widthClass) {
