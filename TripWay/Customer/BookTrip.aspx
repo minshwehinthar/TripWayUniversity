@@ -735,8 +735,19 @@
                 if (pending) pending.focus();
                 return false;
             }
-            confirmSubmitting = true;
-            syncConfirmAvailability();
+
+            // The lock is taken in a timeout, never inline in this handler. Disabling a submit
+            // button while its own click is still being processed can cancel the submission
+            // outright: the form never posts, the page never reloads, and because nothing
+            // clears the flag the button stays dead for the rest of the session. That is what
+            // this did when it ran inline, and the result was a Confirm button that disabled
+            // itself and never booked anything. Letting the click finish first means the
+            // submit always goes, and the button still goes dead before a second click can
+            // reach the server.
+            setTimeout(function () {
+                confirmSubmitting = true;
+                syncConfirmAvailability();
+            }, 0);
             return true;
         }
 
@@ -817,8 +828,15 @@
             var seq = ++areaCheckSeq;
 
             reverseLookup(lat, lng, function (text, ok) {
-                // A newer click happened while this one was in flight: drop it.
-                if (seq !== areaCheckSeq) return;
+                // A newer click happened while this one was in flight: drop the answer, but
+                // still call back. Returning silently here used to leave the caller's pending
+                // check outstanding, because the count is released by the callback and this
+                // branch never reached it. Tapping the map twice - which is how a start and a
+                // destination are normally set - leaked one count per superseded click, and
+                // Confirm stayed disabled long after the map had settled. A superseded click
+                // reports as refused so nothing on the page changes and no error is shown,
+                // since the newer click is the one being honoured.
+                if (seq !== areaCheckSeq) { cb(null); return; }
 
                 if (!ok) {
                     // Geocoder unavailable - fail open and let the server decide.
@@ -969,21 +987,24 @@
             // click must not move a pin, clear the chosen hotel or shift the End.
             beginPointCheck();
             validateByAddress(lat, lng, function (addr) {
-                // Released last, after the point has been committed and syncHidden has run
-                // inside redrawRoute, so Confirm is never live against a stale form. Every
-                // exit from this callback has to release it - the refused branch included -
-                // or Confirm stays disabled for the rest of the session.
-                if (addr === null) { endPointCheck(); return; }   // refused: error already shown
+                // One release point rather than one per exit. Confirm is disabled for as long
+                // as this count is above zero, so any path that forgot to release it - a
+                // throw from redrawRoute, a callback that misbehaves - left the customer
+                // unable to book at all. finally makes that impossible.
+                try {
+                    if (addr === null) return;      // refused or superseded
 
-                // Read the stage now, because choosePoint may advance or reset it.
-                var wasEndStage = (pointStage === STAGE.end);
+                    // Read the stage now, because choosePoint may advance or reset it.
+                    var wasEndStage = (pointStage === STAGE.end);
 
-                if (!choosePoint(lat, lng, addr)) { endPointCheck(); return; }
-                // Moving the destination by hand means it is no longer the chosen hotel.
-                if (wasEndStage) clearHotelSelection();
-                redrawRoute();
-                if (typeof onOk === 'function') onOk();
-                endPointCheck();
+                    if (!choosePoint(lat, lng, addr)) return;
+                    // Moving the destination by hand means it is no longer the chosen hotel.
+                    if (wasEndStage) clearHotelSelection();
+                    redrawRoute();
+                    if (typeof onOk === 'function') onOk();
+                } finally {
+                    endPointCheck();
+                }
             });
         }
 
