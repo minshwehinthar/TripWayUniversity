@@ -1712,12 +1712,26 @@
             window.location.href = res.go;
         }
 
+        // Registered before the page's own initialisation below, and deliberately not part of
+        // it. handleConfirmResult is the only thing here that navigates, so it must not share a
+        // failure domain with four unrelated set-up routines: it used to be the fifth statement
+        // in that listener, which meant a throw anywhere in the point, payment, keyboard or
+        // hotel search set-up silently cancelled the redirect and the customer was left staring
+        // at a page they had just successfully booked from. Registering it first also means the
+        // navigation is issued before the rest of the page work starts.
+        document.addEventListener('DOMContentLoaded', function () {
+            try {
+                handleConfirmResult();
+            } catch (err) {
+                if (window.console && console.error) console.error(err);
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             setPointStage(STAGE.start);
             syncPaymentCards();
             guardEnterKey();
             initHotelSearch();
-            handleConfirmResult();
 
             var mapEl = document.getElementById('mapRoute');
             if (mapEl) {
