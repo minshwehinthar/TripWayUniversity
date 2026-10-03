@@ -50,9 +50,10 @@
                     <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700">Admin</span>
                     <span class="text-xs text-gray-400" id="lblJoined" runat="server"></span>
                 </div>
+<%-- No "Change photo" button here on purpose. The pencil on the avatar is the only
+                         picker, and Save Changes is the only control that commits a picture, so
+                         there is nothing to save in between. --%>
                 <div class="flex items-center gap-2.5 mt-3">
-                    <button type="button" data-tw-pick
-                        class="tw-btn-outline inline-flex items-center justify-center gap-1.5 !h-9 !px-3 !text-xs">Change photo</button>
                     <span data-tw-name data-tw-hint="JPG or PNG" class="truncate text-xs text-gray-400">JPG or PNG</span>
                 </div>
             </div>

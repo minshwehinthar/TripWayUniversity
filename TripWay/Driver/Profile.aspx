@@ -47,9 +47,8 @@
                     <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold" id="lblKycPill" runat="server"></span>
                     <span class="text-xs text-gray-400" id="lblJoined" runat="server"></span>
                 </div>
-                <%-- Saving the photo on its own, so the driver does not have to resubmit the whole form --%>
-                <asp:Button ID="btnSavePhoto" runat="server" Text="Save Photo" OnClick="btnSavePhoto_Click"
-                    CausesValidation="false" CssClass="tw-btn-outline inline-flex items-center justify-center !h-9 !px-3 !text-xs mt-3" />
+                <%-- No "Save Photo" button: Save Changes below already stores the picked photo,
+                     and it keeps that photo out of KYC review exactly as this button did. --%>
             </div>
 
             <asp:LinkButton ID="lnkToggleOnline" runat="server" OnClick="lnkToggleOnline_Click" CausesValidation="false" Style="display:none" />
@@ -85,6 +84,15 @@
                 <div class="sm:col-span-2">
                     <label class="block text-sm font-bold text-gray-900 mb-1.5">Payment Account <span class="text-gray-400 font-normal">(KPay / WavePay / bank)</span></label>
                     <asp:TextBox ID="txtPaymentAccount" runat="server" CssClass="tw-input w-full" placeholder="Enter your payment account" />
+                </div>
+
+                <%-- Remove photo. Only offered once something is stored, and it deletes the
+                     file rather than just forgetting it. --%>
+                <div class="sm:col-span-2" id="pnlRemovePhoto" runat="server" Visible="false">
+                    <label class="flex items-center gap-2 text-sm text-gray-600">
+                        <asp:CheckBox ID="chkRemovePhoto" runat="server" />
+                        Remove current photo
+                    </label>
                 </div>
             </div>
 

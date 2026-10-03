@@ -48,9 +48,10 @@
                     <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">Customer</span>
                     <span class="text-xs text-gray-400" id="lblJoined" runat="server"></span>
                 </div>
+<%-- No "Change photo" button here on purpose. The pencil on the avatar is the only
+                         picker, and Save Changes is the only control that commits a picture, so
+                         there is nothing to save in between. --%>
                 <div class="flex items-center gap-2.5 mt-3">
-                    <button type="button" data-tw-pick
-                        class="tw-btn-outline inline-flex items-center justify-center gap-1.5 !h-9 !px-3 !text-xs">Change photo</button>
                     <span data-tw-name data-tw-hint="JPG or PNG" class="truncate text-xs text-gray-400">JPG or PNG</span>
                 </div>
             </div>
@@ -101,6 +102,15 @@
                     <label class="block text-sm font-bold text-gray-900 mb-1.5">Default Pickup Address</label>
                     <asp:TextBox ID="txtDefaultAddress" runat="server" TextMode="MultiLine" Rows="2"
                         CssClass="tw-input tw-textarea w-full" placeholder="Enter your default pickup address" />
+                </div>
+
+                <%-- Remove photo. Only offered once something is stored, and it deletes the
+                     file rather than just forgetting it. --%>
+                <div class="sm:col-span-2" id="pnlRemovePhoto" runat="server" Visible="false">
+                    <label class="flex items-center gap-2 text-sm text-gray-600">
+                        <asp:CheckBox ID="chkRemovePhoto" runat="server" />
+                        Remove current photo
+                    </label>
                 </div>
             </div>
 

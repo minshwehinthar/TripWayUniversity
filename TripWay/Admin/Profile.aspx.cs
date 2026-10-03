@@ -15,6 +15,12 @@ namespace TripWay.Admin
             // predates it is healed before anything reads or writes it.
             Helper.TripHelper.EnsureAdminProfilePhoto();
             if (!IsPostBack) LoadAdmin();
+
+            /* On a postback the panel is re-declared hidden, so a ticked "Remove current
+               photo" would silently vanish when something else fails validation and the save
+               is abandoned. Checkboxes do round-trip, so trust that instead. */
+            if (IsPostBack && chkRemovePhoto.Checked) pnlRemovePhoto.Visible = true;
+
         }
 
         private void LoadAdmin()

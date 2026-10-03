@@ -31,6 +31,12 @@ namespace TripWay.Driver
         {
             Helper.AuthHelper.RequireDriver(this);
             if (!IsPostBack) LoadProfile();
+
+            /* On a postback the panel is re-declared hidden, so a ticked "Remove current
+               photo" would silently vanish when something else fails validation and the save
+               is abandoned. Checkboxes do round-trip, so trust that instead. */
+            if (IsPostBack && chkRemovePhoto.Checked) pnlRemovePhoto.Visible = true;
+
         }
 
         private void LoadProfile()
@@ -69,6 +75,9 @@ namespace TripWay.Driver
                 imgProfilePhoto.Visible = false;
                 imgDefaultPhoto.Visible = true;
             }
+
+            // Nothing to remove until something has been stored.
+            pnlRemovePhoto.Visible = !string.IsNullOrEmpty(photoPath);
 
             string kyc = r["KYCStatus"].ToString();
             SetKycPill(kyc);
@@ -175,6 +184,16 @@ namespace TripWay.Driver
                 return;
             }
 
+            object storedPhoto = Helper.DBHelper.ExecuteScalar(
+                "SELECT ProfilePhotoUrl FROM Drivers WHERE DriverID=@id",
+                new SqlParameter("@id", DriverId));
+            string currentPhoto = Helper.TripHelper.DriverPhotoUrl(storedPhoto);
+
+            /* Recorded here, not carried out: the file stays on disk until the row has
+               stopped pointing at it, so a refused upload cannot take away the photo the
+               driver already has. */
+            bool photoRemoved = chkRemovePhoto.Checked && currentPhoto.Length > 0;
+
             // Profile photo is optional and independent of KYC: a rejected photo must not
             // push the account back into KYC review the way a document upload does.
             string photoUrl = null;
@@ -211,7 +230,11 @@ namespace TripWay.Driver
             if (licUrl != null) { sets.Add("LicensePhotoUrl=@lic"); pars.Add(new SqlParameter("@lic", licUrl)); }
             if (vehUrl != null) { sets.Add("VehiclePhotoUrl=@veh"); pars.Add(new SqlParameter("@veh", vehUrl)); }
             if (regUrl != null) { sets.Add("VehicleRegDocUrl=@reg"); pars.Add(new SqlParameter("@reg", regUrl)); }
+            /* A new file wins over an explicit remove, and doing neither leaves the stored
+               value exactly as it was. Only touched when something actually changed, so an
+               unrelated edit cannot rewrite this column. */
             if (photoUrl != null) { sets.Add("ProfilePhotoUrl=@ph"); pars.Add(new SqlParameter("@ph", photoUrl)); }
+            else if (photoRemoved) { sets.Add("ProfilePhotoUrl=@ph"); pars.Add(new SqlParameter("@ph", DBNull.Value)); }
 
             if (docsChanged)
             {
@@ -221,39 +244,19 @@ namespace TripWay.Driver
             pars.Add(new SqlParameter("@id", DriverId));
             Helper.DBHelper.ExecuteNonQuery("UPDATE Drivers SET " + string.Join(", ", sets) + " WHERE DriverID=@id", pars.ToArray());
 
+            /* The row no longer refers to the old file, whether it was replaced or removed,
+               so this is the first moment at which dropping it cannot leave a photo missing. */
+            if (currentPhoto.Length > 0 && (photoRemoved || photoUrl != null))
+                Helper.TripHelper.DeleteStoredPhoto(currentPhoto, Helper.TripHelper.DriverPhotoFolder);
+
+            chkRemovePhoto.Checked = false;
+
             if (docsChanged)
                 Helper.TripHelper.LogActivity("KYCUpdated", null, "Driver " + DriverId + " uploaded replacement KYC documents (status reset to Pending).");
 
             ShowProfileMessage(docsChanged
                 ? "Profile saved. Your KYC returns to Pending for admin re-approval."
                 : "Profile updated successfully.", false);
-            LoadProfile();
-        }
-
-        /// <summary>
-        /// Saves the picked avatar on its own, without touching the rest of the profile.
-        /// Keeps the photo out of KYC review, so it never resets KYCStatus to Pending.
-        /// </summary>
-        protected void btnSavePhoto_Click(object sender, EventArgs e)
-        {
-            if (!fuProfilePhoto.HasFile)
-            {
-                ShowProfileMessage("Choose a photo first.", true);
-                return;
-            }
-
-            string photoUrl = SaveProfilePhoto();
-            if (photoUrl == null)
-            {
-                ShowPhotoRefused();
-                return;
-            }
-
-            Helper.DBHelper.ExecuteNonQuery(
-                "UPDATE Drivers SET ProfilePhotoUrl=@ph WHERE DriverID=@id",
-                new SqlParameter("@ph", photoUrl), new SqlParameter("@id", DriverId));
-
-            ShowProfileMessage("Profile photo updated successfully.", false);
             LoadProfile();
         }
 

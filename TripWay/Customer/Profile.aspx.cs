@@ -14,6 +14,12 @@ namespace TripWay.Customer
         {
             Helper.AuthHelper.RequireCustomer(this);
             if (!IsPostBack) LoadProfile();
+
+            /* On a postback the panel is re-declared hidden, so a ticked "Remove current
+               photo" would silently vanish when something else fails validation and the save
+               is abandoned. Checkboxes do round-trip, so trust that instead. */
+            if (IsPostBack && chkRemovePhoto.Checked) pnlRemovePhoto.Visible = true;
+
         }
 
         private void LoadProfile()
@@ -38,6 +44,14 @@ namespace TripWay.Customer
                 imgProfilePhoto.Visible = true;
                 imgDefaultPhoto.Visible = false;
             }
+            else
+            {
+                imgProfilePhoto.Visible = false;
+                imgDefaultPhoto.Visible = true;
+            }
+
+            // Nothing to remove until something has been stored.
+            pnlRemovePhoto.Visible = photoPath.Length > 0;
 
             var master = (SiteMaster)Master;
             master.RefreshUserInfo();
@@ -83,43 +97,63 @@ namespace TripWay.Customer
             object gender = string.IsNullOrEmpty(ddlGender.SelectedValue) ? (object)DBNull.Value : ddlGender.SelectedValue;
             object address = string.IsNullOrEmpty(txtDefaultAddress.Text.Trim()) ? (object)DBNull.Value : txtDefaultAddress.Text.Trim();
 
-            string photoUrl = null;
+            object stored = Helper.DBHelper.ExecuteScalar(
+                "SELECT ProfilePhotoUrl FROM Customers WHERE CustomerID=@id",
+                new SqlParameter("@id", CustomerId));
+            string current = Helper.TripHelper.CustomerPhotoUrl(stored);
+
+            /* Removing is recorded here but not carried out. The file stays on disk until the
+               row has stopped pointing at it, so a refused upload cannot take away a photo the
+               customer still has. */
+            bool removed = chkRemovePhoto.Checked && current.Length > 0;
+
+            string fresh = null;
             if (fuProfilePhoto.HasFile)
             {
-                photoUrl = SavePhoto(fuProfilePhoto);
-                if (photoUrl == null)
+                fresh = SavePhoto(fuProfilePhoto);
+                if (fresh == null)
                 {
                     ShowProfileMessage("Profile photo must be a JPG, JPEG or PNG image.", true);
                     return;
                 }
             }
 
-            if (photoUrl != null)
+            // Decided in one place, spelled out: a new file wins, an explicit remove clears the
+            // column, and doing neither leaves the stored value exactly as it was.
+            object photoValue;
+            if (fresh != null) photoValue = fresh;
+            else if (removed) photoValue = null;
+            else photoValue = stored;
+
+            Helper.DBHelper.ExecuteNonQuery(
+                "UPDATE Customers SET FullName=@n, PhoneNumber=@p, Gender=@g, DefaultAddress=@a, ProfilePhotoUrl=@ph, Email=@e WHERE CustomerID=@id",
+                new SqlParameter("@n", name),
+                new SqlParameter("@p", phone),
+                new SqlParameter("@g", gender),
+                new SqlParameter("@a", address),
+                new SqlParameter("@ph", photoValue ?? DBNull.Value),
+                new SqlParameter("@e", email),
+                new SqlParameter("@id", CustomerId));
+
+            /* The row no longer refers to the old file, whether it was replaced or removed, so
+               this is the first moment at which dropping it cannot leave a photo missing. */
+            if (current.Length > 0 && (removed || fresh != null))
+                Helper.TripHelper.DeleteStoredPhoto(current, Helper.TripHelper.CustomerPhotoFolder);
+
+            if (fresh != null)
             {
-                Helper.DBHelper.ExecuteNonQuery(
-                    "UPDATE Customers SET FullName=@n, PhoneNumber=@p, Gender=@g, DefaultAddress=@a, ProfilePhotoUrl=@ph, Email=@e WHERE CustomerID=@id",
-                    new SqlParameter("@n", name),
-                    new SqlParameter("@p", phone),
-                    new SqlParameter("@g", gender),
-                    new SqlParameter("@a", address),
-                    new SqlParameter("@ph", photoUrl),
-                    new SqlParameter("@e", email),
-                    new SqlParameter("@id", CustomerId));
-                imgProfilePhoto.ImageUrl = "~/" + photoUrl;
+                imgProfilePhoto.ImageUrl = "~/" + fresh;
                 imgProfilePhoto.Visible = true;
                 imgDefaultPhoto.Visible = false;
             }
-            else
+            else if (removed)
             {
-                Helper.DBHelper.ExecuteNonQuery(
-                    "UPDATE Customers SET FullName=@n, PhoneNumber=@p, Gender=@g, DefaultAddress=@a, Email=@e WHERE CustomerID=@id",
-                    new SqlParameter("@n", name),
-                    new SqlParameter("@p", phone),
-                    new SqlParameter("@g", gender),
-                    new SqlParameter("@a", address),
-                    new SqlParameter("@e", email),
-                    new SqlParameter("@id", CustomerId));
+                imgProfilePhoto.Visible = false;
+                imgDefaultPhoto.Visible = true;
             }
+
+            chkRemovePhoto.Checked = false;
+            pnlRemovePhoto.Visible = !(removed || fresh != null);
 
             RefreshMasterUserInfo();
 

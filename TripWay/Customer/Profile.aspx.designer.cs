@@ -10,6 +10,8 @@ namespace TripWay.Customer
         protected global::System.Web.UI.WebControls.Panel pnlProfileMsg;
         protected global::System.Web.UI.WebControls.Label lblProfileMsg;
         protected global::System.Web.UI.WebControls.FileUpload fuProfilePhoto;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl pnlRemovePhoto;
+        protected global::System.Web.UI.WebControls.CheckBox chkRemovePhoto;
         protected global::System.Web.UI.WebControls.TextBox txtEmail;
         protected global::System.Web.UI.WebControls.RegularExpressionValidator revEmail;
         protected global::System.Web.UI.WebControls.TextBox txtFullName;
