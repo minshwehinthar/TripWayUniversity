@@ -65,7 +65,7 @@
             <div class="grid grid-cols-2 gap-4">
                 <asp:Repeater ID="rptHeroPackages" runat="server">
                     <ItemTemplate>
-                        <a href='<%= ResolveUrl("~/Register.aspx") %>' class="rounded-xl overflow-hidden border border-slate-100 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                        <a href='<%= PackageBookUrl(Eval("PackageID")) %>' class="rounded-xl overflow-hidden border border-slate-100 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
                             <div class="p-4">
                                 <div class="flex items-center justify-between gap-2">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#eff6ff] text-[#007AFF]">Day Tour</span>
@@ -224,7 +224,7 @@
                                 <p class="mt-2 text-sm text-slate-500 leading-relaxed flex-1 line-clamp-3"><%# Eval("Description") %></p>
                                 <div class="mt-4 flex items-center justify-between pt-3 border-t border-[#e2e8f0]">
                                     <span class="text-base font-extrabold text-[#007AFF]">MMK <%# string.Format("{0:N0}", Eval("BaseFare")) %></span>
-                                    <a href='<%= ResolveUrl("~/Register.aspx") %>' class="inline-flex items-center gap-1.5 text-xs font-bold text-[#007AFF]">
+                                    <a href='<%= PackageBookUrl(Eval("PackageID")) %>' class="inline-flex items-center gap-1.5 text-xs font-bold text-[#007AFF]">
                                         Book <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-2.5 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
                                     </a>
                                 </div>

@@ -171,9 +171,18 @@ namespace TripWay.Customer
 
             if (!IsPostBack)
             {
+                // Read once, because both the service type and the package selection need it.
+                int linkedPackage = RequestedPackageId();
+
+                /* A package link is a request for that package, so open on the package service
+                   rather than making the customer press "Package Tour" as well. Set before
+                   UpdatePanels, which decides whether the package panel is visible at all. */
+                if (linkedPackage > 0 && ddlServiceType.Items.FindByValue("3") != null)
+                    ddlServiceType.SelectedValue = "3";
+
                 UpdatePanels();
                 BindVehicleDropdown();
-                BindPackageDropdown();
+                BindPackageDropdown(linkedPackage);
                 BindHotelCards();
                 var serviceLabel = ddlServiceType.SelectedItem.Text;
                 lblServiceLabel.Text = serviceLabel;
@@ -216,7 +225,18 @@ namespace TripWay.Customer
             ddlVehicle.DataBind();
         }
 
-        private void BindPackageDropdown()
+        /// <summary>
+        /// Package id from the query string, or 0 when there is not a usable one. Not trusted
+        /// on its own: BindPackageDropdown only accepts it if it is in the active package list
+        /// it just loaded, so a hand-edited url cannot book an inactive or missing package.
+        /// </summary>
+        private int RequestedPackageId()
+        {
+            int id;
+            return int.TryParse(Request.QueryString["package"], out id) && id > 0 ? id : 0;
+        }
+
+        private void BindPackageDropdown(int preferredPackageId)
         {
             DataTable dt = Helper.DBHelper.ExecuteQuery(
                 "SELECT PackageID, Name + ' — MMK ' + FORMAT(FixedPrice, 'N0') AS Label, FixedPrice FROM Packages WHERE IsActive = 1 ORDER BY PackageID");
@@ -230,6 +250,14 @@ namespace TripWay.Customer
             // The package cards are the picker now, so the page should never open with an empty
             // itinerary: the first real package is pre-selected and the customer changes it with
             // a card click. The "-- Select a package --" row stays as the unbookable fallback.
+            // The linked package wins when it is in this list; otherwise fall through to the
+            // original behaviour and preselect the first real package.
+            if (preferredPackageId > 0 && ddlPackage.Items.FindByValue(preferredPackageId.ToString()) != null)
+            {
+                ddlPackage.SelectedValue = preferredPackageId.ToString();
+                return;
+            }
+
             if (ddlPackage.Items.Count > 1)
                 ddlPackage.SelectedValue = ddlPackage.Items[1].Value;
         }

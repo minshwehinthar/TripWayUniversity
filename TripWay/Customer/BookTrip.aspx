@@ -459,24 +459,24 @@
                              server, so a tampered post cannot invent a payment method. --%>
                         <asp:HiddenField ID="hfPayment" runat="server" Value="Cash" />
 
-                        <div class="flex items-center justify-between gap-3 mb-2">
-                            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Payment</span>
-                            <span class="text-[11px] text-slate-400">Pay the driver directly</span>
+                        <div class="mb-2">
+                            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Payment</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">Pay the driver directly</div>
                         </div>
-                        <div class="grid grid-cols-3 gap-1.5">
-                            <button type="button" class="tw-pay-card" data-pay="KPay" onclick="pickPayment('KPay');">
-                                <img src="<%= ResolveUrl("~/KPay.jpeg") %>" alt="KPay"
-                                    class="h-6 object-contain" onerror="this.style.visibility='hidden';" />
+                        <div class="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1" role="group" aria-label="Payment method">
+                            <button type="button" class="tw-pay-seg" data-pay="KPay" aria-pressed="false" onclick="pickPayment('KPay');">
+                                <span class="tw-pay-logo"><img src="<%= ResolveUrl("~/KPay.jpeg") %>" alt="KPay"
+                                    class="object-contain" onerror="this.style.visibility='hidden';" /></span>
                                 <span>KPay</span>
                             </button>
-                            <button type="button" class="tw-pay-card" data-pay="WavePay" onclick="pickPayment('WavePay');">
-                                <img src="<%= ResolveUrl("~/Wavepay.jpeg") %>" alt="WavePay"
-                                    class="h-6 object-contain" onerror="this.style.visibility='hidden';" />
+                            <button type="button" class="tw-pay-seg" data-pay="WavePay" aria-pressed="false" onclick="pickPayment('WavePay');">
+                                <span class="tw-pay-logo"><img src="<%= ResolveUrl("~/Wavepay.jpeg") %>" alt="WavePay"
+                                    class="object-contain" onerror="this.style.visibility='hidden';" /></span>
                                 <span>WavePay</span>
                             </button>
-                            <button type="button" class="tw-pay-card" data-pay="Cash" onclick="pickPayment('Cash');">
-                                <img src="<%= ResolveUrl("~/Cash.png") %>" alt="Cash"
-                                    class="h-6 object-contain" onerror="this.style.visibility='hidden';" />
+                            <button type="button" class="tw-pay-seg" data-pay="Cash" aria-pressed="false" onclick="pickPayment('Cash');">
+                                <span class="tw-pay-logo"><img src="<%= ResolveUrl("~/Cash.png") %>" alt="Cash"
+                                    class="object-contain" onerror="this.style.visibility='hidden';" /></span>
                                 <span>Cash</span>
                             </button>
                         </div>
@@ -910,10 +910,12 @@
         function syncPaymentCards() {
             var field = document.getElementById('<%= hfPayment.ClientID %>');
             var current = field ? field.value : '';
-            var cards = document.querySelectorAll('.tw-pay-card');
-            for (var i = 0; i < cards.length; i++) {
-                var match = cards[i].getAttribute('data-pay') === current;
-                cards[i].classList.toggle('is-active', match);
+            var segs = document.querySelectorAll('.tw-pay-seg');
+            for (var i = 0; i < segs.length; i++) {
+                var match = segs[i].getAttribute('data-pay') === current;
+                segs[i].classList.toggle('is-active', match);
+                // The fill is the only visual cue, so state it for assistive tech too.
+                segs[i].setAttribute('aria-pressed', match ? 'true' : 'false');
             }
         }
 
