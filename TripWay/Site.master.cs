@@ -548,7 +548,7 @@ namespace TripWay
 
             if (string.Equals(current, target, StringComparison.OrdinalIgnoreCase)) return true;
 
-            if (current.Length == 0 || current.IndexOf('.') === -1)
+            if (current.Length == 0 || current.IndexOf('.') == -1)
             {
                 return string.Equals(target, "Default.aspx", StringComparison.OrdinalIgnoreCase);
             }
