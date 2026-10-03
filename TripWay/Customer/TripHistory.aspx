@@ -22,7 +22,7 @@
 
                 <div class="flex items-center gap-2 text-sm text-gray-600 w-full md:w-auto justify-end">
                     <span class="font-medium">Limit:</span>
-                    <asp:DropDownList ID="ddlPerPage" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlPerPage_SelectedIndexChanged" CssClass="tw-input w-auto !h-8 !px-2.5 !rounded-lg">
+                    <asp:DropDownList ID="ddlPerPage" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlPerPage_SelectedIndexChanged" CssClass="tw-input w-auto !h-8 !py-0 !px-2.5 !rounded-lg">
                         <asp:ListItem Text="5" Value="5" />
                         <asp:ListItem Text="10" Value="10" />
                         <asp:ListItem Text="25" Value="25" />
@@ -116,7 +116,7 @@
                         <td class="!text-center"><span class="text-gray-400 text-xs"><%# GetRowNumber(Container.ItemIndex) %></span></td>
                         <td>
                             <div class="flex items-center gap-3">
-                                <asp:Panel ID="pnlDriverPhoto" runat="server" Visible="false"><asp:Image runat="server" ImageUrl='<%# DriverPhoto(Eval("DriverPhoto")) %>' CssClass="size-10 rounded-full object-cover bg-white border border-slate-100 shrink-0" /></asp:Panel><asp:Panel ID="pnlDriverInitials" runat="server"><span class="tw-avatar tw-avatar-green"><%# GetInitial(Eval("DriverName").ToString()) %></span></asp:Panel>
+                                <asp:Panel ID="pnlDriverPhoto" runat="server" Visible="false"><asp:Image runat="server" ImageUrl='<%# DriverPhoto(Eval("DriverPhoto")) %>' CssClass="size-10 rounded-full object-cover bg-white border border-slate-100 shrink-0" /></asp:Panel><asp:Panel ID="pnlDriverInitials" runat="server"><span class="tw-avatar tw-avatar-photo tw-avatar-photo-border tw-avatar-green"><%# GetInitial(Eval("DriverName").ToString()) %></span></asp:Panel>
                                 <div class="min-w-0">
                                     <div class="font-semibold text-gray-900 text-sm truncate"><%# Server.HtmlEncode(Eval("DriverName").ToString()) %></div>
                                     <div class="text-xs text-gray-400"><%# Server.HtmlEncode(Eval("DriverPhone").ToString()) %></div>

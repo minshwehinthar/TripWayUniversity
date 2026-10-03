@@ -32,7 +32,7 @@
 
                 <div class="flex items-center gap-2 text-sm text-gray-600 w-full md:w-auto justify-end">
                     <span class="font-medium">Limit:</span>
-                    <asp:DropDownList ID="ddlPerPage" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlPerPage_SelectedIndexChanged" CssClass="tw-input w-auto !h-8 !px-2.5 !rounded-lg">
+                    <asp:DropDownList ID="ddlPerPage" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlPerPage_SelectedIndexChanged" CssClass="tw-input w-auto !h-8 !py-0 !px-2.5 !rounded-lg">
                         <asp:ListItem Text="5" Value="5" />
                         <asp:ListItem Text="10" Value="10" />
                         <asp:ListItem Text="25" Value="25" />

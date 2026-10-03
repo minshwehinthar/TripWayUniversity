@@ -31,7 +31,7 @@
 
                 <div class="flex items-center gap-2 text-sm text-gray-600 w-full md:w-auto justify-end">
                     <span class="font-medium">Limit:</span>
-                    <asp:DropDownList ID="ddlPerPage" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlPerPage_SelectedIndexChanged" CssClass="tw-input w-auto !h-8 !px-2.5 !rounded-lg">
+                    <asp:DropDownList ID="ddlPerPage" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlPerPage_SelectedIndexChanged" CssClass="tw-input w-auto !h-8 !py-0 !px-2.5 !rounded-lg">
                         <asp:ListItem Text="5" Value="5" />
                         <asp:ListItem Text="10" Value="10" />
                         <asp:ListItem Text="25" Value="25" />
@@ -112,7 +112,7 @@
                         <td class="!text-center"><span class="text-gray-500 text-xs font-semibold tabular-nums"><%# GetRowNumber(Container.ItemIndex) %></span></td>
                         <td>
                             <div class="flex items-center gap-3">
-                                <div style='<%# HasPhoto(Eval("ProfilePhotoUrl")) ? "" : "display:none" %>'><asp:Image runat="server" ImageUrl='<%# DriverPhotoSrc(Eval("ProfilePhotoUrl")) %>' AlternateText="Driver photo" CssClass="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" /></div><div style='<%# HasPhoto(Eval("ProfilePhotoUrl")) ? "display:none" : "" %>'><span class="tw-avatar tw-avatar-amber"><%# GetInitial(Eval("FullName").ToString()) %></span></div>
+                                <div style='<%# HasPhoto(Eval("ProfilePhotoUrl")) ? "" : "display:none" %>'><asp:Image runat="server" ImageUrl='<%# DriverPhotoSrc(Eval("ProfilePhotoUrl")) %>' AlternateText="Driver photo" CssClass="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" /></div><div style='<%# HasPhoto(Eval("ProfilePhotoUrl")) ? "display:none" : "" %>'><span class="tw-avatar tw-avatar-photo tw-avatar-amber"><%# GetInitial(Eval("FullName").ToString()) %></span></div>
                                 <div class="min-w-0">
                                     <div class="font-semibold text-gray-900 text-sm truncate"><%# Eval("FullName") %></div>
                                     <div class="text-xs text-gray-400"><%# Eval("PhoneNumber") %></div>
@@ -133,7 +133,7 @@
                                  this, and choosing a value saves it at once. --%>
                             <asp:DropDownList ID="ddlRowKyc" runat="server" AutoPostBack="true"
                                 OnSelectedIndexChanged="ddlRowKyc_SelectedIndexChanged"
-                                CssClass='<%# "tw-input w-auto !h-8 !pl-3 !pr-7 !rounded-full " + GetStatusCss(Convert.ToString(Eval("KYCStatus"))) %>'
+                                CssClass='<%# "tw-input w-auto !h-8 !py-0 !pl-3 !pr-7 !rounded-full " + GetStatusCss(Convert.ToString(Eval("KYCStatus"))) %>'
                                 CausesValidation="false">
                                 <asp:ListItem Text="Pending" Value="Pending" />
                                 <asp:ListItem Text="Approved" Value="Approved" />

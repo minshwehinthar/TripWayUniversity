@@ -206,6 +206,15 @@
         .tw-avatar-blue { background: #dbeafe; color: #1d4ed8; }
         .tw-avatar-green { background: #d1fae5; color: #047857; }
         .tw-avatar-amber { background: #fef3c7; color: #b45309; }
+        /* The initials circle that stands in for a missing photo has to be exactly the
+           size of the photo it replaces, or the row jumps when a photo is absent. The
+           photos are size-10 (2.5rem) plus a ring on the management pages and a border on
+           the trip history pages, while .tw-avatar was 2.25rem with neither - 4px smaller
+           and missing the ring, which is what made the fallback look like a different
+           control. Kept as its own class rather than resizing .tw-avatar, because the
+           size-14 and size-8 avatars rely on Tailwind winning that one. */
+        .tw-avatar-photo { width: 2.5rem; height: 2.5rem; box-shadow: 0 0 0 2px #f3f4f6; }
+        .tw-avatar-photo-border { box-shadow: none; border: 1px solid #f1f5f9; }
 
         /* ---- inputs -------------------------------------------------------- */
         .tw-input {
