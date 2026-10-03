@@ -83,15 +83,15 @@ namespace TripWay
         /// <summary>
         /// Where a package card should send the visitor. A signed-in Customer goes straight
         /// to BookTrip with that package already chosen.
-        /// Anyone else keeps the Register link on purpose: BookTrip calls RequireCustomer, and
-        /// RequireLogin redirects to ~/Login.aspx with no return url, so an anonymous visitor
-        /// sent there would be dropped on their dashboard after signing in with the package
-        /// forgotten. That silent loss is worse than asking them to register first.
+        /// Anyone else goes to the login page, because BookTrip calls RequireCustomer and would
+        /// bounce a Driver or Admin straight back out to their own dashboard. Signing in from
+        /// there lands on the dashboard without the package picked, so the card is a plain
+        /// entry point rather than a reservation for anyone not already a Customer.
         /// </summary>
         private string PackageBookUrl(object packageId)
         {
             if (!Helper.AuthHelper.IsLoggedIn() || Helper.AuthHelper.GetRole() != "Customer")
-                return ResolveUrl("~/Register.aspx");
+                return ResolveUrl("~/Login.aspx");
 
             int id;
             if (!int.TryParse(Convert.ToString(packageId), out id) || id <= 0)
