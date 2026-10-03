@@ -1,0 +1,24 @@
+# TripWayDB — Docker SQL Server
+# Start:  docker compose up -d
+# Login:  sa / Asdffdsa1
+# The database TripWayDB + full schema/seed data are created automatically
+# on first start from TripWay/App_Data/CreateDatabase.sql.
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: tripway-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Asdffdsa1"
+      MSSQL_PID: "Developer"
+      MSSQL_TCP_ENABLED: "1"
+    ports:
+      - "1433:1433"
+    volumes:
+      - tripway-sqlserver-data:/var/opt/mssql
+      # auto-provisions TripWayDB on first boot
+      - ./TripWay/App_Data/CreateDatabase.sql:/usr/config/initdb.d/10_create.sql:ro
+    restart: unless-stopped
+
+volumes:
+  tripway-sqlserver-data:

@@ -1,0 +1,462 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="TripWay.SiteMaster" %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%: Page.Title %> - TripWay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ---- surfaces ------------------------------------------------------ */
+        .tw-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.375rem;
+        }
+        .tw-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* ---- buttons ------------------------------------------------------- */
+        .tw-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.125rem;
+            border-radius: 0.5rem;
+            background: #2563eb;
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .tw-btn-primary:hover { background: #1d4ed8; }
+        .tw-btn-primary:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+
+        .tw-btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.125rem;
+            border-radius: 0.5rem;
+            background: #f3f4f6;
+            color: #111827;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .tw-btn-secondary:hover { background: #e5e7eb; }
+
+        .tw-btn-outline {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.875rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: #fff;
+            color: #374151;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background .15s;
+        }
+        .tw-btn-outline:hover { background: #f9fafb; }
+
+        .tw-btn-soft-danger {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.5rem;
+            background: #fef2f2;
+            color: #b91c1c;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* ---- row actions --------------------------------------------------- */
+        .tw-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: #2563eb;
+            cursor: pointer;
+            transition: color .15s;
+            text-decoration: none;
+        }
+        .tw-action:hover { color: #1d4ed8; }
+        .tw-action-danger { color: #dc2626; }
+        .tw-action-danger:hover { color: #b91c1c; }
+        .tw-action-success { color: #059669; }
+        .tw-action-success:hover { color: #047857; }
+
+        /* ---- tables -------------------------------------------------------- */
+        .tw-table-wrap { overflow-x: auto; }
+        .tw-table { width: 100%; border-collapse: collapse; }
+        .tw-table th {
+            background: #f9fafb;
+            color: #6b7280;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            padding: 0.75rem 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+        .tw-table td {
+            padding: 0.875rem 1.25rem;
+            font-size: 0.875rem;
+            color: #111827;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+        .tw-table tbody tr:hover { background: #f9fafb; }
+        .tw-sort { cursor: pointer; user-select: none; }
+        .tw-sort-arrow { opacity: .4; margin-left: .25rem; }
+
+        .tw-avatar {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 9999px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .tw-avatar-blue { background: #dbeafe; color: #1d4ed8; }
+        .tw-avatar-green { background: #d1fae5; color: #047857; }
+        .tw-avatar-amber { background: #fef3c7; color: #b45309; }
+
+        /* ---- inputs -------------------------------------------------------- */
+        .tw-input {
+            display: block;
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            color: #111827;
+            background: #fff;
+        }
+        .tw-input:focus {
+            outline: none;
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+        }
+        .tw-textarea { min-height: 6rem; resize: vertical; }
+        .tw-readonly { background: #f9fafb; color: #111827; overflow-wrap: anywhere; }
+
+        /* ---- detail pages -------------------------------------------------- */
+        .tw-detail-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+        .tw-detail-label { color: #9ca3af; font-weight: 600; font-size: 0.75rem; }
+        .tw-detail-value { color: #111827; font-size: 0.875rem; overflow-wrap: anywhere; }
+
+        .tw-empty {
+            padding: 3rem 1rem;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        /* ---- paging -------------------------------------------------------- */
+        .tw-pager { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+        .tw-pager-info { color: #6b7280; font-size: .8125rem; }
+        .tw-pager-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.125rem;
+            height: 2.125rem;
+            padding: 0 0.875rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: #fff;
+            color: #374151;
+            font-size: 0.8125rem;
+            font-weight: 500;
+        }
+
+        /* ---- misc ---------------------------------------------------------- */
+        .tw-file { font-size: .8125rem; color: #6b7280; }
+        .tw-cta-banner { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 1rem; padding: 1.25rem; }
+        .tw-cover { width: 100%; height: 100%; object-fit: cover; }
+        .tw-stars { color: #f59e0b; letter-spacing: .1em; }
+        .tw-hint { color: #9ca3af; font-size: .75rem; }
+        .tw-name { color: #111827; font-weight: 600; }
+        .tw-fallback { background: #f3f4f6; color: #9ca3af; }
+        .tw-preview, .tw-preview-tile { border: 1px solid #e5e7eb; border-radius: .5rem; overflow: hidden; }
+        .tw-share-preview { max-width: 20rem; }
+
+        /* ---- payment picker ----------------------------------------------- */
+        .tw-pay-card {
+            position: relative;
+            border: 2px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1rem;
+            background: #fff;
+            cursor: pointer;
+            transition: border-color .15s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .tw-pay-card:hover { border-color: #93c5fd; }
+        .tw-pay-card.is-active { border-color: #2563eb; }
+        .tw-pay-card img[style*="display:none"] { display: none !important; }
+        .tw-pay-badge {
+            position: absolute;
+            top: -0.625rem;
+            right: 0.75rem;
+            background: #2563eb;
+            color: #fff;
+            font-size: .6875rem;
+            font-weight: 700;
+            padding: .125rem .5rem;
+            border-radius: 9999px;
+        }
+
+        /* ---- chat ---------------------------------------------------------- */
+        .tw-msg { max-width: 75%; padding: .625rem .875rem; border-radius: 1rem; font-size: .875rem; }
+        .tw-msg-me { background: #2563eb; color: #fff; margin-left: auto; }
+        .tw-msg-them { background: #f3f4f6; color: #111827; border-bottom-left-radius: 0.125rem; }
+
+        /* ---- toasts -------------------------------------------------------- */
+        [data-tw-toast] {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+
+        /* A server panel meant to be shown in the lightbox stays hidden until it is moved.
+           The server renders it with this class so nothing flashes in its declared spot. */
+        .tw-panel-parked { display: none !important; }
+
+        .tw-lb-close {
+            position: absolute;
+            top: -0.75rem;
+            right: -0.75rem;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 9999px;
+            background: #fff;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+        }
+
+        @media (max-width: 640px) {
+            .tw-detail-grid { grid-template-columns: 1fr; }
+            .tw-table th, .tw-table td { padding-left: 1rem; padding-right: 1rem; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <form id="form1" runat="server">
+        <div id="appShell" runat="server" class="min-h-screen">
+
+            <%-- Public header: shown on the marketing and auth pages --%>
+            <asp:Panel ID="pnlPublicHeader" runat="server" CssClass="border-b border-gray-200 bg-white">
+                <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+                    <a href="<%= ResolveUrl("~/Default.aspx") %>" class="flex items-center gap-2">
+                        <img src="<%= ResolveUrl("~/Images/logo.jpeg") %>" alt="TripWay logo"
+                             class="size-10 rounded-xl object-contain shrink-0" />
+                        <span class="text-lg font-bold tracking-tight">TripWay</span>
+                    </a>
+                    <nav id="publicNav" class="hidden items-center gap-6 md:flex">
+                        <asp:HyperLink ID="lnkPublicDashboard" runat="server" CssClass="text-sm font-medium text-gray-600 hover:text-gray-900">Dashboard</asp:HyperLink>
+                        <asp:HyperLink ID="lnkLogin" runat="server" CssClass="tw-btn-outline">Log in</asp:HyperLink>
+                        <asp:HyperLink ID="lnkRegister" runat="server" CssClass="tw-btn-primary">Sign up</asp:HyperLink>
+                        <asp:LinkButton ID="lnkPublicLogout" runat="server" CssClass="tw-btn-outline"
+                                        OnClick="lnkLogout_Click">Log out</asp:LinkButton>
+                    </nav>
+                </div>
+            </asp:Panel>
+
+            <%-- Application shell: sidebar plus content, for signed-in pages --%>
+            <div class="flex min-h-screen">
+                <asp:Panel ID="pnlSidebar" runat="server" CssClass="hidden lg:flex lg:w-64 flex-col border-r border-gray-200 bg-white shrink-0">
+                    <div class="flex items-center gap-2 px-4 py-5">
+                        <img src="<%= ResolveUrl("~/Images/logo.jpeg") %>" alt="TripWay logo"
+                             class="size-9 rounded-lg object-contain shrink-0" />
+                        <asp:Literal ID="litSidebarTitle" runat="server" />
+                    </div>
+                    <nav class="flex-1 overflow-y-auto pb-4">
+                        <asp:Repeater ID="rptSidebarLinks" runat="server" OnItemDataBound="rptSidebarLinks_ItemDataBound">
+                            <ItemTemplate>
+                                <span class="flex items-center gap-2">
+                                    <a id="navLink" runat="server"
+                                       class="nav-item flex items-center gap-3 py-2.5 px-4 text-[13px] rounded-lg font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900">
+                                        <asp:Literal ID="navIcon" runat="server" />
+                                        <asp:Literal ID="navText" runat="server" />
+                                    </a>
+                                    <span id="navBadge" runat="server" class="tw-badge tw-avatar-blue"></span>
+                                </span>
+                            </ItemTemplate>
+                        </asp:Repeater>
+                    </nav>
+                    <div class="border-t border-gray-200 p-3">
+                        <asp:LinkButton ID="lnkLogout" runat="server" CssClass="tw-btn-outline w-full"
+                                        OnClick="lnkLogout_Click">Log out</asp:LinkButton>
+                    </div>
+                </asp:Panel>
+
+                <div class="flex min-w-0 flex-1 flex-col">
+                    <asp:Panel ID="pnlAppHeader" runat="server" CssClass="border-b border-gray-200 bg-white">
+                        <div class="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
+                            <div id="headerProfile" class="header-profile-container flex min-w-0 items-center gap-3">
+                                <img id="profileAvatar" src="<%= ResolveUrl("~/Images/avatar-placeholder.png") %>"
+                                     alt="" class="profile-avatar size-9 rounded-full object-cover" />
+                                <div class="profile-info min-w-0">
+                                    <div class="profile-name truncate text-sm font-semibold text-gray-900"></div>
+                                    <div class="profile-email truncate text-xs text-gray-500"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <asp:HyperLink ID="lnkMobileLogin" runat="server" CssClass="tw-btn-outline md:hidden">Log in</asp:HyperLink>
+                                <asp:LinkButton ID="lnkMobileLogout" runat="server" CssClass="tw-btn-outline md:hidden"
+                                                OnClick="lnkLogout_Click">Log out</asp:LinkButton>
+                                <asp:Literal ID="litUserInfo" runat="server" />
+                            </div>
+                        </div>
+                    </asp:Panel>
+
+                    <main id="mainContentArea" runat="server" class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
+                        <%-- Pages that want their own trail supply this; everything else gets the
+                             one Site.master.cs builds into litBreadcrumb. --%>
+                        <asp:ContentPlaceHolder ID="BreadcrumbContent" runat="server">
+                            <nav class="mb-4 flex flex-wrap items-center gap-1.5 text-[13px] text-gray-500" aria-label="Breadcrumb">
+                                <asp:Literal ID="litBreadcrumb" runat="server" />
+                            </nav>
+                        </asp:ContentPlaceHolder>
+
+                        <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+                    </main>
+
+                    <asp:Panel ID="pnlFooter" runat="server" CssClass="border-t border-gray-200 bg-white">
+                        <div class="mx-auto max-w-7xl px-4 py-5 text-xs text-gray-500 sm:px-6">
+                            &copy; TripWay
+                        </div>
+                    </asp:Panel>
+                </div>
+            </div>
+        </div>
+
+        <%-- One lightbox for the whole app. Panels are moved in and out of it, never cloned,
+             so the server controls inside keep their postback wiring. --%>
+        <div id="appModal" class="fixed inset-0 z-[1000] hidden items-start justify-center overflow-y-auto bg-black/50 p-4 md:p-8">
+            <div class="relative w-full max-w-4xl rounded-2xl bg-white">
+                <button type="button" id="appModalClose" class="tw-lb-close" aria-label="Close">&times;</button>
+                <div id="appModalPanel" class="relative w-full max-w-4xl">
+                    <div id="appModalBody" class="p-6"></div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="<%= ResolveUrl("~/Scripts/tw-toast.js") %>"></script>
+    <script src="<%= ResolveUrl("~/Scripts/tw-upload.js") %>"></script>
+    <script src="<%= ResolveUrl("~/Scripts/tw-scroll.js") %>"></script>
+    <script>
+        // Every width appOpenModal knows how to swap. Anything a page asks for has to be in here,
+        // otherwise two max-w-* classes can end up on the panel at once.
+        function appOpenModal(html, widthClass) {
+            var widths = ['max-w-4xl', 'max-w-3xl', 'max-w-2xl', 'max-w-xl', 'max-w-lg', 'max-w-md', 'max-w-sm', 'max-w-xs'];
+            var modal = document.getElementById('appModal');
+            var panel = document.getElementById('appModalPanel');
+            var body = document.getElementById('appModalBody');
+            if (!modal || !panel || !body) return;
+
+            for (var i = 0; i < widths.length; i++) panel.classList.remove(widths[i]);
+            panel.classList.add(widthClass || 'max-w-4xl');
+
+            // null means "whatever is already in here stays", which is how a moved form survives.
+            if (html !== null && html !== undefined) body.innerHTML = html;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Move a server panel into the lightbox. It has to be the same node, not a copy: the
+        // inputs inside keep their ctl$ names and post back normally.
+        function appOpenPanel(panelId, widthClass) {
+            var p = document.getElementById(panelId);
+            if (!p) return;
+            var b = document.getElementById('appModalBody');
+            if (!b) return;
+
+            p.setAttribute('data-tw-panel', '1');
+            p.setAttribute('data-tw-home', p.parentNode ? p.parentNode.id : '');
+
+            while (b.firstChild) b.removeChild(b.firstChild);
+            b.appendChild(p);
+            p.classList.remove('tw-panel-parked');
+
+            appOpenModal(null, widthClass);
+        }
+
+        function appCloseModal() {
+            var modal = document.getElementById('appModal');
+            var b = document.getElementById('appModalBody');
+            var p = b ? b.querySelector('[data-tw-panel]') : null;
+
+            if (p) {
+                var home = document.getElementById(p.getAttribute('data-tw-home'));
+                if (home) {
+                    home.appendChild(p);
+                    p.classList.add('tw-panel-parked');
+                }
+            }
+
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            document.body.style.overflow = '';
+        }
+
+        // Wiring is done with named handlers rather than an inline closure: the functions above
+        // are read out of this file by name, and an enclosing function would cut them short.
+        function appModalBackdrop(e) {
+            var modal = document.getElementById('appModal');
+            if (modal && e.target === modal) appCloseModal();
+        }
+
+        function appModalEscape(e) {
+            if (e.key === 'Escape') appCloseModal();
+        }
+
+        (function () {
+            var close = document.getElementById('appModalClose');
+            if (close) close.addEventListener('click', appCloseModal);
+            var modal = document.getElementById('appModal');
+            if (modal) modal.addEventListener('click', appModalBackdrop);
+            document.addEventListener('keydown', appModalEscape);
+        })();
+    </script>
+</body>
+</html>

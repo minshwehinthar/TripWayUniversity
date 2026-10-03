@@ -1,0 +1,1 @@
+<%@ WebHandler Language="C#" CodeBehind="ViewFile.ashx.cs" Class="TripWay.Handlers.ViewFile" %>

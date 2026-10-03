@@ -1,0 +1,23 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio local settings and caches
+.vs/
+*.user
+*.suo
+*.userprefs
+
+# Restored NuGet packages (recreated by restore)
+packages/
+
+# macOS AppleDouble resource-fork files, created when this tree lives on an
+# SMB/exFAT share. Not source, and they confuse tooling.
+._*
+
+# User uploads at runtime (photos, licence docs, chat images)
+Uploads/
+
+# NOTE: Web.config and App_Data/*.sql are deliberately tracked.
+# App_Data/CreateDatabase.sql is mounted by docker-compose to provision the
+# database, so the schema scripts have to stay in the repo.

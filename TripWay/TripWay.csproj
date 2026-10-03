@@ -1,0 +1,504 @@
+﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{03E7367D-D728-4F3B-8EF0-C8396007F1E2}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TripWay</RootNamespace>
+    <AssemblyName>TripWay</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort>44312</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="KPay.jpeg" />
+    <Content Include="Wavepay.jpeg" />
+    <Content Include="Cash.png" />
+    <Content Include="Global.asax" />
+    <Content Include="Site.Master" />
+    <Content Include="Web.config" />
+    <Content Include="Scripts\tripway-chat.js" />
+    <Content Include="Scripts\tripway-map.js" />
+    <Content Include="Scripts\tripway-route.js" />
+    <Content Include="App_Data\CreateDatabase.sql" />
+    <Content Include="App_Data\Upgrade_2.sql" />
+    <Content Include="App_Data\Upgrade_5.sql" />
+    <Content Include="App_Data\Upgrade_6.sql" />
+    <Content Include="App_Data\Upgrade_1.sql" />
+    <Content Include="App_Data\Upgrade_3.sql" />
+    <Content Include="App_Data\Upgrade_4.sql" />
+    <Content Include="index.aspx" />
+    <Content Include="Login.aspx" />
+    <Content Include="Register.aspx" />
+    <Content Include="Default.aspx" />
+    <Content Include="Services.aspx" />
+    <Content Include="FAQs.aspx" />
+    <Content Include="AboutUs.aspx" />
+    <Content Include="ContactUs.aspx" />
+    <Content Include="Customer\Dashboard.aspx" />
+    <Content Include="Customer\BookTrip.aspx" />
+    <Content Include="Customer\ActiveTrip.aspx" />
+    <Content Include="Customer\TripHistory.aspx" />
+    <Content Include="Customer\TripDetail.aspx" />
+    <Content Include="Customer\Profile.aspx" />
+    <Content Include="Driver\Dashboard.aspx" />
+    <Content Include="Driver\TripRequests.aspx" />
+    <Content Include="Driver\ActiveTrip.aspx" />
+    <Content Include="Driver\TripHistory.aspx" />
+    <Content Include="Driver\TripDetail.aspx" />
+    <Content Include="Driver\RequestDetail.aspx" />
+    <Content Include="Driver\Profile.aspx" />
+    <Content Include="Admin\Dashboard.aspx" />
+    <Content Include="Admin\CreateCustomer.aspx" />
+    <Content Include="Admin\CreateDriver.aspx" />
+    <Content Include="Admin\DriverManagement.aspx" />
+    <Content Include="Admin\DriverEdit.aspx" />
+    <Content Include="Admin\DriverDetail.aspx" />
+    <Content Include="Admin\CustomerManagement.aspx" />
+    <Content Include="Admin\CustomerEdit.aspx" />
+    <Content Include="Admin\CustomerDetail.aspx" />
+    <Content Include="Admin\TripManagement.aspx" />
+    <Content Include="Admin\TripDetail.aspx" />
+    <Content Include="Admin\FareRateManagement.aspx" />
+    <Content Include="Admin\PackageManagement.aspx" />
+    <Content Include="Admin\PackageCreate.aspx" />
+    <Content Include="Admin\PackageEdit.aspx" />
+    <Content Include="Admin\PackageDetail.aspx" />
+    <Content Include="Admin\HotelManagement.aspx" />
+    <Content Include="Admin\HotelCreate.aspx" />
+    <Content Include="Admin\HotelEdit.aspx" />
+    <Content Include="Admin\HotelDetail.aspx" />
+    <Content Include="Admin\ActivityLogs.aspx" />
+    <Content Include="Admin\Profile.aspx" />
+    <Content Include="Handlers\ViewFile.ashx" />
+    <Content Include="Handlers\TripApi.ashx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Site.master.cs">
+      <DependentUpon>Site.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Site.master.designer.cs">
+      <DependentUpon>Site.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Helper\DBHelper.cs" />
+    <Compile Include="Helper\AuthHelper.cs" />
+    <Compile Include="Helper\SortHelper.cs" />
+    <Compile Include="Helper\AppLog.cs" />
+    <Compile Include="Helper\DatabaseUpgrader.cs" />
+    <Compile Include="Helper\ListPageBase.cs" />
+    <Compile Include="Helper\EmptyState.cs" />
+    <Compile Include="Helper\Heroicons.cs" />
+    <Compile Include="Helper\TripHelper.cs" />
+    <Compile Include="Handlers\ViewFile.ashx.cs">
+      <DependentUpon>ViewFile.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\TripApi.ashx.cs">
+      <DependentUpon>TripApi.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="index.aspx.cs">
+      <DependentUpon>index.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="index.aspx.designer.cs">
+      <DependentUpon>index.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Register.aspx.cs">
+      <DependentUpon>Register.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Register.aspx.designer.cs">
+      <DependentUpon>Register.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Services.aspx.cs">
+      <DependentUpon>Services.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Services.aspx.designer.cs">
+      <DependentUpon>Services.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="FAQs.aspx.cs">
+      <DependentUpon>FAQs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="FAQs.aspx.designer.cs">
+      <DependentUpon>FAQs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AboutUs.aspx.cs">
+      <DependentUpon>AboutUs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AboutUs.aspx.designer.cs">
+      <DependentUpon>AboutUs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ContactUs.aspx.cs">
+      <DependentUpon>ContactUs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ContactUs.aspx.designer.cs">
+      <DependentUpon>ContactUs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Customer\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Customer\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Customer\BookTrip.aspx.cs">
+      <DependentUpon>BookTrip.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Customer\BookTrip.aspx.designer.cs">
+      <DependentUpon>BookTrip.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Customer\ActiveTrip.aspx.cs">
+      <DependentUpon>ActiveTrip.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Customer\ActiveTrip.aspx.designer.cs">
+      <DependentUpon>ActiveTrip.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Customer\TripHistory.aspx.cs">
+      <DependentUpon>TripHistory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Customer\TripHistory.aspx.designer.cs">
+      <DependentUpon>TripHistory.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Customer\TripDetail.aspx.cs">
+      <DependentUpon>TripDetail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Customer\TripDetail.aspx.designer.cs">
+      <DependentUpon>TripDetail.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Customer\Profile.aspx.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Customer\Profile.aspx.designer.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Driver\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Driver\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Driver\TripRequests.aspx.cs">
+      <DependentUpon>TripRequests.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Driver\TripRequests.aspx.designer.cs">
+      <DependentUpon>TripRequests.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Driver\ActiveTrip.aspx.cs">
+      <DependentUpon>ActiveTrip.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Driver\ActiveTrip.aspx.designer.cs">
+      <DependentUpon>ActiveTrip.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Driver\TripHistory.aspx.cs">
+      <DependentUpon>TripHistory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Driver\TripHistory.aspx.designer.cs">
+      <DependentUpon>TripHistory.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Driver\TripDetail.aspx.cs">
+      <DependentUpon>TripDetail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Driver\TripDetail.aspx.designer.cs">
+      <DependentUpon>TripDetail.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Driver\RequestDetail.aspx.cs">
+      <DependentUpon>RequestDetail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Driver\RequestDetail.aspx.designer.cs">
+      <DependentUpon>RequestDetail.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Driver\Profile.aspx.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Driver\Profile.aspx.designer.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\CreateCustomer.aspx.cs">
+      <DependentUpon>CreateCustomer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\CreateCustomer.aspx.designer.cs">
+      <DependentUpon>CreateCustomer.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\CreateDriver.aspx.cs">
+      <DependentUpon>CreateDriver.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\CreateDriver.aspx.designer.cs">
+      <DependentUpon>CreateDriver.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\DriverManagement.aspx.cs">
+      <DependentUpon>DriverManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\DriverManagement.aspx.designer.cs">
+      <DependentUpon>DriverManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\DriverEdit.aspx.cs">
+      <DependentUpon>DriverEdit.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\DriverEdit.aspx.designer.cs">
+      <DependentUpon>DriverEdit.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\DriverDetail.aspx.cs">
+      <DependentUpon>DriverDetail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\DriverDetail.aspx.designer.cs">
+      <DependentUpon>DriverDetail.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\CustomerManagement.aspx.cs">
+      <DependentUpon>CustomerManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\CustomerManagement.aspx.designer.cs">
+      <DependentUpon>CustomerManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\CustomerEdit.aspx.cs">
+      <DependentUpon>CustomerEdit.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\CustomerEdit.aspx.designer.cs">
+      <DependentUpon>CustomerEdit.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\CustomerDetail.aspx.cs">
+      <DependentUpon>CustomerDetail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\CustomerDetail.aspx.designer.cs">
+      <DependentUpon>CustomerDetail.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\TripManagement.aspx.cs">
+      <DependentUpon>TripManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\TripManagement.aspx.designer.cs">
+      <DependentUpon>TripManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\TripDetail.aspx.cs">
+      <DependentUpon>TripDetail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\TripDetail.aspx.designer.cs">
+      <DependentUpon>TripDetail.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\FareRateManagement.aspx.cs">
+      <DependentUpon>FareRateManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\FareRateManagement.aspx.designer.cs">
+      <DependentUpon>FareRateManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\PackageManagement.aspx.cs">
+      <DependentUpon>PackageManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\PackageManagement.aspx.designer.cs">
+      <DependentUpon>PackageManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\PackageCreate.aspx.cs">
+      <DependentUpon>PackageCreate.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\PackageCreate.aspx.designer.cs">
+      <DependentUpon>PackageCreate.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\PackageEdit.aspx.cs">
+      <DependentUpon>PackageEdit.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\PackageEdit.aspx.designer.cs">
+      <DependentUpon>PackageEdit.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\PackageDetail.aspx.cs">
+      <DependentUpon>PackageDetail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\PackageDetail.aspx.designer.cs">
+      <DependentUpon>PackageDetail.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\HotelManagement.aspx.cs">
+      <DependentUpon>HotelManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\HotelManagement.aspx.designer.cs">
+      <DependentUpon>HotelManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\HotelCreate.aspx.cs">
+      <DependentUpon>HotelCreate.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\HotelCreate.aspx.designer.cs">
+      <DependentUpon>HotelCreate.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\HotelEdit.aspx.cs">
+      <DependentUpon>HotelEdit.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\HotelEdit.aspx.designer.cs">
+      <DependentUpon>HotelEdit.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\HotelDetail.aspx.cs">
+      <DependentUpon>HotelDetail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\HotelDetail.aspx.designer.cs">
+      <DependentUpon>HotelDetail.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\ActivityLogs.aspx.cs">
+      <DependentUpon>ActivityLogs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\ActivityLogs.aspx.designer.cs">
+      <DependentUpon>ActivityLogs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\Profile.aspx.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\Profile.aspx.designer.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Uploads\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>59894</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>https://localhost:44312/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+</Project>
