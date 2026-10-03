@@ -279,6 +279,10 @@ namespace TripWay.Admin
 
             int order = 0;
             var placePars = new List<SqlParameter>();
+            // Declared once, before the loop. Added per stop it repeated the same name, and
+            // SQL Server rejects a batch that declares one name twice - so any package with
+            // more than one stop failed to save at all.
+            placePars.Add(new SqlParameter("@pkg", packageId));
             var valRows = new List<string>();
             foreach (PlaceRow stop in stops)
             {
@@ -287,7 +291,6 @@ namespace TripWay.Admin
                 Helper.TripHelper.TryReadCoordinate(stop.Lng, out lng, 180m);
 
                 valRows.Add("(@pkg, @n" + order + ", @la" + order + ", @ln" + order + ", @o" + order + ")");
-                placePars.Add(new SqlParameter("@pkg", packageId));
                 placePars.Add(new SqlParameter("@n" + order, stop.PlaceName.Trim()));
                 placePars.Add(new SqlParameter("@la" + order, lat));
                 placePars.Add(new SqlParameter("@ln" + order, lng));

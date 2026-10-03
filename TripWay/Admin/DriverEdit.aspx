@@ -91,12 +91,6 @@
                     <asp:TextBox ID="txtPaymentAccount" runat="server" CssClass="tw-input w-full" placeholder="Enter your payment account" />
                 </div>
             </div>
-
-            <%-- Save all changes --%>
-            <div class="pt-4 flex flex-wrap items-center gap-3">
-                <asp:Button ID="btnSave" runat="server" Text="Save Changes" OnClick="btnSave_Click" CssClass="tw-btn-primary" />
-                <a href="DriverDetail.aspx?id=<%= DriverIdParam %>" class="tw-btn-outline">Cancel</a>
-            </div>
         </div>
 
         <script type="text/javascript">
@@ -278,6 +272,15 @@
                 </div>
                 <p class="text-xs text-gray-400 mt-3">Need to update a document? Pick the new file above and save &mdash; your KYC returns to Pending for a re-check.</p>
             </div>
+        </div>
+
+        <%-- Save and Cancel sit below everything, not inside the personal details card where
+             they used to be: the document slots are part of the same form and the admin has to
+             scroll past every one of them to reach Save, which is also the button that is
+             easiest to forget. --%>
+        <div class="mt-6 flex flex-wrap items-center gap-3">
+            <asp:Button ID="btnSave" runat="server" Text="Save Changes" OnClick="btnSave_Click" CssClass="tw-btn-primary" />
+            <a href="DriverDetail.aspx?id=<%= DriverIdParam %>" class="tw-btn-outline">Cancel</a>
         </div>
     </div>
 </asp:Content>

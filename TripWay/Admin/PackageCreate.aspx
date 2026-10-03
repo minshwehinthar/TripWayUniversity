@@ -42,7 +42,19 @@
         <div class="bg-white rounded-2xl shadow-sm p-6 space-y-4">
             <h2 class="font-bold text-gray-900">Cover Photo</h2>
             <p class="text-xs text-gray-400">Main image for the package card and the detail page header. JPG or PNG, up to 4 MB.</p>
-            <asp:FileUpload ID="fuCover" runat="server" CssClass="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-gray-700 hover:file:bg-gray-200" />
+            <%-- The shared picker markup, so the cover behaves like every other photo on the
+                 site: a real preview of the file just chosen, before anything is saved. The
+                 native file box is replaced rather than decorated, because its own thumbnail
+                 is a 16px icon in the corner of the field and says nothing about the crop. --%>
+            <div data-tw-upload class="flex flex-wrap items-center gap-3">
+                <asp:FileUpload ID="fuCover" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
+                <button type="button" data-tw-pick class="tw-btn-outline">Choose image</button>
+                <span data-tw-name data-tw-hint="JPG or PNG" class="text-xs text-gray-400">JPG or PNG</span>
+                <span data-tw-cover class="relative block w-full sm:w-64 h-40 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                    <span class="absolute inset-0 flex items-center justify-center text-xs text-gray-400">No image chosen yet</span>
+                    <img data-tw-preview alt="Cover photo preview" class="hidden absolute inset-0 size-full object-cover" />
+                </span>
+            </div>
         </div>
 
         <div id="stopsAnchor" data-tw-anchor class="bg-white rounded-2xl shadow-sm p-6 space-y-4 scroll-mt-6">
@@ -104,6 +116,8 @@
 
         <div class="flex items-center gap-2">
             <asp:Button ID="btnSave" runat="server" Text="Create Package" OnClick="btnSave_Click" CssClass="tw-btn-primary" />
+            <%-- Matches the other create pages, which all offer a way out that is not Save. --%>
+            <a href="PackageManagement.aspx" class="tw-btn-outline">Cancel</a>
         </div>
     </div>
 
