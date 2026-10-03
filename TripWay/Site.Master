@@ -281,7 +281,11 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
         }
         .tw-textarea { min-height: 6rem; resize: vertical; }
-        .tw-readonly { background: #f9fafb; color: #111827; overflow-wrap: anywhere; }
+        /* Read-only values on the admin detail pages. No tinted background: the value sits
+           under a bold label on a white card, so a grey panel behind each one made every
+           field look selected rather than simply not editable. Kept for the two things that
+           still matter here, which is the colour and wrapping a long value. */
+        .tw-readonly { color: #111827; overflow-wrap: anywhere; }
 
         /* ---- detail pages -------------------------------------------------- */
         .tw-detail-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
