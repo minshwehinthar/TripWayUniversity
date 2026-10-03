@@ -224,6 +224,19 @@
         .tw-avatar-photo { width: 2.5rem; height: 2.5rem; box-shadow: 0 0 0 2px #f3f4f6; }
         .tw-avatar-photo-border { box-shadow: none; border: 1px solid #f1f5f9; }
 
+        /* The same 2.5rem circle, for a real photograph rather than a letter. Kept apart
+           from .tw-avatar because that one is inline-flex to centre a letter inside itself,
+           and an <img> given a flex display stops being a plain replaced box: the picture
+           becomes a flex item and a logo wider than it is tall no longer fills the circle.
+           This one only describes the box, so object-fit on the img does what it says. */
+        .tw-avatar-img {
+            display: block;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            flex-shrink: 0;
+        }
+
         /* ---- skeletons ------------------------------------------------------
            What stands in when a slot has no image. It has to hold the exact box the
            image would have taken, or every card and row jumps the moment a photo is

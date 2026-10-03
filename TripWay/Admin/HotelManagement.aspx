@@ -51,7 +51,7 @@
                         <thead>
                             <tr>
                                 <th class="w-14">No</th>
-                                <th class="w-16">Logo</th>
+                                <th class="w-20">Logo</th>
                                 <th>
                                     <div class="flex items-center gap-1.5">
                                         <span class="tw-sort">
@@ -83,7 +83,7 @@
                         <td class="!text-center"><span class="text-gray-500 text-xs font-semibold tabular-nums"><%# GetRowNumber(Container.ItemIndex) %></span></td>
                         <td>
                             <asp:PlaceHolder runat="server" Visible='<%# HasLogo(Eval("LogoPhotoUrl")) %>'>
-                                <img src='<%# LogoUrl(Eval("LogoPhotoUrl")) %>' alt="" class="tw-avatar tw-avatar-photo object-cover shrink-0" />
+                                <img src='<%# LogoUrl(Eval("LogoPhotoUrl")) %>' alt="" class="tw-avatar-img object-cover" />
                             </asp:PlaceHolder>
                             <asp:PlaceHolder runat="server" Visible='<%# !HasLogo(Eval("LogoPhotoUrl")) %>'>
                                 <span class="tw-skeleton tw-skeleton-avatar size-10 shrink-0"></span>
