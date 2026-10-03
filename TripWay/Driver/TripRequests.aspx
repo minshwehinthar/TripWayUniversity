@@ -325,7 +325,11 @@
                 '<button type="button" onclick="appCloseModal()" class="tw-btn-outline">Cancel</button>' +
                 '<button type="button" onclick="acceptJob(' + tripId + ')" class="tw-btn-primary">Confirm &amp; Accept</button>' +
                 '</div></div>';
-            appOpenModal(html);
+            // max-w-lg rather than leaving the default max-w-4xl. At 896px this dialog was
+            // stretched far wider than its contents, and because tw-detail-grid is
+            // auto-fit/minmax(13rem) it put Pickup/Destination/Fare on one row and left
+            // Payment alone on the next. At 512px the four fields fall into a 2x2 block.
+            appOpenModal(html, 'max-w-lg');
         }
 
         function bumpEta(step) {
