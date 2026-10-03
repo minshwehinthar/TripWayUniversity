@@ -121,7 +121,7 @@
                         <tbody>
                 </HeaderTemplate>
                 <ItemTemplate>
-                    <tr class="hover:bg-slate-50 transition-colors">
+                    <tr class="hover:bg-gray-100 transition-colors">
                         <td class="!text-center"><span class="text-gray-500 text-xs font-semibold tabular-nums"><%# GetRowNumber(Container.ItemIndex) %></span></td>
                         <td><%# Eval("ServiceName") %></td>
                         <td>

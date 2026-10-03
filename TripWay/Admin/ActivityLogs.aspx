@@ -81,7 +81,7 @@
                         <tbody>
                 </HeaderTemplate>
                 <ItemTemplate>
-                    <tr class="hover:bg-slate-50 transition-colors">
+                    <tr class="hover:bg-gray-100 transition-colors">
                         <td class="!text-center"><span class="text-gray-500 text-xs font-semibold tabular-nums"><%# GetRowNumber(Container.ItemIndex) %></span></td>
                         <td><span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold <%# GetStatusCss(Eval("EventType").ToString()) %>"><%# Eval("EventType") %></span></td>
                         <td class="text-gray-600 text-sm"><%# Eval("Details") %></td>

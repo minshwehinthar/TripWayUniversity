@@ -325,7 +325,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body class="bg-white text-gray-900">
     <form id="form1" runat="server">
         <div id="appShell" runat="server" class="min-h-screen">
 

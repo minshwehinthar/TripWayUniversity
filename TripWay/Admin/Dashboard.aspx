@@ -148,7 +148,7 @@
             <asp:Repeater ID="rptActivity" runat="server" OnItemCommand="rptActivity_ItemCommand">
                 <HeaderTemplate><table class="tw-table w-full text-sm"><thead><tr><th>Status</th><th>Service</th><th>Stops</th><th>Customer</th><th>Driver</th><th>Fare</th><th>Requested</th><th></th></tr></thead><tbody></HeaderTemplate>
                 <ItemTemplate>
-                    <tr class="hover:bg-slate-50 transition-colors">
+                    <tr class="hover:bg-gray-100 transition-colors">
                         <td><span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold <%# GetStatusCss(Eval("Status").ToString()) %>"><%# Eval("Status") %></span></td>
                         <td><%# Eval("ServiceName") %></td>
                         <td class="text-center"><span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold <%# (int)Eval("StopsCount") > 0 ? "bg-blue-50 text-blue-600" : "bg-gray-100 text-gray-400" %>"><%# ((int)Eval("StopsCount")) > 0 ? Eval("StopsCount") + " pts" : "—" %></span></td>

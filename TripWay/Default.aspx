@@ -35,7 +35,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                         </asp:HyperLink>
                     </asp:Panel>
-                    <a href='<%= ResolveUrl("~/Services.aspx") %>' class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 text-sm font-semibold hover:-translate-y-0.5">
+                    <a href='<%= ResolveUrl("~/Services.aspx") %>' class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-gray-100 hover:border-slate-300 transition-all duration-200 text-sm font-semibold hover:-translate-y-0.5">
                         Explore Services
                     </a>
                 </div>
