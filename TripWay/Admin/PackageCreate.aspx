@@ -72,14 +72,7 @@
                     <h2 class="font-bold text-gray-900">Tour Stops</h2>
                     <p class="text-xs text-gray-400">Click the map to drop a pin — the stop name fills in from that spot and you can retype it. Stop 1 is the starting point.</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-semibold text-gray-500 tabular-nums"><asp:Literal ID="litStopCount" runat="server" /></span>
-                    <button type="button" id="btnAddStop" class="tw-btn-outline">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4 inline-block align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                        Add stop
-                    </button>
-                    <button type="button" id="btnUseMyLocation" class="tw-btn-outline">Use my location</button>
-                </div>
+                <button type="button" id="btnUseMyLocation" class="tw-btn-outline">Use my location</button>
             </div>
 
             <div id="stopsHint" class="flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-800">
@@ -118,6 +111,18 @@
                     </div>
                 </ItemTemplate>
             </asp:Repeater>
+            </div>
+
+            <!-- Add stop gets its own bar hard against the map, because a stop is not finished
+                 until it is pinned on the map below. Sharing one row with the stop count left
+                 it reading as part of the list, and on the create form it was up in the header
+                 with the title, nowhere near the map it adds to. -->
+            <div class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
+                <button type="button" id="btnAddStop" class="tw-btn-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4 inline-block align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    Add stop
+                </button>
+                <span class="text-xs font-semibold text-gray-500 tabular-nums"><asp:Literal ID="litStopCount" runat="server" /></span>
             </div>
 
             <div id="mapPlaces" class="h-80 w-full rounded-xl border border-gray-200"></div>
