@@ -197,10 +197,14 @@
         .tw-sort .tw-sort-arrow svg { width: 0.7rem; height: 0.7rem; }
 
         .tw-avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             width: 2.25rem;
             height: 2.25rem;
             border-radius: 9999px;
-            object-fit: cover;
+            font-weight: 600;
+            font-size: 0.85rem;
             flex-shrink: 0;
         }
         .tw-avatar-blue { background: #dbeafe; color: #1d4ed8; }

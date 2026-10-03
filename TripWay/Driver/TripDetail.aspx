@@ -129,7 +129,7 @@
                             <asp:Image ID="imgCustomerPhoto" runat="server" CssClass="size-14 rounded-full object-cover shrink-0 ring-2 ring-gray-100" />
                         </asp:Panel>
                         <asp:Panel ID="pnlInitial" runat="server">
-                            <span class="tw-avatar tw-avatar-blue size-14"><asp:Label ID="lblCustInitial" runat="server" /></span>
+                            <span class="tw-avatar tw-avatar-blue size-14 text-xl"><asp:Label ID="lblCustInitial" runat="server" /></span>
                         </asp:Panel>
                         <div class="min-w-0">
                             <div class="font-bold text-gray-900 text-sm truncate"><asp:Label ID="lblCustName" runat="server" /></div>

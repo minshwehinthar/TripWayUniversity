@@ -113,7 +113,7 @@
                             <asp:Image ID="imgCustomerPhoto" runat="server" CssClass="size-14 rounded-full object-cover shrink-0 ring-2 ring-gray-100" />
                         </asp:Panel>
                         <asp:Panel ID="pnlInitial" runat="server">
-                            <span class="tw-avatar tw-avatar-green size-14"><asp:Label ID="lblCustInitial" runat="server" /></span>
+                            <span class="tw-avatar tw-avatar-green size-14 text-xl"><asp:Label ID="lblCustInitial" runat="server" /></span>
                         </asp:Panel>
                         <div class="min-w-0">
                             <div class="font-bold text-gray-900 text-sm truncate"><asp:Label ID="lblCustName" runat="server" /></div>
@@ -153,7 +153,7 @@
                             <asp:Image ID="imgDriverPhoto" runat="server" CssClass="size-14 rounded-full object-cover shrink-0 ring-2 ring-gray-100" />
                         </asp:Panel>
                         <asp:Panel ID="pnlDriverInitialPanel" runat="server">
-                            <span class="tw-avatar tw-avatar-amber size-14"><asp:Label ID="lblDriverInitial" runat="server" /></span>
+                            <span class="tw-avatar tw-avatar-amber size-14 text-xl"><asp:Label ID="lblDriverInitial" runat="server" /></span>
                         </asp:Panel>
                         <div class="min-w-0 flex-1">
                             <div class="font-bold text-gray-900 text-sm truncate"><asp:Label ID="lblDriverName" runat="server" /></div>
