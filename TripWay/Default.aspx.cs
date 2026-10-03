@@ -61,7 +61,7 @@ namespace TripWay
         /// sent there would be dropped on their dashboard after signing in with the package
         /// forgotten. That silent loss is worse than asking them to register first.
         /// </summary>
-        private string PackageBookUrl(object packageId)
+        protected string PackageBookUrl(object packageId)
         {
             if (!Helper.AuthHelper.IsLoggedIn() || Helper.AuthHelper.GetRole() != "Customer")
                 return ResolveUrl("~/Register.aspx");
