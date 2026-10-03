@@ -83,7 +83,7 @@
                         <td class="!text-center"><span class="text-gray-500 text-xs font-semibold tabular-nums"><%# GetRowNumber(Container.ItemIndex) %></span></td>
                         <td>
                             <asp:PlaceHolder runat="server" Visible='<%# HasLogo(Eval("LogoPhotoUrl")) %>'>
-                                <img src='<%# LogoUrl(Eval("LogoPhotoUrl")) %>' alt="" class="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" />
+                                <img src='<%# LogoUrl(Eval("LogoPhotoUrl")) %>' alt="" class="tw-avatar tw-avatar-photo object-cover shrink-0" />
                             </asp:PlaceHolder>
                             <asp:PlaceHolder runat="server" Visible='<%# !HasLogo(Eval("LogoPhotoUrl")) %>'>
                                 <span class="tw-skeleton tw-skeleton-avatar size-10 shrink-0"></span>

@@ -110,7 +110,11 @@
                                 <img src='<%# CoverThumbUrl(Eval("CoverPhotoUrl")) %>' alt="" class="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" />
                             </asp:PlaceHolder>
                             <asp:PlaceHolder runat="server" Visible='<%# !HasCoverPhoto(Eval("CoverPhotoUrl")) %>'>
-                                <span class="tw-skeleton tw-skeleton-avatar size-10 shrink-0"></span>
+                                <%-- An initials circle rather than a grey skeleton: the row is
+                                     finished, not loading, and a pulsing block reads as a page
+                                     that never arrived. Same circle the photo replaces, so the
+                                     row does not jump when one is added. --%>
+                                <span class="tw-avatar tw-avatar-photo <%# GetAvatarCss(Eval("PackageID")) %>"><%# GetInitial(Eval("Name").ToString()) %></span>
                             </asp:PlaceHolder>
                         </td>
                         <td class="font-semibold text-gray-900 text-sm truncate"><%# Eval("Name") %></td>
