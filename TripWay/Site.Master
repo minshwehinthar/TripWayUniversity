@@ -405,26 +405,36 @@
            The server renders it with this class so nothing flashes in its declared spot. */
         .tw-panel-parked { display: none !important; }
 
+        /* The panel sits in the middle of the screen, both ways.
+           Auto margins rather than align-items: center, because centering a flex item that
+           is taller than the screen puts its top out of reach of the scroll, and a form with
+           a validation message down the bottom is often taller than a laptop screen. Auto
+           margins collapse to nothing when there is no free space, so the panel starts at the
+           top and scrolls normally, and lands dead centre when there is room. */
+        #appModal > div { margin: auto; }
+
+        /* Pinned to the top right of the browser window rather than to the corner of the
+           card. Fixed rather than absolute, so it stays put when the panel is centred and no
+           longer hangs off the card, which is what put half of it outside the white.
+           Above the panel it shares a parent with: both are positioned with an automatic
+           z-index, so the one later in the markup would otherwise paint over the button. */
         .tw-lb-close {
-            position: absolute;
-            /* Above the panel it shares a parent with: both are positioned with an automatic
-               z-index, so the one later in the markup wins and the panel would otherwise
-               swallow every click meant for this button. */
+            position: fixed;
             z-index: 20;
-            top: -0.75rem;
-            right: -0.75rem;
-            width: 2.25rem;
-            height: 2.25rem;
-            border-radius: 9999px;
-            /* The cross is drawn in the current colour, so it can sit on the white card in
-               near-black and on the dark backdrop in white, with no plate behind it either
-               way. A circle here only ever framed the icon. */
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            /* Always drawn white now: sitting on the backdrop in the corner of the window
+               rather than on the card, a near-black cross disappeared into it. The drop
+               shadow keeps it readable over a pale page without putting a plate behind it. */
             background: none;
-            color: #111827;
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
         }
 
         /* Image viewer. The photograph is the whole interface: the white card, its
@@ -452,15 +462,6 @@
             align-items: center;
             justify-content: center;
         }
-        /* Same icon, drawn in white for the dark backdrop. */
-        #appModal.tw-modal-image .tw-lb-close {
-            top: 0.75rem;
-            right: 0.75rem;
-            width: 2.75rem;
-            height: 2.75rem;
-            color: #fff;
-        }
-
         @media (max-width: 640px) {
             .tw-detail-grid { grid-template-columns: 1fr; }
             .tw-table th, .tw-table td { padding-left: 1rem; padding-right: 1rem; }
