@@ -273,6 +273,27 @@
             .tw-table th, .tw-table td { padding-left: 1rem; padding-right: 1rem; }
         }
 
+        /* Active public nav link: brand blue text with an underline, matching the
+           JobConnect header. Blue matches .tw-btn-primary above. */
+        #publicNav a.tw-nav-active,
+        #publicMobileNav a.tw-nav-active {
+            position: relative;
+            color: #2563eb !important;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        #publicNav a.tw-nav-active::after,
+        #publicMobileNav a.tw-nav-active::after {
+            content: '';
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 1px;
+            height: 2px;
+            border-radius: 9999px;
+            background: #2563eb;
+        }
+
         /* ---- header profile block ---------------------------------------------
            Site.master.cs emits these five class names for the signed in user in the
            app header. They had no rule anywhere, so .profile-avatar on an <img> fell
@@ -307,39 +328,70 @@
     <form id="form1" runat="server">
         <div id="appShell" runat="server" class="min-h-screen">
 
-            <%-- Public header: shown on the marketing and auth pages --%>
-            <asp:Panel ID="pnlPublicHeader" runat="server" CssClass="border-b border-gray-200 bg-white">
-                <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-                    <a href="<%= ResolveUrl("~/Default.aspx") %>" class="flex items-center gap-2">
-                        <img src="<%= ResolveUrl("~/Images/logo.jpeg") %>" alt="TripWay logo"
-                             class="size-10 rounded-xl object-contain shrink-0" />
-                        <span class="text-lg font-bold tracking-tight">TripWay</span>
-                    </a>
-                    <nav id="publicNav" class="hidden items-center gap-6 md:flex">
-                        <asp:HyperLink ID="lnkPublicDashboard" runat="server" CssClass="text-sm font-medium text-gray-600 hover:text-gray-900">Dashboard</asp:HyperLink>
-                        <asp:HyperLink ID="lnkLogin" runat="server" CssClass="tw-btn-outline">Log in</asp:HyperLink>
-                        <asp:HyperLink ID="lnkRegister" runat="server" CssClass="tw-btn-primary">Sign up</asp:HyperLink>
-                        <asp:LinkButton ID="lnkPublicLogout" runat="server" CssClass="tw-btn-outline"
-                                        OnClick="lnkLogout_Click">Log out</asp:LinkButton>
-                    </nav>
-                    <button type="button" id="btnPublicMenu" onclick="togglePublicMenu()" aria-label="Toggle menu"
-                            class="md:hidden flex size-10 items-center justify-center rounded-md text-gray-700 transition-colors hover:bg-gray-100">
-                        <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                    </button>
-                </div>
-                <%-- Narrow screens have no room for the row above, and the desktop nav is hidden
-                     below md, so without this the public header was a logo with no way to navigate. --%>
-                <div id="publicMobileNav" class="hidden pb-3 px-4 pt-2 flex flex-col gap-1 text-sm font-medium border-t border-gray-200">
-                    <a href="<%= ResolveUrl("~/Default.aspx") %>" class="px-3 py-2 rounded-md text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900">Home</a>
-                    <a href="<%= ResolveUrl("~/Services.aspx") %>" class="px-3 py-2 rounded-md text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900">Services</a>
-                    <a href="<%= ResolveUrl("~/FAQs.aspx") %>" class="px-3 py-2 rounded-md text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900">FAQs</a>
-                    <a href="<%= ResolveUrl("~/AboutUs.aspx") %>" class="px-3 py-2 rounded-md text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900">About Us</a>
-                    <a href="<%= ResolveUrl("~/ContactUs.aspx") %>" class="px-3 py-2 rounded-md text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900">Contact Us</a>
-                    <asp:HyperLink ID="lnkMobileLogin" runat="server" NavigateUrl="~/Login.aspx"
-                                    CssClass="mt-1 tw-btn-outline w-full">Log in</asp:HyperLink>
-                    <asp:LinkButton ID="lnkMobileLogout" runat="server" Visible="false" OnClick="lnkLogout_Click"
-                                    CausesValidation="false" CssClass="mt-1 tw-btn-outline w-full">Log out</asp:LinkButton>
-                </div>
+            <%-- Public header: shown on the marketing and auth pages. Follows the JobConnect
+                 layout: sticky bar, brand block with a tagline, page links with an
+                 active underline, and the auth buttons kept outside the collapsing
+                 nav so they survive at every width. --%>
+            <asp:Panel ID="pnlPublicHeader" runat="server" Visible="false">
+                <nav class="sticky top-0 z-40 bg-white text-gray-900 shadow-sm border-b border-gray-200">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                        <div class="flex items-center justify-between h-16">
+                            <a href="<%= ResolveUrl("~/Default.aspx") %>" class="flex items-center gap-2.5" aria-label="TripWay home">
+                                <img src="<%= ResolveUrl("~/Images/logo.jpeg") %>" alt="TripWay logo" class="size-10 rounded-xl object-contain shrink-0" />
+                                <span class="leading-tight">
+                                    <span class="font-bold text-[15px] text-gray-900 leading-tight">TripWay</span>
+                                    <span class="block text-[11px] text-gray-400 leading-tight">Transport Platform</span>
+                                </span>
+                            </a>
+
+                            <div id="publicNav" class="hidden md:flex items-center gap-1 text-sm font-medium">
+                                <a href="<%= ResolveUrl("~/Default.aspx") %>" data-nav="Home" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Home</a>
+                                <a href="<%= ResolveUrl("~/Services.aspx") %>" data-nav="Services" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Services</a>
+                                <a href="<%= ResolveUrl("~/FAQs.aspx") %>" data-nav="FAQs" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">FAQs</a>
+                                <a href="<%= ResolveUrl("~/AboutUs.aspx") %>" data-nav="About" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">About</a>
+                                <a href="<%= ResolveUrl("~/ContactUs.aspx") %>" data-nav="Contact" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Contact</a>
+                            </div>
+
+                            <div class="flex items-center gap-2.5">
+                                <asp:HyperLink ID="lnkLogin" runat="server" NavigateUrl="~/Login.aspx"
+                                    CssClass="hidden sm:inline-flex items-center justify-center h-10 px-4 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
+                                    Login
+                                </asp:HyperLink>
+                                <asp:HyperLink ID="lnkRegister" runat="server" NavigateUrl="~/Register.aspx"
+                                    CssClass="inline-flex items-center justify-center h-10 px-4 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                                    Register Now
+                                </asp:HyperLink>
+                                <asp:HyperLink ID="lnkPublicDashboard" runat="server" Visible="false"
+                                    CssClass="inline-flex items-center justify-center h-10 px-4 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mr-2 inline-block align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605"/></svg>Dashboard
+                                </asp:HyperLink>
+                                <asp:LinkButton ID="lnkPublicLogout" runat="server" Visible="false" OnClick="lnkLogout_Click" CausesValidation="false"
+                                    CssClass="hidden sm:inline-flex items-center justify-center h-10 px-4 text-sm font-semibold text-gray-700 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mr-2 inline-block align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/></svg>Logout
+                                </asp:LinkButton>
+                                <button type="button" id="btnPublicMenu" onclick="togglePublicMenu()" aria-label="Toggle menu"
+                                    class="md:hidden flex items-center justify-center size-10 rounded-md text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="publicMobileNav" class="hidden md:hidden pb-3 px-4 pt-2 flex flex-col gap-1 text-sm font-medium border-t border-gray-200">
+                            <a href="<%= ResolveUrl("~/Default.aspx") %>" data-nav="Home" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Home</a>
+                            <a href="<%= ResolveUrl("~/Services.aspx") %>" data-nav="Services" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Services</a>
+                            <a href="<%= ResolveUrl("~/FAQs.aspx") %>" data-nav="FAQs" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">FAQs</a>
+                            <a href="<%= ResolveUrl("~/AboutUs.aspx") %>" data-nav="About" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">About</a>
+                            <a href="<%= ResolveUrl("~/ContactUs.aspx") %>" data-nav="Contact" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Contact</a>
+                            <asp:HyperLink ID="lnkMobileLogin" runat="server" NavigateUrl="~/Login.aspx"
+                                CssClass="mt-1 inline-flex items-center justify-center h-10 px-4 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
+                                Login
+                            </asp:HyperLink>
+                            <asp:LinkButton ID="lnkMobileLogout" runat="server" Visible="false" OnClick="lnkLogout_Click" CausesValidation="false"
+                                CssClass="mt-1 inline-flex items-center justify-center h-10 px-4 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors">
+                                Logout
+                            </asp:LinkButton>
+                        </div>
+                    </div>
+                </nav>
             </asp:Panel>
 
             <%-- Application shell: sidebar plus content, for signed-in pages --%>
@@ -414,16 +466,45 @@
                 </div>
             </div>
 
-            <%-- Public footer. It sits directly under appShell rather than inside the
-                 content column, so it spans the full page width and lands right after
-                 the content. Nested inside that column it was pushed past the column's
-                 min-h-screen, a whole viewport of blank space below the public header,
-                 which is why it read as missing. Visibility still follows the public
-                 header, so the dashboard never shows it. --%>
-            <asp:Panel ID="pnlFooter" runat="server" CssClass="border-t border-gray-200 bg-white">
-                <div class="mx-auto max-w-7xl px-4 py-5 text-xs text-gray-500 sm:px-6">
-                    &copy; TripWay
-                </div>
+            <%-- Public footer, laid out as three columns to match the JobConnect footer. It sits
+                 directly under appShell rather than inside the content column, so it spans
+                 the full page width and lands right after the content. Nested inside that
+                 column it was pushed past the column's min-h-screen, a whole viewport of
+                 blank space below the public header, which is why it read as missing.
+                 Visibility still follows the public header, so the dashboard never shows it. --%>
+            <asp:Panel ID="pnlFooter" runat="server" Visible="false">
+                <footer class="bg-white text-gray-500 border-t border-gray-200">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div>
+                            <div class="flex items-center gap-2.5 mb-3">
+                                <img src="<%= ResolveUrl("~/Images/logo.jpeg") %>" alt="TripWay logo" class="size-9 rounded-xl object-contain shrink-0" />
+                                <span class="font-bold text-gray-900 text-sm">TripWay</span>
+                            </div>
+                            <p class="text-sm leading-relaxed">A transport platform connecting riders with verified drivers &mdash; with modern tools for booking trips, tracking rides and managing fares.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-gray-900 font-bold mb-3 text-sm">Quick Links</h4>
+                            <ul class="space-y-2 text-sm">
+                                <li><a class="hover:text-blue-600" href="<%= ResolveUrl("~/Default.aspx") %>">Home</a></li>
+                                <li><a class="hover:text-blue-600" href="<%= ResolveUrl("~/Services.aspx") %>">Services</a></li>
+                                <li><a class="hover:text-blue-600" href="<%= ResolveUrl("~/FAQs.aspx") %>">FAQs</a></li>
+                                <li><a class="hover:text-blue-600" href="<%= ResolveUrl("~/AboutUs.aspx") %>">About Us</a></li>
+                                <li><a class="hover:text-blue-600" href="<%= ResolveUrl("~/ContactUs.aspx") %>">Contact</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-gray-900 font-bold mb-3 text-sm">Contact</h4>
+                            <ul class="space-y-2 text-sm">
+                                <li><span class="font-semibold text-gray-900">Address:</span> Market Zone, Hpa-An Township, Kayin State, Myanmar</li>
+                                <li><span class="font-semibold text-gray-900">Phone:</span> +95 9 123 456 789</li>
+                                <li><span class="font-semibold text-gray-900">Email:</span> support@tripway.com</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-200 py-4 text-center text-xs text-gray-400">
+                        &copy; 2026 TripWay. All rights reserved.
+                    </div>
+                </footer>
             </asp:Panel>
         </div>
 
@@ -464,6 +545,35 @@
             var m = document.getElementById('publicMobileNav');
             if (m) m.classList.toggle('hidden');
         }
+
+        // Marks the public nav link for the page being viewed. The master has no way
+        // to know the current page while it renders, so this matches on location
+        // afterwards and tags the link with the class the stylesheet keys off.
+        (function () {
+            function markActive() {
+                var path = (location.pathname || '').replace(/\\/g, '/').split('/').pop() || '';
+                var map = {
+                    'default.aspx': 'Home',
+                    'services.aspx': 'Services',
+                    'faqs.aspx': 'FAQs',
+                    'aboutus.aspx': 'About',
+                    'contactus.aspx': 'Contact'
+                };
+                var key = map[path.toLowerCase()];
+                if (!key) return;
+                var links = document.querySelectorAll('#publicNav [data-nav], #publicMobileNav [data-nav]');
+                for (var i = 0; i < links.length; i++) {
+                    if (links[i].getAttribute('data-nav') === key) {
+                        links[i].classList.add('tw-nav-active');
+                    }
+                }
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', markActive);
+            } else {
+                markActive();
+            }
+        })();
 
         document.addEventListener('DOMContentLoaded', function () {
             var s = document.getElementById('sideNav');
