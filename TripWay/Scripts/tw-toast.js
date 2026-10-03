@@ -1,6 +1,10 @@
 /* Project-wide toaster. Same behaviour as react-hot-toast's
    <Toaster position="top-right" reverseOrder={false} />: a fixed top-right stack,
    oldest first (reverseOrder false), auto dismiss, click to close.
+   Hover or focus a toast to hold it open while it is read.
+
+   Raised for what a person just did, never for a message the server already put on the
+   page: TwToast.success('Saved.') after a save, TwToast.error('Refused.') on a refusal.
    Usage: TwToast.success('Saved.'); TwToast.error('Pick a package.'); */
 (function () {
     var MAX_VISIBLE = 3;
@@ -186,41 +190,21 @@
         return id;
     }
 
-    /* The pages already set their message panel server side on load and after every
-       postback. Those panels are hidden by CSS and read here, so every ShowMessage in the
-       project becomes a toast without touching its code behind. */
-    function kindFrom(el) {
-        var given = el.getAttribute('data-tw-toast');
-        if (given && colors[given]) return given;
-        var cls = el.className || '';
-        if (/bg-(red|rose)-/.test(cls)) return 'error';
-        if (/bg-(green|emerald)-/.test(cls)) return 'success';
-        if (/bg-(amber|yellow|orange)-/.test(cls)) return 'warning';
-        return 'info';
-    }
+    /* Deliberately no longer reads the [data-tw-toast] message panels on load.
 
-    function fromServerPanels() {
-        var panels = document.querySelectorAll('[data-tw-toast]');
-        for (var i = 0; i < panels.length; i++) {
-            var panel = panels[i];
-            if (panel.getAttribute('data-tw-sent') === '1') continue;
-            panel.setAttribute('data-tw-sent', '1');
-            var text = (panel.textContent || '').replace(/\s+/g, ' ').trim();
-            // Once the text has been lifted into a toast the panel has nothing left to say,
-            // and leaving it in the document showed the same message twice: the panel was
-            // positioned in the bottom right corner while the toast stack sits in the top
-            // right, so one message appeared as two unrelated toasts in different corners.
-            //
-            // Parked rather than removed, which is what tw-panel-parked is for. The class is
-            // display:none, so the panel stops painting, but textContent above still reads it
-            // and the next postback renders a fresh panel that this runs against again.
-            //
-            // Parked after reading the text and the colour, both of which are read off the
-            // element itself.
-            if (text) show(text, kindFrom(panel));
-            panel.classList.add('tw-panel-parked');
-        }
-    }
+       It used to, which turned every message the server set into a floating toast that came
+       and went on its own. That is wrong for those panels: they are the page's standing
+       message, set by the postback that just happened, and someone landing on the page again
+       or refreshing should still find it there. Auto-raising them meant the message was only
+       ever up for the length of one toast and then gone, with nothing left on the page.
+
+       They are ordinary markup now. There is no CSS rule for [data-tw-toast], so each one
+       renders inline where the page put it and stays until the next postback replaces it,
+       and the attribute is left on the panels purely as a marker of what they are.
+
+       Toasts are for the things a person just did: TwToast.success on a save, TwToast.error
+       on a refusal. Those are raised by the code handling the action, so they only ever
+       appear in reply to one, and never on a plain page load. */
 
     window.TwToast = {
         success: function (m, d) { return show(m, 'success', d); },
@@ -283,13 +267,6 @@
                 TwToast.update(id, typeof messages.error === 'function' ? messages.error(err) : (messages.error || 'Something went wrong.'), 'error');
                 throw err;
             });
-        },
-        fromServerPanels: fromServerPanels
+        }
     };
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', fromServerPanels);
-    } else {
-        fromServerPanels();
-    }
 })();

@@ -408,16 +408,18 @@
         .tw-msg-them { background: #f3f4f6; color: #111827; border-bottom-left-radius: 0.125rem; }
 
         /* ---- toasts -------------------------------------------------------- */
-        /* No rule for [data-tw-toast] any more.
-           These server panels used to be positioned here in the bottom right corner, which
-           fought the real toast stack: that one is injected by tw-toast.js into the top right.
-           A message coming from a server panel therefore painted twice, as two unrelated
-           toasts in two corners. tw-toast.js now parks the panel with tw-panel-parked as soon
-           as it has lifted the text, so the panel never shows and only the toast does.
+        /* No rule for [data-tw-toast], on purpose.
+           These are the server's message panels: set by the postback that just ran, and meant
+           to sit on the page as standing text until the next one replaces them. They used to be
+           positioned here in the bottom right corner, and tw-toast.js used to read them on load
+           and raise the text as a toast, so a message painted twice, in two different corners.
 
-           With no rule of their own the panels also fall back to rendering inline in the spot
-           the page declared, which is what should happen if tw-toast.js fails to load at all:
-           the message is still readable rather than stranded in a corner of its own. */
+           Neither happens now. tw-toast.js does not touch these panels at all, and with no rule
+           of their own they render inline wherever the page put them, so they are readable
+           straight away and stay put. The attribute is left on them just as a marker.
+
+           Raising a message as a toast is the job of the code handling the action that caused
+           it, so a toast only ever appears in answer to something the person just did. */
 
         /* A server panel meant to be shown in the lightbox stays hidden until it is moved.
            The server renders it with this class so nothing flashes in its declared spot. */
