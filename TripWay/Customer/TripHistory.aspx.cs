@@ -9,7 +9,7 @@ namespace TripWay.Customer
     public partial class TripHistoryPage : Helper.ListPageBase
     {
         private const string PageSizeKey = "PageSize";
-        private const int DefaultPageSize = 10;
+        private const int DefaultPageSize = 5;
 
         private int CustomerId { get { return Helper.AuthHelper.GetAccountId(); } }
 

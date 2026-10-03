@@ -8,7 +8,7 @@ namespace TripWay.Driver
 {
     public partial class TripHistoryPage : Helper.ListPageBase
     {
-        private const int DefaultPageSize = 10;
+        private const int DefaultPageSize = 5;
 
         private int DriverId { get { return Helper.AuthHelper.GetAccountId(); } }
 

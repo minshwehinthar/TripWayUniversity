@@ -10,7 +10,7 @@ namespace TripWay.Admin
 {
     public partial class PackageManagementPage : Helper.ListPageBase
     {
-        private const int DefaultPageSize = 10;
+        private const int DefaultPageSize = 5;
 
         private int CurrentPageIndex
         {
