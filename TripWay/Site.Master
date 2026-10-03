@@ -421,6 +421,17 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
         }
 
+        /* Image viewer. The photograph is the whole interface: the white card, its
+           rounded corners and the body padding are taken away so nothing frames the
+           picture, and the backdrop takes a light blur so the page behind reads as out
+           of play without going black. Only present while an image is open, so every
+           other overlay keeps the card it was designed around. */
+        #appModal.tw-modal-image { background-color: rgba(0, 0, 0, 0.72); backdrop-filter: blur(3px); align-items: center; }
+        #appModal.tw-modal-image > div { max-width: none; background: none; border-radius: 0; }
+        #appModal.tw-modal-image #appModalPanel { max-width: none; }
+        #appModal.tw-modal-image #appModalBody { padding: 0; }
+        #appModal.tw-modal-image .tw-lb-close { top: 1rem; right: 1rem; background: rgba(255, 255, 255, 0.92); }
+
         @media (max-width: 640px) {
             .tw-detail-grid { grid-template-columns: 1fr; }
             .tw-table th, .tw-table td { padding-left: 1rem; padding-right: 1rem; }
@@ -781,6 +792,10 @@
             var body = document.getElementById('appModalBody');
             if (!modal || !panel || !body) return;
 
+            // Every other overlay is a card. Clearing the class here means the stripped-back
+            // image view cannot outlive itself and leave the next panel frameless.
+            modal.classList.remove('tw-modal-image');
+
             for (var i = 0; i < widths.length; i++) panel.classList.remove(widths[i]);
             panel.classList.add(widthClass || 'max-w-4xl');
 
@@ -824,6 +839,7 @@
             }
 
             if (modal) {
+                modal.classList.remove('tw-modal-image');
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
@@ -842,8 +858,10 @@
         }
 
         // ---- image lightbox ---------------------------------------------------
-        // The same shell every other overlay uses, so a photo opens in the panel the user
-        // already knows: same backdrop, same close button, same Esc and click-outside.
+        // The same overlay every other panel uses, but stripped back for a
+        // photograph: no card behind it, no heading, nothing but the picture on a
+        // lightly blurred backdrop. Esc, the backdrop and the close button all
+        // still work, because those are the shell's, not this one's.
         //
         // Markup is built here instead of in a page so a page only has to carry the
         // data-doc-* attributes, and so the values are set as text or as an attribute
@@ -860,37 +878,27 @@
             // underneath this one, so the body is emptied here instead.
             while (body.firstChild) body.removeChild(body.firstChild);
 
-            var head = document.createElement('div');
-            head.className = 'mb-4 flex items-start justify-between gap-4';
-            var titles = document.createElement('div');
-            titles.className = 'min-w-0';
-            var heading = document.createElement('h3');
-            heading.className = 'text-lg font-bold text-gray-900 truncate';
-            heading.textContent = label || 'Document';
-            var caption = document.createElement('p');
-            caption.className = 'text-xs text-gray-400 truncate';
-            caption.textContent = name || '';
-            titles.appendChild(heading);
-            titles.appendChild(caption);
-            head.appendChild(titles);
-            body.appendChild(head);
-
             // A PDF is served through ViewFile.ashx as an inline stream, so it belongs in
             // an iframe: an <img> would render nothing at all.
             var view = isPdf
                 ? document.createElement('iframe')
                 : document.createElement('img');
             if (isPdf) {
-                view.className = 'h-[70vh] w-full rounded-xl border border-gray-200';
+                view.className = 'mx-auto block h-[85vh] w-full max-w-5xl rounded-lg bg-white';
                 view.setAttribute('title', name || label || 'Document');
             } else {
-                view.className = 'mx-auto max-h-[70vh] w-auto rounded-xl object-contain';
+                view.className = 'mx-auto block max-h-[85vh] max-w-full w-auto object-contain';
                 view.alt = name || label || 'Document';
             }
             view.src = src;
             body.appendChild(view);
 
             appOpenModal(null, 'max-w-4xl');
+
+            // Added after the open, because opening an overlay clears the class for the
+            // card-shaped ones and this is the only one that wants it gone.
+            var modal = document.getElementById('appModal');
+            if (modal) modal.classList.add('tw-modal-image');
         }
 
         // Delegated, so a document inside a repeater needs no onclick of its own. The
