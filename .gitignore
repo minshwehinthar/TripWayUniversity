@@ -18,6 +18,11 @@ packages/
 # User uploads at runtime (photos, licence docs, chat images)
 Uploads/
 
+# Runtime log written by Helper/AppLog.cs and Helper/DatabaseUpgrader.cs on
+# every app start. It changes on each run, so tracking it is pure noise.
+# Leading ** because the web project sits in the TripWay/ subfolder.
+**/App_Data/Upgrade_log.txt
+
 # NOTE: Web.config and App_Data/*.sql are deliberately tracked.
 # App_Data/CreateDatabase.sql is mounted by docker-compose to provision the
 # database, so the schema scripts have to stay in the repo.

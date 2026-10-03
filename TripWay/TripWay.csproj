@@ -76,6 +76,14 @@
     <Content Include="Scripts\tripway-chat.js" />
     <Content Include="Scripts\tripway-map.js" />
     <Content Include="Scripts\tripway-route.js" />
+    <Content Include="Scripts\tailwind.js" />
+    <Content Include="Scripts\leaflet.js" />
+    <Content Include="Styles\leaflet\leaflet.css" />
+    <Content Include="Styles\leaflet\images\layers-2x.png" />
+    <Content Include="Styles\leaflet\images\layers.png" />
+    <Content Include="Styles\leaflet\images\marker-icon-2x.png" />
+    <Content Include="Styles\leaflet\images\marker-icon.png" />
+    <Content Include="Styles\leaflet\images\marker-shadow.png" />
     <Content Include="App_Data\CreateDatabase.sql" />
     <Content Include="App_Data\Upgrade_2.sql" />
     <Content Include="App_Data\Upgrade_5.sql" />

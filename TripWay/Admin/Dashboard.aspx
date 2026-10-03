@@ -169,8 +169,8 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="<%= ResolveUrl("~/Scripts/leaflet.js") %>"></script>
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Styles/leaflet/leaflet.css") %>" />
     <script>
         var D = <%= DriversJson %>;
         document.addEventListener('DOMContentLoaded', function () {
