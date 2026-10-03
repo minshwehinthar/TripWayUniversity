@@ -1398,22 +1398,9 @@
         }
 
         /// <summary>
-        /// The real uploaded photo for itinerary card i: the i-th gallery photo, else the cover.
-        /// Returns "" when the package has no image at all, and the caller then draws the
-        /// neutral placeholder instead of a stock photo of somewhere else.
-        /// </summary>
-        function packagePhoto(index) {
-            var pid = kgSelect ? (parseInt(kgSelect.value, 10) || 0) : 0;
-            var p = PACKS[pid];
-            if (!p) return '';
-            if (index === 0) return p.cover || '';
-            return '';
-        }
-
-        /// <summary>
         /// A photo tile with a placeholder underneath it. If the file is missing the img hides
         /// itself on error, so a broken upload shows the tile rather than a broken-image icon.
-        /// badge is optional markup pinned inside the tile (used for the itinerary numbers).
+        /// badge is optional markup pinned inside the tile.
         /// </summary>
         function photoTile(url, extraClass, badge) {
             var tile = '<div class="relative overflow-hidden bg-slate-100 ' + (extraClass || '') + '">'
@@ -1888,10 +1875,15 @@
                         // already on the map pin. The line only appears when a place has no map
                         // position at all, because then the driver cannot find it.
                         var s = stopByName(p.places[i]);
+                        // The tile is the number and nothing else. A photo here repeated the
+                        // package cover down every row, so the list read as the same picture
+                        // several times over while the one thing that matters - which stop is
+                        // which - was a small badge pinned in its corner. It is also the same
+                        // number and the same blue as the markers drawStopMarkers puts on the
+                        // map, so the list and the map can be read against each other.
                         html += '<div class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-white">'
-                            + photoTile(packagePhoto(i), 'w-16 h-16 rounded-lg shrink-0',
-                                '<span class="absolute top-1 left-1 w-5 h-5 rounded-md bg-blue-600 text-white text-[10px] font-bold'
-                                + ' flex items-center justify-center ring-2 ring-white">' + (i + 1) + '</span>')
+                            + '<span class="w-10 h-10 rounded-xl bg-blue-600 text-white text-[15px] font-bold'
+                            + ' flex items-center justify-center shrink-0">' + (i + 1) + '</span>'
                             + '<div class="min-w-0">'
                             + '<div class="text-[13px] font-semibold text-slate-800">' + enc(p.places[i]) + '</div>'
                             + (s ? '' : '<div class="text-[11px] text-amber-600 mt-0.5">No map position yet</div>')
