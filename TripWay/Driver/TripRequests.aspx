@@ -311,14 +311,14 @@
                 '<div><div class="tw-detail-label">Fare</div><div class="tw-detail-value font-bold text-gray-900">' + fmtKs(r.fare) + '</div></div>' +
                 '<div><div class="tw-detail-label">Payment</div><div class="tw-detail-value">' + esc(r.payment || 'Cash') + '</div></div>' +
                 '</div>' +
-                '<div class="rounded-xl bg-blue-50 border border-blue-200 p-4">' +
+                '<div>' +
                 '<label class="tw-detail-label mb-1 block" for="etaInput">Time to reach the pickup point (minutes)</label>' +
                 '<div class="flex items-center gap-2">' +
                 '<button type="button" onclick="bumpEta(-1)" class="tw-btn-outline px-3">−</button>' +
                 '<input id="etaInput" type="number" min="1" max="180" value="' + eta + '" class="tw-input text-center text-lg font-bold" data-autofocus />' +
                 '<button type="button" onclick="bumpEta(1)" class="tw-btn-outline px-3">+</button>' +
                 '</div>' +
-                '<p class="text-xs text-blue-700 mt-2">' +
+                '<p class="text-xs text-gray-500 mt-2">' +
                 etaLine +
                 ' The customer sees this countdown on their Active Trip and Trip Detail pages, and as a record on their Trip History.</p>' +
                 '<div class="flex justify-end gap-2 mt-4">' +

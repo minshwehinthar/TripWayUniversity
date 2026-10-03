@@ -162,21 +162,12 @@ namespace TripWay.Driver
             {
                 MeJson = "[" + me[0].Value.ToString(System.Globalization.CultureInfo.InvariantCulture) + ", "
                                + me[1].Value.ToString(System.Globalization.CultureInfo.InvariantCulture) + "]";
+                // Only used to seed the promise the driver then edits; the distance and drive
+                // time it was derived from are no longer shown anywhere on this page.
                 double straightKm = (double)Helper.TripHelper.HaversineKm(me[0].Value, me[1].Value,
                     Convert.ToDouble(r["PickupLat"]), Convert.ToDouble(r["PickupLng"]));
-                decimal roadKm = Helper.TripHelper.RoadDistanceKm(straightKm);
-                suggested = Helper.TripHelper.DriveMinutesForRoadKm((double)roadKm);
-                lblDistanceAway.Text = roadKm.ToString("0.0") + " km";
-                lblDriveTime.Text = Helper.TripHelper.FormatDriveTime(suggested);
-                lblPickupDistance.Text = "(" + straightKm.ToString("0.0") + " km as the crow flies)";
+                suggested = Helper.TripHelper.DriveMinutesForRoadKm((double)Helper.TripHelper.RoadDistanceKm(straightKm));
             }
-            else
-            {
-                lblDistanceAway.Text = "--";
-                lblDriveTime.Text = "--";
-                lblPickupDistance.Text = "Waiting for your GPS location";
-            }
-            lblSuggestedEta.Text = me != null ? suggested + " min" : "--";
 
             if (string.IsNullOrWhiteSpace(txtEta.Text) || !Page.IsPostBack)
                 txtEta.Text = me != null ? suggested.ToString() : "10";

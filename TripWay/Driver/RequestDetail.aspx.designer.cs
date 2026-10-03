@@ -27,10 +27,6 @@ namespace TripWay.Driver
         protected global::System.Web.UI.WebControls.Label lblCustomerMeta;
         protected global::System.Web.UI.WebControls.Label lblCustomerSince;
         protected global::System.Web.UI.WebControls.HyperLink lnkCallCustomer;
-        protected global::System.Web.UI.WebControls.Label lblDistanceAway;
-        protected global::System.Web.UI.WebControls.Label lblPickupDistance;
-        protected global::System.Web.UI.WebControls.Label lblDriveTime;
-        protected global::System.Web.UI.WebControls.Label lblSuggestedEta;
         protected global::System.Web.UI.WebControls.Button btnEtaDown;
         protected global::System.Web.UI.WebControls.TextBox txtEta;
         protected global::System.Web.UI.WebControls.Button btnEtaUp;

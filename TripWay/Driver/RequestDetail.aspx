@@ -87,28 +87,19 @@
 
                     <div class="bg-white rounded-2xl shadow-sm p-5 space-y-3">
                         <h2 class="font-bold text-gray-900">Accept this job</h2>
-                        <div class="rounded-xl bg-blue-50 border border-blue-200 p-4 space-y-3">
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-blue-800">Road distance to pickup</span>
-                                <span class="font-bold text-blue-900 text-right"><asp:Label ID="lblDistanceAway" runat="server" /><span class="block text-[11px] font-normal text-blue-700"><asp:Label ID="lblPickupDistance" runat="server" /></span></span>
+                        <%-- The promise the driver makes is the stepper below, and that is all
+                             this panel says. The road distance, drive time and suggested
+                             arrival that used to sit above it were a read-only restatement of
+                             the same estimate, and without a GPS fix they were three rows of
+                             "--" above the one number the driver actually has to set. --%>
+                        <div>
+                            <label for="<%= txtEta.ClientID %>" class="tw-detail-label mb-1 block">I will arrive in (minutes)</label>
+                            <div class="flex items-center gap-2">
+                                <asp:Button ID="btnEtaDown" runat="server" Text="−" CausesValidation="false" OnClick="btnEtaDown_Click" CssClass="tw-btn-outline" />
+                                <asp:TextBox ID="txtEta" runat="server" TextMode="Number" CssClass="tw-input text-center text-lg font-bold" />
+                                <asp:Button ID="btnEtaUp" runat="server" Text="+" CausesValidation="false" OnClick="btnEtaUp_Click" CssClass="tw-btn-outline" />
                             </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-blue-800">Drive time</span>
-                                <span class="font-bold text-blue-900"><asp:Label ID="lblDriveTime" runat="server" /></span>
-                            </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-blue-800">Suggested arrival</span>
-                                <span class="font-bold text-blue-900"><asp:Label ID="lblSuggestedEta" runat="server" /></span>
-                            </div>
-                            <div>
-                                <label for="<%= txtEta.ClientID %>" class="tw-detail-label mb-1 block">I will arrive in (minutes)</label>
-                                <div class="flex items-center gap-2">
-                                    <asp:Button ID="btnEtaDown" runat="server" Text="−" CausesValidation="false" OnClick="btnEtaDown_Click" CssClass="tw-btn-outline" />
-                                    <asp:TextBox ID="txtEta" runat="server" TextMode="Number" CssClass="tw-input text-center text-lg font-bold" />
-                                    <asp:Button ID="btnEtaUp" runat="server" Text="+" CausesValidation="false" OnClick="btnEtaUp_Click" CssClass="tw-btn-outline" />
-                                </div>
-                                <p class="text-xs text-blue-700 mt-2" id="etaHint">The customer sees this countdown on their Active Trip and Trip Detail pages, and as a record on their Trip History.</p>
-                            </div>
+                            <p class="text-xs text-gray-500 mt-2" id="etaHint">The customer sees this countdown on their Active Trip and Trip Detail pages, and as a record on their Trip History.</p>
                         </div>
                         <asp:Button ID="btnAccept" runat="server" Text="Accept Job" OnClick="btnAccept_Click" CausesValidation="false" CssClass="tw-btn-primary w-full justify-center" />
                     </div>
@@ -136,13 +127,11 @@
 
             approachRoute = TripRoute.create(map, [from, P.pickup], {
                 color: '#1d4ed8', weight: 3, opacity: 0.85, dashArray: '7 7', fit: false,
+                // The road answer prefills the promise rather than being displayed: it is the
+                // driver's own starting point, and it is the only place left that uses it.
                 onRoad: function (info) {
-                    var mins = Math.max(1, info.minutes);
-                    setText('<%= lblDistanceAway.ClientID %>', info.km.toFixed(1) + ' km');
-                    setText('<%= lblDriveTime.ClientID %>', formatDriveTime(mins));
-                    setText('<%= lblSuggestedEta.ClientID %>', mins + ' min');
                     var input = document.getElementById('<%= txtEta.ClientID %>');
-                    if (input) input.value = mins;
+                    if (input) input.value = Math.max(1, info.minutes);
                 }
             });
             return approachRoute;
@@ -204,35 +193,16 @@
             if (navigator.geolocation && P.pickup) {
                 navigator.geolocation.getCurrentPosition(function (pos) {
                     var here = [pos.coords.latitude, pos.coords.longitude];
-                    var straight = haversineKm(here, P.pickup);
-                    var roadKm = Math.round(straight * ROAD_FACTOR * 10) / 10;
-                    var mins = etaFromKm(straight);
+                    var mins = etaFromKm(haversineKm(here, P.pickup));
                     var input = document.getElementById('<%= txtEta.ClientID %>');
                     if (input) input.value = mins;
-                    setText('<%= lblDistanceAway.ClientID %>', roadKm.toFixed(1) + ' km');
-                    setText('<%= lblPickupDistance.ClientID %>', '(' + straight.toFixed(1) + ' km as the crow flies)');
-                    setText('<%= lblDriveTime.ClientID %>', formatDriveTime(mins));
-                    setText('<%= lblSuggestedEta.ClientID %>', mins + ' min');
                     if (meMarker) meMarker.setLatLng(here);
                     // Route from here rather than only re-pointing an existing line. This used
                     // to be guarded on approachRoute, which was still null whenever the server
-                    // had no stored location for this driver, so the road never appeared at all
-                    // and the fields below quietly kept the straight-line estimate.
+                    // had no stored location for this driver, so the road never appeared at all.
                     drawApproach(here);
                 }, function () { });
             }
         });
-
-        function formatDriveTime(mins) {
-            if (mins <= 0) return '--';
-            if (mins < 60) return mins + ' min';
-            var h = Math.floor(mins / 60), m = mins % 60;
-            return m === 0 ? h + ' h' : h + ' h ' + m + ' min';
-        }
-
-        function setText(id, text) {
-            var el = document.getElementById(id);
-            if (el) el.textContent = text;
-        }
     </script>
 </asp:Content>
