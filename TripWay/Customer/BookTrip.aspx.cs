@@ -20,13 +20,13 @@ namespace TripWay.Customer
 
         /// <summary>
         /// The result of the last attempt to confirm the booking: "success" or "error", the
-        /// text, and where to go once the success toast has been read.
+        /// text, and where to go on a success.
         ///
-        /// This is the only toast the booking page raises. Choosing a service, a vehicle,
-        /// hours, passengers or a hotel all report back on the page itself (the card that
-        /// lit up, the pin on the map, the inline note, the summary), because those are
+        /// A failure is the only thing this page raises as a toast. Choosing a service, a
+        /// vehicle, hours, passengers or a hotel all report back on the page itself (the card
+        /// that lit up, the pin on the map, the inline note, the summary), because those are
         /// choices rather than outcomes and a toast that vanishes is a poor record of them.
-        /// Confirming the trip is the one action with a result worth announcing.
+        /// A success is not a toast at all: it navigates to the trip it just created.
         /// </summary>
         public string ConfirmToastKind { get; private set; }
         public string ConfirmToastText { get; private set; }
@@ -787,10 +787,11 @@ namespace TripWay.Customer
                 "Customer " + CustomerId + " requested service '" + ddlServiceType.SelectedItem.Text
                 + "' on " + ddlVehicle.SelectedItem.Text + " (" + Helper.TripHelper.FormatMoney(GetFare(tripId)) + ")");
 
-            // The success toast is raised on this page rather than on the page we are about to
-            // land on, so the customer sees the confirmation where they pressed the button. The
-            // redirect is therefore done by the client once the toast has been read, which is
-            // why the confirm button is disabled until it has been sent.
+            // On success the customer is sent straight to the trip they just asked for. The
+            // redirect is done by the client rather than here because a server-side
+            // Response.Redirect would land them with nothing on screen: the trip page opens on
+            // this request already, so it carries the confirmation and the trip together. Only
+            // a failure is raised as a toast on this page.
             ConfirmToastKind = "success";
             ConfirmToastText = "Driver request sent. We are looking for a "
                 + ddlVehicle.SelectedItem.Text + " for you now.";

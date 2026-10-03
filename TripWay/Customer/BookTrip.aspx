@@ -1718,28 +1718,39 @@
         }
 
         /// <summary>
-        /// The one toast this page raises: the outcome of pressing Confirm.
+        /// What the page does with the outcome of pressing Confirm.
         ///
-        /// On success the redirect to the live trip is done here rather than on the server, so
-        /// the confirmation is seen on the page where the button was pressed. The button is
-        /// disabled for the moment it takes, which also stops a second confirm being posted
-        /// while the first one is on its way.
+        /// A failure is reported here and stays here: the customer has to read what went wrong
+        /// and fix it, and there is nowhere else for that message to live. A success is not
+        /// reported at all - it navigates straight to the live trip, which opens on the request
+        /// that was just made and is looking for a driver. The toast it replaces said the same
+        /// thing, less usefully, and holding the page for it only delayed the trip.
         /// </summary>
-        function raiseConfirmToast() {
+        function handleConfirmResult() {
             var res = <%= ConfirmToastJson %>;
             if (!res) return;
 
-            if (res.kind === 'success') TwToast.success(res.text, 2200);
-            else TwToast.error(res.text, 5200);
+            if (res.kind !== 'success') {
+                TwToast.error(res.text, 5200);
+                return;
+            }
 
-            if (res.kind !== 'success' || !res.go) return;
+            if (!res.go) {
+                // Nothing to navigate to, so this is the one case where the confirmation has
+                // to be read here rather than on the trip page.
+                TwToast.success(res.text, 2200);
+                return;
+            }
 
+            // Disable before navigating: the click that got here is still on its way out of the
+            // DOM, and a button that is live until the page unloads can be pressed again in
+            // that gap and book a second trip.
             var btn = document.getElementById('<%= btnCreateTrip.ClientID %>');
             if (btn) {
                 btn.disabled = true;
                 btn.classList.add('opacity-60', 'cursor-not-allowed');
             }
-            setTimeout(function () { window.location.href = res.go; }, 1500);
+            window.location.href = res.go;
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -1747,7 +1758,7 @@
             syncPaymentCards();
             guardEnterKey();
             initHotelSearch();
-            raiseConfirmToast();
+            handleConfirmResult();
 
             var mapEl = document.getElementById('mapRoute');
             if (mapEl) {
