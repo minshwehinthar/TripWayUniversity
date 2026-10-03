@@ -513,6 +513,8 @@
                         OnClientClick="return confirmReadyToSubmit();"
                         CssClass="tw-btn-primary w-full justify-center rounded-xl" />
 
+                    <p id="confirmBlockNote" class="hidden text-[11px] text-center text-amber-700 mt-2"></p>
+
                     <p class="text-[11px] text-slate-400 text-center">No charge until a driver accepts your trip.</p>
                 </div>
             </div>
@@ -683,8 +685,47 @@
         // with a fresh button.
         var confirmSubmitting = false;
 
+        /// <summary>
+        /// Why Confirm cannot be pressed yet because the route is incomplete, or '' when it can.
+        ///
+        /// These mirror the server's own requirements exactly, because a client-side block that
+        /// is stricter than the server stops bookings the server would have accepted:
+        ///
+        /// Point-to-point needs two points. hfPickupLat comes from the first point and
+        /// hfDropLat from the last, and a booking with either missing is refused.
+        ///
+        /// Hourly needs one. It is a pickup with nowhere to go, and the server refuses without
+        /// a pickup point.
+        ///
+        /// Package needs none. Its route is the itinerary, and when the customer has not set a
+        /// pickup the server falls back to the package's first place, so a package with no point
+        /// set is a valid booking and must not be blocked here.
+        /// </summary>
+        function missingPointReason() {
+            var n = route.points.length;
+            if (currentService === 'p2p') {
+                return n >= 2 ? '' : 'Set a Start and an End point on the map to request a driver.';
+            }
+            if (currentService === 'hourly') {
+                return n >= 1 ? '' : 'Tap the map to set your pickup point to request a driver.';
+            }
+            return '';
+        }
+
         function syncConfirmAvailability() {
             var btn = document.getElementById('<%= btnCreateTrip.ClientID %>');
+            var note = document.getElementById('confirmBlockNote');
+
+            // Said here rather than in an error toast, because the reason is visible before the
+            // customer tries: they can see which point is missing while they are still looking
+            // at the map. After the block went in, a refused booking showed a toast telling them
+            // to set points they were still in the middle of setting.
+            if (note) {
+                var reason = confirmBlockedByServer ? '' : missingPointReason();
+                note.textContent = reason;
+                note.classList.toggle('hidden', reason === '');
+            }
+
             if (!btn) return;
 
             if (confirmSubmitting) {
@@ -707,6 +748,13 @@
 
             if (pointCheckStallTimer) { clearTimeout(pointCheckStallTimer); pointCheckStallTimer = null; }
             if (confirmBlockedByServer) return;   // leave the server's own disabled state alone
+
+            if (missingPointReason()) {
+                btn.disabled = true;
+                btn.classList.add('opacity-60', 'cursor-not-allowed');
+                return;
+            }
+
             btn.disabled = false;
             btn.classList.remove('opacity-60', 'cursor-not-allowed');
         }
@@ -735,6 +783,11 @@
                 if (pending) pending.focus();
                 return false;
             }
+
+            // The button is already disabled by this point, so this only catches the routes
+            // that bypass it: Enter on a disabled button does not click, but a form.submit()
+            // from the console still would.
+            if (missingPointReason()) return false;
 
             // The lock is taken in a timeout, never inline in this handler. Disabling a submit
             // button while its own click is still being processed can cancel the submission
@@ -1073,6 +1126,9 @@
             drawRoadRoute();
             syncHidden();
             recomputeFare();
+            // Every add and every remove of a point lands here, which is exactly when Confirm
+            // becomes available or unavailable again.
+            syncConfirmAvailability();
         }
 
         // Node badge, letter and label for the route list: A pickup, B/C stops, last one the
@@ -1828,6 +1884,10 @@
             // before anything here can re-enable the button.
             var confirmBtn = document.getElementById('<%= btnCreateTrip.ClientID %>');
             if (confirmBtn && confirmBtn.disabled) confirmBlockedByServer = true;
+
+            // The map starts with no points, so Confirm is blocked from the outset and the
+            // reason is on screen before the customer has clicked anything.
+            syncConfirmAvailability();
         });
 
         document.addEventListener('DOMContentLoaded', function () {
