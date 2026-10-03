@@ -90,12 +90,52 @@
         return box;
     }
 
-    var timers = {};
+    /* One entry per live toast: the dismiss timer, the time still left on it, and its
+       countdown bar. Held here rather than on the node so a dismissal in flight can be
+       cancelled, and so a paused toast remembers where it had got to. */
+    var live = {};
+
+    function arm(id) {
+        var m = live[id];
+        if (!m) return;
+        if (m.timer) clearTimeout(m.timer);
+        m.since = Date.now();
+        m.timer = setTimeout(function () { dismiss(id); }, m.left);
+        if (m.bar) m.bar.style.animationPlayState = 'running';
+    }
+
+    /* Hovering or tabbing to a toast holds it open, countdown bar included, and leaves the
+       remaining time for when the pointer leaves. Without this the toast is gone while it is
+       being read, which is what made a 4s toast feel like it lasted a second: the time is the
+       same either way, it is just no longer spent before the message has been read. */
+    function hold(id, on) {
+        var m = live[id];
+        if (!m || m.timer === undefined) return;
+        if (on) {
+            if (!m.timer) return;                     /* already held */
+            clearTimeout(m.timer);
+            m.timer = null;
+            m.left -= Math.max(0, Date.now() - m.since);
+            if (m.bar) m.bar.style.animationPlayState = 'paused';
+        } else {
+            if (m.timer) return;                     /* already running */
+            if (m.left <= 0) { dismiss(id); return; }
+            arm(id);
+        }
+    }
 
     function dismiss(id) {
         var box = document.getElementById('tw-toast-' + id);
         if (!box) return;
-        if (timers[id]) { clearTimeout(timers[id]); delete timers[id]; }
+        var m = live[id];
+        if (m) {
+            if (m.timer) clearTimeout(m.timer);
+            delete live[id];
+        }
+        /* Idempotent. The class swap used to run unconditionally and its own replace() then
+           matched the tw-toast inside the tw-toast it had just written, growing the class
+           list by one out on every extra call. */
+        if (box.className.indexOf(' out') !== -1) return;
         box.className = box.className.replace('tw-toast', 'tw-toast out');
         setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); }, 160);
     }
@@ -108,8 +148,38 @@
         box.id = 'tw-toast-' + id;
         var host = container();
         host.appendChild(box);                 /* reverseOrder false: oldest stays on top */
-        while (host.children.length > MAX_VISIBLE) dismiss(host.children[0].id.replace('tw-toast-', ''));
-        if (duration > 0) timers[id] = setTimeout(function () { dismiss(id); }, duration);
+
+        /* Trim to MAX_VISIBLE toasts that are actually on screen.
+
+           dismiss() marks a box and unhooks it 160ms later, so a fading toast is still a
+           child and counting it as live is what made this overrun: sizing the trim off
+           children.length treated every box already on its way out as occupying a slot,
+           so a burst of toasts ate the live ones too and the newest was dismissed the
+           instant it appeared. Counted on what is painted instead.
+
+           The guard bounds the passes. Each one marks a single box as fading, so the live
+           count strictly falls and this ends well inside the bound; the loop cannot wedge
+           the tab the way the children.length version did. */
+        for (var pass = MAX_VISIBLE + 2; pass > 0; pass--) {
+            var victim = null, onScreen = 0;
+            for (var c = 0; c < host.children.length; c++) {
+                if (host.children[c].className.indexOf(' out') === -1) {
+                    onScreen++;
+                    if (!victim) victim = host.children[c];        /* oldest still shown */
+                }
+            }
+            if (onScreen <= MAX_VISIBLE || !victim) break;
+            dismiss(victim.id.replace('tw-toast-', ''));
+        }
+
+        if (duration > 0) {
+            live[id] = { left: duration, since: Date.now(), timer: null, bar: box.querySelector('.tw-toast-bar') };
+            arm(id);
+            box.addEventListener('mouseenter', function () { hold(id, true); });
+            box.addEventListener('mouseleave', function () { hold(id, false); });
+            box.addEventListener('focusin', function () { hold(id, true); });
+            box.addEventListener('focusout', function () { hold(id, false); });
+        }
         box.addEventListener('click', function () {
             if (kind !== 'loading') dismiss(id);
         });
@@ -168,7 +238,8 @@
         update: function (id, message, kind) {
             var box = document.getElementById('tw-toast-' + id);
             if (!box) return id;
-            if (timers[id]) { clearTimeout(timers[id]); delete timers[id]; }
+            var m = live[id];
+            if (m && m.timer) { clearTimeout(m.timer); m.timer = null; }
             var label = box.querySelector('.tw-toast-text');
             if (label) label.textContent = message == null ? '' : String(message);
             if (kind) {
@@ -186,7 +257,18 @@
                     next.style.background = colors[kind];
                     next.style.animation = 'twToastBar ' + DURATION + 'ms linear forwards';
                     box.appendChild(next);
-                    timers[id] = setTimeout(function () { dismiss(id); }, DURATION);
+                    /* A new message on the same toast is a new countdown from the top, and
+                       the replacement bar is the one hold() has to pause. Built fresh rather
+                       than reusing the old entry because a toast updated out of loading never
+                       had one: it was created with no timer. */
+                    live[id] = { left: DURATION, since: Date.now(), timer: null, bar: next };
+                    arm(id);
+                    box.addEventListener('mouseenter', function () { hold(id, true); });
+                    box.addEventListener('mouseleave', function () { hold(id, false); });
+                    box.addEventListener('focusin', function () { hold(id, true); });
+                    box.addEventListener('focusout', function () { hold(id, false); });
+                } else {
+                    delete live[id];
                 }
             }
             return id;
