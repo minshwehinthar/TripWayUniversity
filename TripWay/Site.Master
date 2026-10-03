@@ -327,14 +327,6 @@
                 <div class="flex min-w-0 flex-1 flex-col">
                     <asp:Panel ID="pnlAppHeader" runat="server" CssClass="border-b border-gray-200 bg-white">
                         <div class="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
-                            <div id="headerProfile" class="header-profile-container flex min-w-0 items-center gap-3">
-                                <img id="profileAvatar" src="<%= ResolveUrl("~/Images/avatar-placeholder.png") %>"
-                                     alt="" class="profile-avatar size-9 rounded-full object-cover" />
-                                <div class="profile-info min-w-0">
-                                    <div class="profile-name truncate text-sm font-semibold text-gray-900"></div>
-                                    <div class="profile-email truncate text-xs text-gray-500"></div>
-                                </div>
-                            </div>
                             <div class="flex items-center gap-2">
                                 <asp:HyperLink ID="lnkMobileLogin" runat="server" CssClass="tw-btn-outline md:hidden">Log in</asp:HyperLink>
                                 <asp:LinkButton ID="lnkMobileLogout" runat="server" CssClass="tw-btn-outline md:hidden"
