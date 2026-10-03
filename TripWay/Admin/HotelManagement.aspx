@@ -39,13 +39,6 @@
                 </div>
             </div>
         </div>
-        <div class="flex flex-wrap items-end justify-between gap-3">
-
-            <a href="HotelCreate.aspx" class="tw-btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4 inline-block align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                New Hotel
-            </a>
-        </div>
 
         <asp:Panel ID="pnlMessage" runat="server" data-tw-toast="1" Visible="false" CssClass="p-3 rounded-lg text-sm bg-green-100 text-green-700 border border-green-200">
             <asp:Label ID="lblMessage" runat="server" />
@@ -90,10 +83,10 @@
                         <td class="!text-center"><span class="text-gray-500 text-xs font-semibold tabular-nums"><%# GetRowNumber(Container.ItemIndex) %></span></td>
                         <td>
                             <asp:PlaceHolder runat="server" Visible='<%# HasLogo(Eval("LogoPhotoUrl")) %>'>
-                                <img src='<%# LogoUrl(Eval("LogoPhotoUrl")) %>' alt="" class="size-10 rounded-lg object-cover ring-1 ring-gray-200" />
+                                <img src='<%# LogoUrl(Eval("LogoPhotoUrl")) %>' alt="" class="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" />
                             </asp:PlaceHolder>
                             <asp:PlaceHolder runat="server" Visible='<%# !HasLogo(Eval("LogoPhotoUrl")) %>'>
-                                <span class="size-10 rounded-lg bg-gray-100 border border-dashed border-gray-300 inline-block"></span>
+                                <span class="tw-avatar tw-avatar-photo <%# GetAvatarCss(Eval("HotelID")) %>"><%# GetInitial(Eval("Name").ToString()) %></span>
                             </asp:PlaceHolder>
                         </td>
                         <td class="font-semibold text-gray-900 text-sm truncate"><%# Eval("Name") %></td>

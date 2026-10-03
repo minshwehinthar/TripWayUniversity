@@ -210,6 +210,10 @@
         .tw-avatar-blue { background: #dbeafe; color: #1d4ed8; }
         .tw-avatar-green { background: #d1fae5; color: #047857; }
         .tw-avatar-amber { background: #fef3c7; color: #b45309; }
+        /* GetAvatarCss picks from blue/green/violet/amber by hashing the row id, but violet
+           was never given a rule - so one row in four rendered with no background at all
+           and inherited text colour. Matches JobConnect's .jc-avatar-violet. */
+        .tw-avatar-violet { background: #f5f3ff; color: #7c3aed; }
         /* The initials circle that stands in for a missing photo has to be exactly the
            size of the photo it replaces, or the row jumps when a photo is absent. The
            photos are size-10 (2.5rem) plus a ring on the management pages and a border on

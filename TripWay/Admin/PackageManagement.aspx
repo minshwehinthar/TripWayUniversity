@@ -107,10 +107,10 @@
                         <td class="!text-center"><span class="text-gray-500 text-xs font-semibold tabular-nums"><%# GetRowNumber(Container.ItemIndex) %></span></td>
                         <td>
                             <asp:PlaceHolder runat="server" Visible='<%# HasCoverPhoto(Eval("CoverPhotoUrl")) %>'>
-                                <img src='<%# CoverThumbUrl(Eval("CoverPhotoUrl")) %>' alt="" class="size-10 rounded-lg object-cover ring-1 ring-gray-200" />
+                                <img src='<%# CoverThumbUrl(Eval("CoverPhotoUrl")) %>' alt="" class="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" />
                             </asp:PlaceHolder>
                             <asp:PlaceHolder runat="server" Visible='<%# !HasCoverPhoto(Eval("CoverPhotoUrl")) %>'>
-                                <span class="size-10 rounded-lg bg-gray-100 border border-dashed border-gray-300 inline-block"></span>
+                                <span class="tw-avatar tw-avatar-photo <%# GetAvatarCss(Eval("PackageID")) %>"><%# GetInitial(Eval("Name").ToString()) %></span>
                             </asp:PlaceHolder>
                         </td>
                         <td class="font-semibold text-gray-900 text-sm truncate"><%# Eval("Name") %></td>
