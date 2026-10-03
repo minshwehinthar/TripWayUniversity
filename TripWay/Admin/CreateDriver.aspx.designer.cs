@@ -19,7 +19,9 @@ namespace TripWay.Admin
         protected global::System.Web.UI.WebControls.TextBox txtNrc;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvNrc;
         protected global::System.Web.UI.WebControls.FileUpload fuNrcPhoto;
+        protected global::System.Web.UI.WebControls.FileUpload fuNrcPhotoBack;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvNrcPhoto;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvNrcPhotoBack;
         protected global::System.Web.UI.WebControls.TextBox txtLicenseNumber;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvLicenseNumber;
         protected global::System.Web.UI.WebControls.FileUpload fuLicensePhoto;

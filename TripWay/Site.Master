@@ -841,12 +841,85 @@
             if (e.key === 'Escape') appCloseModal();
         }
 
+        // ---- image lightbox ---------------------------------------------------
+        // The same shell every other overlay uses, so a photo opens in the panel the user
+        // already knows: same backdrop, same close button, same Esc and click-outside.
+        //
+        // Markup is built here instead of in a page so a page only has to carry the
+        // data-doc-* attributes, and so the values are set as text or as an attribute
+        // rather than pasted into markup: a filename is user-supplied and an apostrophe
+        // in it would otherwise end the string and take the rest of the script with it.
+        function appOpenImage(src, label, name, isPdf) {
+            if (!src) return;
+
+            var body = document.getElementById('appModalBody');
+            if (!body) return;
+
+            // appOpenModal is called with null further down, which leaves the body alone so a
+            // moved form survives. That means anything left from a previous view would stay
+            // underneath this one, so the body is emptied here instead.
+            while (body.firstChild) body.removeChild(body.firstChild);
+
+            var head = document.createElement('div');
+            head.className = 'mb-4 flex items-start justify-between gap-4';
+            var titles = document.createElement('div');
+            titles.className = 'min-w-0';
+            var heading = document.createElement('h3');
+            heading.className = 'text-lg font-bold text-gray-900 truncate';
+            heading.textContent = label || 'Document';
+            var caption = document.createElement('p');
+            caption.className = 'text-xs text-gray-400 truncate';
+            caption.textContent = name || '';
+            titles.appendChild(heading);
+            titles.appendChild(caption);
+            head.appendChild(titles);
+            body.appendChild(head);
+
+            // A PDF is served through ViewFile.ashx as an inline stream, so it belongs in
+            // an iframe: an <img> would render nothing at all.
+            var view = isPdf
+                ? document.createElement('iframe')
+                : document.createElement('img');
+            if (isPdf) {
+                view.className = 'h-[70vh] w-full rounded-xl border border-gray-200';
+                view.setAttribute('title', name || label || 'Document');
+            } else {
+                view.className = 'mx-auto max-h-[70vh] w-auto rounded-xl object-contain';
+                view.alt = name || label || 'Document';
+            }
+            view.src = src;
+            body.appendChild(view);
+
+            appOpenModal(null, 'max-w-4xl');
+        }
+
+        // Delegated, so a document inside a repeater needs no onclick of its own. The
+        // listener lives on the document rather than on the tile because the tiles are
+        // re-rendered on every postback and would lose a directly-bound handler.
+        function appOpenDocumentClick(e) {
+            var t = e.target;
+            var node = t && t.closest ? t.closest('[data-doc-src]') : null;
+            if (!node) return;
+
+            // A control inside the tile (a link, a button meant for something else) keeps
+            // its own behaviour; only the plain tile opens the viewer.
+            if (t.closest('a[href]')) return;
+
+            e.preventDefault();
+            appOpenImage(
+                node.getAttribute('data-doc-src'),
+                node.getAttribute('data-doc-label'),
+                node.getAttribute('data-doc-name'),
+                node.getAttribute('data-doc-pdf') === '1');
+        }
+
         (function () {
             var close = document.getElementById('appModalClose');
             if (close) close.addEventListener('click', appCloseModal);
             var modal = document.getElementById('appModal');
             if (modal) modal.addEventListener('click', appModalBackdrop);
             document.addEventListener('keydown', appModalEscape);
+            document.addEventListener('click', appOpenDocumentClick);
         })();
     </script>
 </body>

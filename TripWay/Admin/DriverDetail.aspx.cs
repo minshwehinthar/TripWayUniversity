@@ -133,8 +133,12 @@ namespace TripWay.Admin
 
         private void BindDocs(DataRow r)
         {
+            /* The back of the NRC lives in a column added after this page shipped. */
+            Helper.TripHelper.EnsureDriverNrcBackPhoto();
+
             var docs = new List<DocItem>();
             AddDoc(docs, "NRC Photo", r["NRCPhotoUrl"]);
+            AddDoc(docs, "NRC Photo (Back)", r["NRCPhotoBackUrl"]);
             AddDoc(docs, "License Photo", r["LicensePhotoUrl"]);
             AddDoc(docs, "Vehicle Photo", r["VehiclePhotoUrl"]);
             AddDoc(docs, "Reg. Document", r["VehicleRegDocUrl"]);

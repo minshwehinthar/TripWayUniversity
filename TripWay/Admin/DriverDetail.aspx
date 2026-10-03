@@ -97,8 +97,9 @@
                     </div>
 
                     <%-- The four documents, drawn exactly like the slots on DriverEdit.aspx.
-                         Read only: no picker, no upload. Click a document to view it full size. --%>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mt-5">
+                         Read only: no picker, no upload. Each tile carries the data-doc-* attributes
+                         the shared lightbox in Site.Master opens on click. --%>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 mt-5">
                         <asp:Repeater ID="rptDocs" runat="server">
                             <ItemTemplate>
                                 <div>

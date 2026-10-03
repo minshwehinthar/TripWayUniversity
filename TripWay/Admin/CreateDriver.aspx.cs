@@ -9,6 +9,9 @@ namespace TripWay.Admin
         protected void Page_Load(object sender, EventArgs e)
         {
             Helper.AuthHelper.RequireAdmin(this);
+            /* The NRC back column postdates this page, so it is made sure of before the
+               insert below names it. */
+            Helper.TripHelper.EnsureDriverNrcBackPhoto();
             if (!IsPostBack)
             {
                 BindVehicleTypes();
@@ -47,13 +50,15 @@ namespace TripWay.Admin
             }
 
             string nrcPhoto = SaveUpload(fuNrcPhoto, "NRCPhotos", "NRC");
+            string nrcBackPhoto = SaveUpload(fuNrcPhotoBack, "NRCPhotos", "NRCBack");
             string licensePhoto = SaveUpload(fuLicensePhoto, "LicensePhotos", "License");
             string vehiclePhoto = SaveUpload(fuVehiclePhoto, "VehiclePhotos", "Vehicle");
             string regDoc = SaveUpload(fuRegDoc, "RegDocs", "RegDoc");
 
-            if (nrcPhoto.Length == 0 || licensePhoto.Length == 0 || vehiclePhoto.Length == 0 || regDoc.Length == 0)
+            if (nrcPhoto.Length == 0 || nrcBackPhoto.Length == 0 || licensePhoto.Length == 0
+                || vehiclePhoto.Length == 0 || regDoc.Length == 0)
             {
-                ShowMessage("All KYC documents (NRC, license, vehicle photo, registration) are required.", true);
+                ShowMessage("All KYC documents (both NRC sides, license, vehicle photo, registration) are required.", true);
                 return;
             }
 
@@ -61,9 +66,9 @@ namespace TripWay.Admin
             int.TryParse(txtSeatCapacity.Text.Trim(), out seatCapacity);
 
             Helper.DBHelper.ExecuteNonQuery(
-                "INSERT INTO Drivers (FullName, Email, PasswordHash, PhoneNumber, NRCNumber, NRCPhotoUrl, LicenseNumber, LicensePhotoUrl, " +
+                "INSERT INTO Drivers (FullName, Email, PasswordHash, PhoneNumber, NRCNumber, NRCPhotoUrl, NRCPhotoBackUrl, LicenseNumber, LicensePhotoUrl, " +
                 "VehicleTypeID, VehiclePlateNumber, VehiclePhotoUrl, VehicleRegDocUrl, SeatCapacity, PaymentAccount, ProfilePhotoUrl, KYCStatus) " +
-                "VALUES (@Name, @Email, @Hash, @Phone, @Nrc, @NrcPhoto, @License, @LicensePhoto, @" +
+                "VALUES (@Name, @Email, @Hash, @Phone, @Nrc, @NrcPhoto, @NrcBack, @License, @LicensePhoto, @" +
                 "VehType, @Plate, @VehPhoto, @RegDoc, @Seats, @PayAcc, @Photo, @Status)",
                 new SqlParameter("@Name", txtFullName.Text.Trim()),
                 new SqlParameter("@Email", email),
@@ -71,6 +76,7 @@ namespace TripWay.Admin
                 new SqlParameter("@Phone", txtPhone.Text.Trim()),
                 new SqlParameter("@Nrc", txtNrc.Text.Trim()),
                 new SqlParameter("@NrcPhoto", nrcPhoto),
+                new SqlParameter("@NrcBack", nrcBackPhoto),
                 new SqlParameter("@License", txtLicenseNumber.Text.Trim()),
                 new SqlParameter("@LicensePhoto", licensePhoto),
                 new SqlParameter("@VehType", int.Parse(ddlVehicleType.SelectedValue)),
