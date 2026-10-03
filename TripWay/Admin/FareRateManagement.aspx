@@ -45,8 +45,8 @@
                                 <th>
                                     <div class="flex items-center gap-1.5">
                                         <span class="tw-sort">
-                                            <asp:LinkButton ID="lnkSortvehicleA" runat="server" CssClass="tw-sort-arrow" CommandArgument="vehicle" OnClick="SortHeaderAsc_Click" ToolTip="Sort A to Z"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
-                                            <asp:LinkButton ID="lnkSortvehicleD" runat="server" CssClass="tw-sort-arrow" CommandArgument="vehicle" OnClick="SortHeaderDesc_Click" ToolTip="Sort Z to A"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSortvehicleA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="vehicle" OnClick="SortHeaderAsc_Click" ToolTip="Sort A to Z"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSortvehicleD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="vehicle" OnClick="SortHeaderDesc_Click" ToolTip="Sort Z to A"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
                                         </span>
                                         <span>Vehicle</span>
                                     </div>
@@ -54,8 +54,8 @@
                                 <th>
                                     <div class="flex items-center gap-1.5">
                                         <span class="tw-sort">
-                                            <asp:LinkButton ID="lnkSortperkmA" runat="server" CssClass="tw-sort-arrow" CommandArgument="perkm" OnClick="SortHeaderAsc_Click" ToolTip="Sort low to high"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
-                                            <asp:LinkButton ID="lnkSortperkmD" runat="server" CssClass="tw-sort-arrow" CommandArgument="perkm" OnClick="SortHeaderDesc_Click" ToolTip="Sort high to low"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSortperkmA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="perkm" OnClick="SortHeaderAsc_Click" ToolTip="Sort low to high"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSortperkmD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="perkm" OnClick="SortHeaderDesc_Click" ToolTip="Sort high to low"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
                                         </span>
                                         <span>Per Km</span>
                                     </div>
@@ -63,8 +63,8 @@
                                 <th>
                                     <div class="flex items-center gap-1.5">
                                         <span class="tw-sort">
-                                            <asp:LinkButton ID="lnkSorthourlyA" runat="server" CssClass="tw-sort-arrow" CommandArgument="hourly" OnClick="SortHeaderAsc_Click" ToolTip="Sort low to high"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
-                                            <asp:LinkButton ID="lnkSorthourlyD" runat="server" CssClass="tw-sort-arrow" CommandArgument="hourly" OnClick="SortHeaderDesc_Click" ToolTip="Sort high to low"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSorthourlyA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="hourly" OnClick="SortHeaderAsc_Click" ToolTip="Sort low to high"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSorthourlyD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="hourly" OnClick="SortHeaderDesc_Click" ToolTip="Sort high to low"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
                                         </span>
                                         <span title="The flat rate charged for every hour of an hourly charter.">Per Hour</span>
                                     </div>
@@ -72,8 +72,8 @@
                                 <th>
                                     <div class="flex items-center gap-1.5">
                                         <span class="tw-sort">
-                                            <asp:LinkButton ID="lnkSortupdatedA" runat="server" CssClass="tw-sort-arrow" CommandArgument="updated" OnClick="SortHeaderAsc_Click" ToolTip="Sort oldest first"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
-                                            <asp:LinkButton ID="lnkSortupdatedD" runat="server" CssClass="tw-sort-arrow" CommandArgument="updated" OnClick="SortHeaderDesc_Click" ToolTip="Sort newest first"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSortupdatedA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="updated" OnClick="SortHeaderAsc_Click" ToolTip="Sort oldest first"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSortupdatedD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="updated" OnClick="SortHeaderDesc_Click" ToolTip="Sort newest first"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
                                         </span>
                                         <span>Updated</span>
                                     </div>

@@ -51,8 +51,8 @@
                                 <th>
                                     <div class="flex items-center gap-1.5">
                                         <span class="tw-sort">
-                                            <asp:LinkButton ID="lnkSorteventA" runat="server" CssClass="tw-sort-arrow" CommandArgument="event" OnClick="SortHeaderAsc_Click" ToolTip="Sort A to Z"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
-                                            <asp:LinkButton ID="lnkSorteventD" runat="server" CssClass="tw-sort-arrow" CommandArgument="event" OnClick="SortHeaderDesc_Click" ToolTip="Sort Z to A"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSorteventA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="event" OnClick="SortHeaderAsc_Click" ToolTip="Sort A to Z"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSorteventD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="event" OnClick="SortHeaderDesc_Click" ToolTip="Sort Z to A"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
                                         </span>
                                         <span>Event</span>
                                     </div>
@@ -60,8 +60,8 @@
                                 <th>
                                     <div class="flex items-center gap-1.5">
                                         <span class="tw-sort">
-                                            <asp:LinkButton ID="lnkSortdetailsA" runat="server" CssClass="tw-sort-arrow" CommandArgument="details" OnClick="SortHeaderAsc_Click" ToolTip="Sort A to Z"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
-                                            <asp:LinkButton ID="lnkSortdetailsD" runat="server" CssClass="tw-sort-arrow" CommandArgument="details" OnClick="SortHeaderDesc_Click" ToolTip="Sort Z to A"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSortdetailsA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="details" OnClick="SortHeaderAsc_Click" ToolTip="Sort A to Z"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSortdetailsD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="details" OnClick="SortHeaderDesc_Click" ToolTip="Sort Z to A"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
                                         </span>
                                         <span>Details</span>
                                     </div>
@@ -69,8 +69,8 @@
                                 <th>
                                     <div class="flex items-center gap-1.5">
                                         <span class="tw-sort">
-                                            <asp:LinkButton ID="lnkSortwhenA" runat="server" CssClass="tw-sort-arrow" CommandArgument="when" OnClick="SortHeaderAsc_Click" ToolTip="Sort oldest first"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
-                                            <asp:LinkButton ID="lnkSortwhenD" runat="server" CssClass="tw-sort-arrow" CommandArgument="when" OnClick="SortHeaderDesc_Click" ToolTip="Sort newest first"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSortwhenA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="when" OnClick="SortHeaderAsc_Click" ToolTip="Sort oldest first"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSortwhenD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="when" OnClick="SortHeaderDesc_Click" ToolTip="Sort newest first"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
                                         </span>
                                         <span>Date</span>
                                     </div>

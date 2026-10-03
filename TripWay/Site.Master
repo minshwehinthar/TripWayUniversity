@@ -92,7 +92,12 @@
             text-decoration: none;
             transition: background .15s;
         }
-        .tw-btn-outline:hover { background: #f9fafb; }
+        /* Hover lights the icon and leaves everything else alone: the label keeps its
+           colour and the border stays the grey it already had, so the button reads as
+           unlit until the pointer is on it. */
+        .tw-btn-outline:hover { background: #f3f4f6; }
+        .tw-btn-outline:hover svg { color: #2563eb; }
+        .tw-btn-outline svg { transition: color .15s; }
 
         .tw-btn-soft-danger {
             display: inline-flex;
@@ -148,8 +153,32 @@
             vertical-align: middle;
         }
         .tw-table tbody tr:hover { background: #f9fafb; }
-        .tw-sort { cursor: pointer; user-select: none; }
-        .tw-sort-arrow { opacity: .4; margin-left: .25rem; }
+        /* Sortable column header: two chevrons stacked beside the label, one click each
+           for up and down. They sit grey at rest, take the accent on hover, and the one
+           currently sorting stays lit so the direction is readable at a glance. */
+        .tw-sort {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: stretch;
+            line-height: 0;
+            vertical-align: middle;
+            user-select: none;
+        }
+        .tw-sort .tw-sort-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            border-radius: 0.25rem;
+            padding: 0.125rem;
+            cursor: pointer;
+            line-height: 0;
+            text-decoration: none;
+            transition: color .15s, background .15s;
+        }
+        .tw-sort .tw-sort-arrow:hover { color: #2563eb; background: #eff6ff; }
+        .tw-sort .tw-sort-arrow.active { color: #007aff; background: #eff6ff; }
+        .tw-sort .tw-sort-arrow svg { width: 0.7rem; height: 0.7rem; }
 
         .tw-avatar {
             width: 2.25rem;
