@@ -5,6 +5,7 @@ namespace TripWay.Customer
         protected global::System.Web.UI.WebControls.Panel pnlMessage;
         protected global::System.Web.UI.WebControls.Label lblMessage;
         protected global::System.Web.UI.WebControls.DropDownList ddlServiceType;
+        protected global::System.Web.UI.WebControls.Panel pnlActiveTrip;
         protected global::System.Web.UI.WebControls.Panel pnlMap;
         protected global::System.Web.UI.WebControls.Panel pnlHourly;
         protected global::System.Web.UI.WebControls.DropDownList ddlHours;

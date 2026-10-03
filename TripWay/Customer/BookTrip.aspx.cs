@@ -169,6 +169,23 @@ namespace TripWay.Customer
             Helper.TripHelper.EnsureHotels();
             Helper.TripHelper.EnsurePackageActive();
 
+            // One trip at a time. The Confirm button is dead while one of this customer's is in
+            // flight and the panel above it says why, because a button that is disabled with no
+            // explanation reads as a broken page. Checked on every request, not just the GET,
+            // so the state is right after a postback too.
+            //
+            // The authoritative check stays in btnCreateTrip_Click: this one runs before the
+            // postback that creates the trip, so it cannot be what stands between two bookings.
+            bool tripInFlight = HasActiveTrip();
+            btnCreateTrip.Enabled = !tripInFlight;
+            pnlActiveTrip.Visible = tripInFlight;
+            if (tripInFlight)
+            {
+                // .tw-btn-primary:hover is unconditional, so a disabled button would still
+                // darken under the cursor and read as live.
+                btnCreateTrip.CssClass = "tw-btn-primary w-full justify-center rounded-xl !opacity-60 !cursor-not-allowed";
+            }
+
             if (!IsPostBack)
             {
                 // Read once, because both the service type and the package selection need it.

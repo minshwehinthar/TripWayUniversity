@@ -377,8 +377,11 @@
             </div>
 
             <%-- ============ Summary + confirm ============
-                 Trip Summary: the live route, what the fare is made of, then the same
-                 vehicle/passenger/payment controls and the Confirm button as before. --%>
+                 Trip Summary: what the fare is made of, then the same
+                 vehicle/passenger/payment controls and the Confirm button as before. The
+                 route itself is left to the map and the Route Points panel beside it -
+                 repeating every place name here only made the summary long enough to
+                 push the Confirm button below the fold. --%>
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm/50 space-y-4 lg:sticky lg:top-6">
                     <div class="flex items-center justify-between gap-3">
@@ -386,11 +389,6 @@
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold shrink-0">
                             <span class="size-1.5 rounded-full bg-blue-600"></span>Live
                         </span>
-                    </div>
-
-                    <div>
-                        <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Route</div>
-                        <div id="summaryRoute" class="flex flex-wrap items-center gap-1.5"></div>
                     </div>
 
                     <div class="flex flex-col gap-2">
@@ -500,6 +498,16 @@
                     <asp:HiddenField ID="hfHotelId" runat="server" />
                     <asp:HiddenField ID="hfKm" runat="server" />
                     <asp:HiddenField ID="hfFare" runat="server" />
+
+                    <%-- Only shown while one of this customer's trips is still in flight. The
+                         Confirm button is dead in that state, so it says why here and links to
+                         the trip, rather than leaving a button that silently does nothing. --%>
+                    <asp:Panel ID="pnlActiveTrip" runat="server" Visible="false"
+                        CssClass="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5">
+                        <p class="text-[13px] font-semibold text-amber-800">You already have a trip in progress.</p>
+                        <p class="text-[11px] text-amber-700 mt-0.5">Finish or cancel it before booking another one.</p>
+                        <a href="ActiveTrip.aspx" class="tw-btn-outline mt-2 !py-1.5 !text-xs inline-flex items-center gap-1.5">View your active trip</a>
+                    </asp:Panel>
 
                     <asp:Button ID="btnCreateTrip" runat="server" Text="Confirm &amp; Request Driver" OnClick="btnCreateTrip_Click"
                         CssClass="tw-btn-primary w-full justify-center rounded-xl" />
@@ -947,7 +955,6 @@
             document.getElementById('routePoints').innerHTML = html;
 
             paintPackageRoute();
-            paintSummaryRoute();
             drawRoadRoute();
             syncHidden();
             recomputeFare();
@@ -1500,41 +1507,6 @@
         }
 
         /// <summary>
-        /// The Route row of the trip summary: one chip per point the customer placed, in order,
-        /// plus the package stop count when the itinerary is what is being driven.
-        /// </summary>
-        function paintSummaryRoute() {
-            var box = document.getElementById('summaryRoute');
-            if (!box) return;
-            var pts = route.points;
-            var arrow = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"'
-                + ' class="size-3 shrink-0 text-slate-300"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>';
-
-            if (!pts.length) {
-                box.innerHTML = '<span class="text-[13px] text-slate-400">Add your route on the map</span>';
-                return;
-            }
-
-            var html = '';
-            for (var i = 0; i < pts.length; i++) {
-                html += (i ? arrow : '')
-                    + '<span title="' + enc(pts[i].addr || '') + '" class="inline-flex items-center gap-1.5 max-w-[150px] px-2 py-1'
-                    + ' rounded-lg bg-blue-50 text-blue-700 text-[11px] font-semibold">'
-                    + '<span class="w-4 h-4 rounded bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">'
-                    + nodeLetter(i) + '</span>'
-                    + '<span class="truncate">' + enc(pts[i].addr || 'Pinned point') + '</span></span>';
-            }
-            if (currentService === 'package' && itinerary.length) {
-                html += arrow
-                    + '<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[11px] font-semibold">'
-                    + '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="size-3 shrink-0">'
-                    + '<path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"/></svg>'
-                    + itinerary.length + ' stops</span>';
-            }
-            box.innerHTML = html;
-        }
-
-        /// <summary>
         /// The Fare Breakdown rows. Only the lines that belong to the chosen service stay
         /// visible, and every figure comes from the same numbers the server charges.
         /// </summary>
@@ -1930,7 +1902,6 @@
             }
             paintPackageCards();
             paintPackageRoute();
-            paintSummaryRoute();
             drawStopMarkers();
             drawRoadRoute();
         }
