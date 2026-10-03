@@ -125,17 +125,18 @@
                         </td>
                         <td><%# Eval("TripCount") %></td>
                         <td>
-                            <%-- The row editor is a plain drop-down list carrying just the KYC word, so it is
-                                 sized exactly like the Event picker in ActivityLogs: tw-input
-                                 w-auto and nothing else. It used to trim the height, padding and
-                                 rounding to keep the row compact, but !h-8 fought .tw-input's
-                                 own vertical padding and clipped the text instead, and the
-                                 trimmed corners stopped matching the filter above.
+                            <%-- The row editor matches the Event column data in ActivityLogs, which is a
+                                 status pill: text-xs font-semibold px-2 py-1 rounded-full.
+                                 Those overrides have to be important, because .tw-input
+                                 declares a bigger font size and wider padding of its own and
+                                 would otherwise win. Right padding is the one deliberate
+                                 deviation - !pr-6 reserves room for the drop-down arrow so
+                                 the word cannot slide underneath it.
                                  KYCStatus is the one field behind this, and choosing a value
                                  saves it at once. --%>
                             <asp:DropDownList ID="ddlRowKyc" runat="server" AutoPostBack="true"
                                 OnSelectedIndexChanged="ddlRowKyc_SelectedIndexChanged"
-                                CssClass='<%# "tw-input w-auto " + GetStatusCss(Convert.ToString(Eval("KYCStatus"))) %>'
+                                CssClass='<%# "tw-input w-auto !text-xs !font-semibold !pl-2 !pr-6 !py-1 !rounded-full " + GetStatusCss(Convert.ToString(Eval("KYCStatus"))) %>'
                                 CausesValidation="false">
                                 <asp:ListItem Text="Pending" Value="Pending" />
                                 <asp:ListItem Text="Approved" Value="Approved" />
