@@ -32,7 +32,7 @@
 
         <div id="pnlLoading" class="bg-white rounded-2xl shadow-sm p-10 text-center text-gray-400">Listening for new trip requests…<p id="pollErr" class="hidden mt-4 text-sm font-semibold text-rose-600"></p></div>
 
-        <div id="requestList" class="grid md:grid-cols-2 gap-4"></div>
+        <div id="requestList" class="grid md:grid-cols-3 gap-4"></div>
         <div id="pnlEmpty" class="hidden bg-white rounded-2xl shadow-sm p-10 text-center text-gray-400">No trip requests right now. New jobs will appear automatically.</div>
     </div>
 

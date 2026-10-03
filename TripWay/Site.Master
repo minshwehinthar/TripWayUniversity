@@ -454,30 +454,25 @@
             filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
         }
 
-        /* Image viewer. The photograph is the whole interface: the white card, its
-           rounded corners and the body padding are taken away so nothing frames the
-           picture, and the backdrop takes a light blur so the page behind reads as out
-           of play without going black. Only present while an image is open, so every
-           other overlay keeps the card it was designed around. */
-        #appModal.tw-modal-image {
-            background-color: rgba(0, 0, 0, 0.72);
-            backdrop-filter: blur(3px);
-            padding: 0;
-            overflow: hidden;
-            /* Both axes stated here. The overlay carries items-start and is built for panels
-               that hang from the top, and inheriting that would leave the photograph sitting
-               high instead of in the middle of the screen. */
-            align-items: center;
-            justify-content: center;
-        }
-        #appModal.tw-modal-image > div { max-width: none; max-height: none; width: 100%; height: 100%; background: none; border-radius: 0; }
-        #appModal.tw-modal-image #appModalPanel { max-width: none; width: 100%; height: 100%; }
-        #appModal.tw-modal-image #appModalBody {
-            padding: 0;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Image viewer. A photograph or document is shown in an ordinary modal card rather
+           than edge to edge: the white card, its rounded corners and the backdrop are kept,
+           and only the body padding is trimmed so the picture sits close to the frame. The
+           centring is inherited from the margin: auto above rather than restated as
+           align-items: center, so a document taller than the screen still starts at the top
+           and scrolls instead of having its head cut off. Only present while an image is
+           open, so every other overlay keeps the card it was designed around. */
+        #appModal.tw-modal-image #appModalBody { padding: 0.75rem; }
+        #appModal.tw-modal-image .tw-lb-close {
+            /* Back on the card instead of the window corner. Pinned to the screen it floated
+               far away from a panel this size, and drawn white on its own it disappeared into
+               the white card, so it gets a plate to sit on and loses the drop shadow it only
+               needed in order to read against an open backdrop. */
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(17, 24, 39, 0.55);
+            border-radius: 9999px;
+            filter: none;
         }
         @media (max-width: 640px) {
             .tw-detail-grid { grid-template-columns: 1fr; }
@@ -768,7 +763,7 @@
         <%-- One lightbox for the whole app. Panels are moved in and out of it, never cloned,
              so the server controls inside keep their postback wiring. --%>
         <div id="appModal" class="fixed inset-0 z-[1000] hidden items-start justify-center overflow-y-auto bg-black/50 p-4 md:p-8">
-            <div class="relative w-full max-w-4xl rounded-2xl bg-white">
+            <div id="appModalCard" class="relative w-full max-w-4xl rounded-2xl bg-white">
                 <button type="button" id="appModalClose" class="tw-lb-close" aria-label="Close" title="Close">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-5" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -840,16 +835,26 @@
         function appOpenModal(html, widthClass) {
             var widths = ['max-w-4xl', 'max-w-3xl', 'max-w-2xl', 'max-w-xl', 'max-w-lg', 'max-w-md', 'max-w-sm', 'max-w-xs'];
             var modal = document.getElementById('appModal');
+            var card = document.getElementById('appModalCard');
             var panel = document.getElementById('appModalPanel');
             var body = document.getElementById('appModalBody');
-            if (!modal || !panel || !body) return;
+            if (!modal || !card || !panel || !body) return;
 
-            // Every other overlay is a card. Clearing the class here means the stripped-back
-            // image view cannot outlive itself and leave the next panel frameless.
+            // Every other overlay is a card. Clearing the class here means the image view's
+            // own rules cannot outlive it and leave the next panel framed differently.
             modal.classList.remove('tw-modal-image');
 
-            for (var i = 0; i < widths.length; i++) panel.classList.remove(widths[i]);
-            panel.classList.add(widthClass || 'max-w-4xl');
+            /* Both the card and the panel, not just the panel. The card is what the eye reads
+               as the size of the dialog, and it used to hold a fixed max-w-4xl that nothing
+               could swap, so a narrower panel sat left-aligned inside a wider white card with
+               a dead gutter down one side. */
+            for (var i = 0; i < widths.length; i++) {
+                panel.classList.remove(widths[i]);
+                card.classList.remove(widths[i]);
+            }
+            var width = widthClass || 'max-w-4xl';
+            panel.classList.add(width);
+            card.classList.add(width);
 
             // null means "whatever is already in here stays", which is how a moved form survives.
             if (html !== null && html !== undefined) body.innerHTML = html;
@@ -910,9 +915,8 @@
         }
 
         // ---- image lightbox ---------------------------------------------------
-        // The same overlay every other panel uses, but stripped back for a
-        // photograph: no card behind it, no heading, nothing but the picture on a
-        // lightly blurred backdrop. Esc, the backdrop and the close button all
+        // The same overlay card every other panel uses, sized down to max-w-2xl, with no
+        // heading: just the picture in the frame. Esc, the backdrop and the close button all
         // still work, because those are the shell's, not this one's.
         //
         // Markup is built here instead of in a page so a page only has to carry the
@@ -936,24 +940,29 @@
                 ? document.createElement('iframe')
                 : document.createElement('img');
             if (isPdf) {
-                view.className = 'block h-full w-full border-0';
+                // A document needs a height of its own to scroll inside, so it gets one that
+                // leaves the backdrop and the card's own edges visible around it.
+                view.className = 'block h-[70vh] w-full border-0';
                 view.setAttribute('title', name || label || 'Document');
             } else {
-                // Sized to the picture and capped by the viewport rather than stretched to fill
-                // it: a phone photo is far larger than any screen, so this shows all of it at
-                // once, and the empty space beside it still belongs to the backdrop, so clicking
-                // away from the picture keeps closing the viewer. Stretching a low resolution
-                // photo across the screen would only make it harder to read.
-                view.className = 'block h-auto w-auto max-h-full max-w-full object-contain';
+                // Sized to the picture and capped rather than stretched to fill the card: a
+                // phone photo is far larger than any screen, so this shows all of it at once,
+                // and the empty space beside it still belongs to the card, so clicking away
+                // from the picture keeps closing the viewer. Stretching a low resolution photo
+                // across the frame would only make it harder to read, and letting a tall one
+                // run to its natural height would stretch the card down the page.
+                view.className = 'block h-auto w-auto max-h-[70vh] max-w-full object-contain';
                 view.alt = name || label || 'Document';
             }
             view.src = src;
             body.appendChild(view);
 
-            appOpenModal(null, 'max-w-4xl');
+            // max-w-2xl rather than the default max-w-4xl: a document reads comfortably in a
+            // normal sized dialog, and the narrower card leaves the page behind it visible.
+            appOpenModal(null, 'max-w-2xl');
 
             // Added after the open, because opening an overlay clears the class for the
-            // card-shaped ones and this is the only one that wants it gone.
+            // card-shaped ones and this is the only one that wants the image-specific rules.
             var modal = document.getElementById('appModal');
             if (modal) modal.classList.add('tw-modal-image');
         }
