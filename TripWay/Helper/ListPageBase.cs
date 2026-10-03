@@ -91,14 +91,32 @@ namespace TripWay.Helper
         }
 
         /// <summary>
+        /// A startup script is written out with the rest of the form, which is before the script
+        /// block at the foot of the master that defines appOpenModal. Calling it there throws a
+        /// ReferenceError and the lightbox simply never appears, with nothing in the console but
+        /// a line that is easy to miss. So the call waits for the document: by then the functions
+        /// are defined and the modal markup has been parsed.
+        ///
+        /// The wrapper is written out in full rather than calling a helper on the master, because
+        /// a helper defined at the foot of the master is exactly what is not there yet.
+        /// The queue is not needed either: a startup script fires once, and DOMContentLoaded fires
+        /// once, so there is never more than one call waiting.
+        /// </summary>
+        private static string DeferUntilReady(string call)
+        {
+            return "(function(f){if(document.readyState==='loading')"
+                 + "document.addEventListener('DOMContentLoaded',f);else f();})(" + call + ");";
+        }
+
+        /// <summary>
         /// Opens the shared lightbox. "widthClass" narrows the panel for the small forms
         /// (the rating box uses "max-w-md"); every other caller keeps the default width.
         /// </summary>
         protected void OpenAppModal(string html, string widthClass = null)
         {
             var json = new JavaScriptSerializer();
-            string js = "appOpenModal(" + json.Serialize(html)
-                + (string.IsNullOrEmpty(widthClass) ? "" : "," + json.Serialize(widthClass)) + ");";
+            string js = DeferUntilReady("function(){appOpenModal(" + json.Serialize(html)
+                + (string.IsNullOrEmpty(widthClass) ? "" : "," + json.Serialize(widthClass)) + ");}");
             ClientScript.RegisterStartupScript(GetType(), "openAppModal_" + Guid.NewGuid().ToString("N"), js, true);
         }
 
@@ -111,8 +129,8 @@ namespace TripWay.Helper
         protected void OpenPanelModal(Panel panel, string widthClass = null)
         {
             var json = new JavaScriptSerializer();
-            string js = "appOpenPanel(" + json.Serialize(panel.ClientID)
-                + (string.IsNullOrEmpty(widthClass) ? "" : "," + json.Serialize(widthClass)) + ");";
+            string js = DeferUntilReady("function(){appOpenPanel(" + json.Serialize(panel.ClientID)
+                + (string.IsNullOrEmpty(widthClass) ? "" : "," + json.Serialize(widthClass)) + ");}");
             ClientScript.RegisterStartupScript(GetType(), "openPanelModal_" + Guid.NewGuid().ToString("N"), js, true);
         }
 

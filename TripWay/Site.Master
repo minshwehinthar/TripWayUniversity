@@ -430,10 +430,10 @@
            picture, and the backdrop takes a light blur so the page behind reads as out
            of play without going black. Only present while an image is open, so every
            other overlay keeps the card it was designed around. */
-        #appModal.tw-modal-image { background-color: rgba(0, 0, 0, 0.72); backdrop-filter: blur(3px); align-items: center; }
-        #appModal.tw-modal-image > div { max-width: none; background: none; border-radius: 0; }
-        #appModal.tw-modal-image #appModalPanel { max-width: none; }
-        #appModal.tw-modal-image #appModalBody { padding: 0; }
+        #appModal.tw-modal-image { background-color: rgba(0, 0, 0, 0.72); backdrop-filter: blur(3px); align-items: center; padding: 0; overflow: hidden; }
+        #appModal.tw-modal-image > div { max-width: none; max-height: none; width: 100%; height: 100%; background: none; border-radius: 0; }
+        #appModal.tw-modal-image #appModalPanel { max-width: none; width: 100%; height: 100%; }
+        #appModal.tw-modal-image #appModalBody { padding: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
         /* Icon only, no plate behind it: a white cross on a dark blurred backdrop reads on
            its own, and the card-shaped overlays keep the white circle they were built with. */
         #appModal.tw-modal-image .tw-lb-close {
@@ -902,10 +902,15 @@
                 ? document.createElement('iframe')
                 : document.createElement('img');
             if (isPdf) {
-                view.className = 'mx-auto block h-[85vh] w-full max-w-5xl rounded-lg bg-white';
+                view.className = 'block h-full w-full border-0';
                 view.setAttribute('title', name || label || 'Document');
             } else {
-                view.className = 'mx-auto block max-h-[85vh] max-w-full w-auto object-contain';
+                // Sized to the picture and capped by the viewport rather than stretched to fill
+                // it: a phone photo is far larger than any screen, so this shows all of it at
+                // once, and the empty space beside it still belongs to the backdrop, so clicking
+                // away from the picture keeps closing the viewer. Stretching a low resolution
+                // photo across the screen would only make it harder to read.
+                view.className = 'block h-auto w-auto max-h-full max-w-full object-contain';
                 view.alt = name || label || 'Document';
             }
             view.src = src;
