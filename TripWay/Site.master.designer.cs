@@ -13,6 +13,8 @@ namespace TripWay
         protected global::System.Web.UI.WebControls.Panel pnlSidebar;
         protected global::System.Web.UI.WebControls.Literal litSidebarTitle;
         protected global::System.Web.UI.WebControls.Repeater rptSidebarLinks;
+        protected global::System.Web.UI.WebControls.Repeater rptPublicNav;
+        protected global::System.Web.UI.WebControls.Repeater rptPublicMobileNav;
         protected global::System.Web.UI.WebControls.LinkButton lnkLogout;
         protected global::System.Web.UI.WebControls.Panel pnlAppHeader;
         protected global::System.Web.UI.WebControls.Literal litBreadcrumb;

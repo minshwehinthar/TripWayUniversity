@@ -294,6 +294,21 @@ namespace TripWay
             lnkMobileLogout.Visible = loggedIn;
             lnkLogout.Visible = loggedIn && !isPublicPage;
 
+            // Bound on every request, public or not, so the header is already populated
+            // if a logged in visitor lands on a marketing page.
+            List<PublicNavLink> publicNav = new List<PublicNavLink>
+            {
+                new PublicNavLink { Url = ResolveUrl("~/Default.aspx"),  Text = "Home" },
+                new PublicNavLink { Url = ResolveUrl("~/Services.aspx"), Text = "Services" },
+                new PublicNavLink { Url = ResolveUrl("~/FAQs.aspx"),     Text = "FAQs" },
+                new PublicNavLink { Url = ResolveUrl("~/AboutUs.aspx"),   Text = "About" },
+                new PublicNavLink { Url = ResolveUrl("~/ContactUs.aspx"), Text = "Contact" }
+            };
+            rptPublicNav.DataSource = publicNav;
+            rptPublicNav.DataBind();
+            rptPublicMobileNav.DataSource = publicNav;
+            rptPublicMobileNav.DataBind();
+
             if (isPublicPage)
             {
                 appShell.Attributes["class"] = "flex flex-col min-h-screen";
@@ -470,6 +485,75 @@ namespace TripWay
                     && fileName.Equals(_badgeFile, StringComparison.OrdinalIgnoreCase);
                 badge.InnerText = _pendingBadge;
             }
+        }
+
+        /// <summary>One link in the public header, shown in both the desktop row and the mobile menu.</summary>
+        public class PublicNavLink
+        {
+            public string Url { get; set; }
+            public string Text { get; set; }
+        }
+
+        /// <summary>
+        /// Marks the public header link for the page being viewed. This is decided here
+        /// rather than in script because the server always knows the requested path,
+        /// while the browser only sees it after the fact and gets it wrong at a
+        /// directory root.
+        /// </summary>
+        protected void rptPublicNav_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            if (e.Item.ItemType != ListItemType.Item && e.Item.ItemType != ListItemType.AlternatingItem) return;
+
+            // The two navs share this handler, so the anchor is named differently in each
+            // template. e.Item is the naming container, so each repeater's control is
+            // found on its own and the two cannot collide.
+            var link = e.Item.FindControl("publicNavLink") as System.Web.UI.HtmlControls.HtmlAnchor
+                       ?? e.Item.FindControl("publicMobileNavLink") as System.Web.UI.HtmlControls.HtmlAnchor;
+            if (link == null) return;
+
+            var data = e.Item.DataItem as PublicNavLink;
+            if (data == null) return;
+
+            bool isActive = IsCurrentPublicPage(data.Url);
+            link.Attributes["class"] = "px-3 py-2 rounded-md transition-colors "
+                + (isActive ? "tw-nav-active font-semibold"
+                            : "text-gray-700 hover:text-blue-600");
+            if (isActive)
+            {
+                link.Attributes["aria-current"] = "page";
+                link.Attributes["title"] = "Current page";
+            }
+            else
+            {
+                link.Attributes.Remove("aria-current");
+                link.Attributes.Remove("title");
+            }
+        }
+
+        /// <summary>
+        /// True when <paramref name="url"/> is the document being served. A request for
+        /// the site root arrives with no file name at all, because Default.aspx is a
+        /// default document rather than part of the path, so that counts as Home. The
+        /// same goes for a virtual directory reached without its closing slash, which
+        /// IIS normally redirects but need not be relied on. Both cases are recognised
+        /// by the last segment being empty or carrying no extension; a real page such as
+        /// Login.aspx always has one, so it correctly matches nothing.
+        /// </summary>
+        private bool IsCurrentPublicPage(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return false;
+
+            string current = System.IO.Path.GetFileName(Request.Url.AbsolutePath);
+            string target = System.IO.Path.GetFileName(url);
+
+            if (string.Equals(current, target, StringComparison.OrdinalIgnoreCase)) return true;
+
+            if (current.Length == 0 || current.IndexOf('.') === -1)
+            {
+                return string.Equals(target, "Default.aspx", StringComparison.OrdinalIgnoreCase);
+            }
+
+            return false;
         }
 
         protected void lnkLogout_Click(object sender, EventArgs e)

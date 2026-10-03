@@ -274,7 +274,8 @@
         }
 
         /* Active public nav link: brand blue text with an underline, matching the
-           JobConnect header. Blue matches .tw-btn-primary above. */
+           JobConnect header. The class is applied on the server by
+           rptPublicNav_ItemDataBound. Blue matches .tw-btn-primary above. */
         #publicNav a.tw-nav-active,
         #publicMobileNav a.tw-nav-active {
             position: relative;
@@ -345,11 +346,12 @@
                             </a>
 
                             <div id="publicNav" class="hidden md:flex items-center gap-1 text-sm font-medium">
-                                <a href="<%= ResolveUrl("~/Default.aspx") %>" data-nav="Home" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Home</a>
-                                <a href="<%= ResolveUrl("~/Services.aspx") %>" data-nav="Services" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Services</a>
-                                <a href="<%= ResolveUrl("~/FAQs.aspx") %>" data-nav="FAQs" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">FAQs</a>
-                                <a href="<%= ResolveUrl("~/AboutUs.aspx") %>" data-nav="About" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">About</a>
-                                <a href="<%= ResolveUrl("~/ContactUs.aspx") %>" data-nav="Contact" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Contact</a>
+                                <asp:Repeater ID="rptPublicNav" runat="server" OnItemDataBound="rptPublicNav_ItemDataBound">
+                                    <ItemTemplate>
+                                        <a id="publicNavLink" runat="server" href='<%# Eval("Url") %>'
+                                           class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors"><%# Eval("Text") %></a>
+                                    </ItemTemplate>
+                                </asp:Repeater>
                             </div>
 
                             <div class="flex items-center gap-2.5">
@@ -376,11 +378,12 @@
                             </div>
                         </div>
                         <div id="publicMobileNav" class="hidden md:hidden pb-3 px-4 pt-2 flex flex-col gap-1 text-sm font-medium border-t border-gray-200">
-                            <a href="<%= ResolveUrl("~/Default.aspx") %>" data-nav="Home" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Home</a>
-                            <a href="<%= ResolveUrl("~/Services.aspx") %>" data-nav="Services" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Services</a>
-                            <a href="<%= ResolveUrl("~/FAQs.aspx") %>" data-nav="FAQs" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">FAQs</a>
-                            <a href="<%= ResolveUrl("~/AboutUs.aspx") %>" data-nav="About" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">About</a>
-                            <a href="<%= ResolveUrl("~/ContactUs.aspx") %>" data-nav="Contact" class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors">Contact</a>
+                            <asp:Repeater ID="rptPublicMobileNav" runat="server" OnItemDataBound="rptPublicNav_ItemDataBound">
+                                <ItemTemplate>
+                                    <a id="publicMobileNavLink" runat="server" href='<%# Eval("Url") %>'
+                                       class="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 transition-colors"><%# Eval("Text") %></a>
+                                </ItemTemplate>
+                            </asp:Repeater>
                             <asp:HyperLink ID="lnkMobileLogin" runat="server" NavigateUrl="~/Login.aspx"
                                 CssClass="mt-1 inline-flex items-center justify-center h-10 px-4 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
                                 Login
@@ -401,7 +404,7 @@
                  of the public header and pushed the footer off the first screen. --%>
             <div class="flex flex-1 min-h-0">
                 <asp:Panel ID="pnlSidebar" runat="server" CssClass="flex shrink-0">
-                    <div id="sideNav" class="flex flex-col h-screen border-r border-gray-200 bg-white transition-all duration-300 ease-in-out">
+                    <div id="sideNav" class="relative flex flex-col h-screen border-r border-gray-200 bg-white transition-all duration-300 ease-in-out">
                         <div class="tw-side-head flex items-center gap-2 px-4 py-5">
                             <img src="<%= ResolveUrl("~/Images/logo.jpeg") %>" alt="TripWay logo"
                                  class="size-9 rounded-lg object-contain shrink-0" />
@@ -545,51 +548,6 @@
             var m = document.getElementById('publicMobileNav');
             if (m) m.classList.toggle('hidden');
         }
-
-        // Marks the public nav link for the page being viewed. The master has no way
-        // to know the current page while it renders, so this matches on location
-        // afterwards and tags the link with the class the stylesheet keys off.
-        (function () {
-            var NAV_MAP = {
-                'default.aspx': 'Home',
-                'services.aspx': 'Services',
-                'faqs.aspx': 'FAQs',
-                'aboutus.aspx': 'About',
-                'contactus.aspx': 'Contact'
-            };
-
-            function currentNavKey() {
-                var path = (location.pathname || '').replace(/\\/g, '/');
-                // Taking the last segment leaves an empty string when the path ends at
-                // a directory, which is what the site root looks like: the browser is
-                // at / but Default.aspx is the document being served. Without this the
-                // lookup missed and nothing lit up on the home page.
-                var last = path.split('/').pop() || '';
-                var key = NAV_MAP[last.toLowerCase()];
-                if (key) return key;
-                // No match, and no file extension either, so this is a directory rather
-                // than a page of its own. Login.aspx and Register.aspx do have one, so
-                // they correctly end up with nothing highlighted.
-                if (last === '' || last.indexOf('.') === -1) return 'Home';
-                return null;
-            }
-
-            function markActive() {
-                var key = currentNavKey();
-                if (!key) return;
-                var links = document.querySelectorAll('#publicNav [data-nav], #publicMobileNav [data-nav]');
-                for (var i = 0; i < links.length; i++) {
-                    if (links[i].getAttribute('data-nav') === key) {
-                        links[i].classList.add('tw-nav-active');
-                    }
-                }
-            }
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', markActive);
-            } else {
-                markActive();
-            }
-        })();
 
         document.addEventListener('DOMContentLoaded', function () {
             var s = document.getElementById('sideNav');
