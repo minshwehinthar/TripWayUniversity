@@ -314,14 +314,18 @@
         #sideNav { width: 18rem; }
         #sideNav.tw-collapsed { width: 4rem; }
         #sideNav .nav-item { width: 100%; }
-        #sideNav.tw-collapsed .tw-nav-label { display: none; }
-        #sideNav.tw-collapsed .tw-badge { display: none; }
+        #sideNav .lnk-logout { width: 100%; }
+        /* The pending pill carries nav-label too, so collapsing the rail drops
+           it along with the text instead of cramming a number into 4rem. */
+        #sideNav.tw-collapsed .nav-label,
+        #sideNav.tw-collapsed .side-title,
+        #sideNav.tw-collapsed .side-brand-text { display: none; }
         #sideNav.tw-collapsed .nav-item,
-        #sideNav.tw-collapsed .tw-side-head,
-        #sideNav.tw-collapsed .tw-logout {
+        #sideNav.tw-collapsed .side-head,
+        #sideNav.tw-collapsed .lnk-logout {
             justify-content: center;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
+            padding-left: 0;
+            padding-right: 0;
         }
     </style>
 </head>
@@ -403,67 +407,100 @@
                  straight away. Pinned to min-h-screen it claimed a whole viewport on top
                  of the public header and pushed the footer off the first screen. --%>
             <div class="flex flex-1 min-h-0">
-                <asp:Panel ID="pnlSidebar" runat="server" CssClass="flex shrink-0">
-                    <div id="sideNav" class="relative flex flex-col h-screen border-r border-gray-200 bg-white transition-all duration-300 ease-in-out">
-                        <div class="tw-side-head flex items-center gap-2 px-4 py-5">
-                            <img src="<%= ResolveUrl("~/Images/logo.jpeg") %>" alt="TripWay logo"
-                                 class="size-9 rounded-lg object-contain shrink-0" />
-                            <span class="tw-nav-label"><asp:Literal ID="litSidebarTitle" runat="server" /></span>
+                <asp:Panel ID="pnlSidebar" runat="server" Visible="false">
+                    <aside id="sideNav" class="relative shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen transition-all duration-300 ease-in-out">
+                        <%-- Brand block. Fixed height so the rail does not change size when a
+                             role's panel title changes length. --%>
+                        <div class="side-head px-4 h-16 border-b border-gray-200 flex items-center">
+                            <div class="flex items-center gap-2.5 overflow-hidden">
+                                <img src="<%= ResolveUrl("~/Images/logo.jpeg") %>" alt="TripWay logo" class="size-10 rounded-xl object-contain shrink-0" />
+                                <div class="side-brand-text min-w-0">
+                                    <p class="text-[15px] font-bold text-gray-900 leading-tight">TripWay</p>
+                                    <p class="text-[11px] text-gray-400 leading-tight">Transport Platform</p>
+                                </div>
+                            </div>
                         </div>
+
                         <button id="btnSideToggle" type="button" onclick="toggleSidebar()" aria-label="Collapse sidebar"
-                                class="absolute left-full top-5 z-50 -ml-3 flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-600">
+                            class="absolute top-5 -right-3 z-50 flex items-center justify-center size-7 rounded-full border border-gray-200 bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-600 shadow-sm transition-colors duration-150">
                             <%= TripWay.Helper.Heroicons.SvgFromName("arrow-left", "size-3.5") %>
                         </button>
-                        <nav class="flex-1 overflow-y-auto pb-4">
-                            <asp:Repeater ID="rptSidebarLinks" runat="server" OnItemDataBound="rptSidebarLinks_ItemDataBound">
-                                <ItemTemplate>
-                                    <a id="navLink" runat="server" href='<%# Eval("Url") %>'
-                                       class="nav-item flex items-center gap-3 py-2.5 px-4 text-[13px] rounded-lg font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900">
-                                        <%# TripWay.Helper.Heroicons.SvgFromName(Eval("Icon").ToString(), "size-4") %>
-                                        <span class="tw-nav-label leading-tight"><%# Eval("Text") %></span>
-                                        <span id="navBadge" runat="server" visible="false" class="tw-badge tw-avatar-blue ml-auto"></span>
-                                    </a>
-                                </ItemTemplate>
-                            </asp:Repeater>
+
+                        <nav class="flex-1 py-3 overflow-y-auto overflow-x-hidden">
+                            <p class="side-title px-4 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400"><asp:Literal ID="litSidebarTitle" runat="server" /></p>
+                            <ul class="flex flex-col gap-1">
+                                <asp:Repeater ID="rptSidebarLinks" runat="server" OnItemDataBound="rptSidebarLinks_ItemDataBound">
+                                    <ItemTemplate>
+                                        <li>
+                                            <a id="navLink" runat="server" href='<%# Eval("Url") %>'
+                                                class="nav-item flex items-center gap-3 py-2.5 px-4 text-[13px] font-medium rounded-lg transition-colors duration-150">
+                                                <%# TripWay.Helper.Heroicons.SvgFromName(Eval("Icon").ToString(), "size-4") %>
+                                                <span class="nav-label leading-tight"><%# Eval("Text") %></span>
+                                                <%-- Red pill with white text for the pending count. It carries
+                                                     nav-label so the collapsed rail hides it rather than
+                                                     squeezing a number into a 4rem column. --%>
+                                                <span id="navBadge" runat="server" visible="false"
+                                                    class="nav-label ml-auto min-w-5 h-5 px-1.5 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center leading-none"></span>
+                                            </a>
+                                        </li>
+                                    </ItemTemplate>
+                                </asp:Repeater>
+                            </ul>
                         </nav>
-                        <div class="border-t border-gray-200 p-3">
-                            <asp:LinkButton ID="lnkLogout" runat="server" CssClass="tw-btn-outline tw-logout w-full"
-                                            OnClick="lnkLogout_Click">
-                                <%= TripWay.Helper.Heroicons.SvgFromName("arrow-right", "size-4") %>
-                                <span class="tw-nav-label">Log out</span>
+
+                        <div class="border-t border-gray-200 p-3 pt-2 space-y-1">
+                            <a href="<%= ResolveUrl("~/Default.aspx") %>"
+                                class="lnk-logout flex items-center gap-3 w-full py-2.5 px-4 text-[13px] font-medium text-gray-500 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors duration-150">
+                                <%= TripWay.Helper.Heroicons.SvgFromName("globe", "size-4") %>
+                                <span class="nav-label">View Public Site</span>
+                            </a>
+                            <asp:LinkButton ID="lnkLogout" runat="server" OnClick="lnkLogout_Click" CausesValidation="false"
+                                CssClass="lnk-logout flex items-center gap-3 w-full py-2.5 px-4 text-[13px] font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors duration-150"
+                                ToolTip="Logout">
+                                <%= TripWay.Helper.Heroicons.SvgFromName("logout", "size-4") %>
+                                <span class="nav-label">Logout</span>
                             </asp:LinkButton>
                         </div>
-                    </div>
+                    </aside>
                 </asp:Panel>
 
                 <div class="flex min-w-0 flex-1 flex-col">
-                    <asp:Panel ID="pnlAppHeader" runat="server" CssClass="border-b border-gray-200 bg-white">
-                        <div class="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
-                            <%-- The mobile login and log out buttons now live in the public header's
-                                 mobile menu. This panel and pnlPublicHeader can never both render,
-                                 since one wants a signed in visitor on a private page and the other
-                                 wants a public page or a signed out one, so moving them cannot put two
-                                 controls with the same ID on the page. --%>
-                            <div class="flex items-center gap-2">
+                    <asp:Panel ID="pnlAppHeader" runat="server" Visible="false">
+                        <%-- The trail lives in the header rather than above the content, so the two
+                             read as one bar. It follows the same visibility rule as this panel. --%>
+                        <header class="shrink-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between gap-4">
+                            <nav aria-label="breadcrumb">
+                                <asp:Panel ID="pnlBreadcrumb" runat="server">
+                                    <%-- Site.master.cs fills litBreadcrumb with its own <ol> and
+                                         <li> crumbs, so nothing wraps it here. Pages that want
+                                         their own trail override BreadcrumbContent instead. --%>
+                                    <asp:ContentPlaceHolder ID="BreadcrumbContent" runat="server">
+                                        <asp:Literal ID="litBreadcrumb" runat="server" />
+                                    </asp:ContentPlaceHolder>
+                                </asp:Panel>
+                            </nav>
+                            <div class="flex items-center gap-3">
+                                <%-- The mobile login and log out buttons live in the public header's
+                                     mobile menu. This panel and pnlPublicHeader can never both render,
+                                     since one wants a signed in visitor on a private page and the other
+                                     wants a public page or a signed out one, so the move cannot put
+                                     two controls with the same ID on the page. --%>
+                                <div class="hidden sm:flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                                    <button type="button" onclick="history.back()" aria-label="Go back"
+                                        class="size-7 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors border-r border-gray-200">
+                                        <%= TripWay.Helper.Heroicons.SvgFromName("arrow-left", "size-3.5") %>
+                                    </button>
+                                    <button type="button" onclick="history.forward()" aria-label="Go forward"
+                                        class="size-7 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">
+                                        <%= TripWay.Helper.Heroicons.SvgFromName("arrow-right", "size-3.5") %>
+                                    </button>
+                                </div>
                                 <asp:Literal ID="litUserInfo" runat="server" />
                             </div>
-                        </div>
+                        </header>
                     </asp:Panel>
 
                     <main id="mainContentArea" runat="server" class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
-                        <%-- Pages that want their own trail supply this; everything else gets the
-                             one Site.master.cs builds into litBreadcrumb. The whole area is hidden on
-                             public pages and when logged out, on the same rule as the sidebar and
-                             app header: there is no trail to show there, and with no dashboard to
-                             point at, the leading crumb would render as a link to nowhere. --%>
-                        <asp:Panel ID="pnlBreadcrumb" runat="server">
-                            <asp:ContentPlaceHolder ID="BreadcrumbContent" runat="server">
-                                <nav class="mb-4 flex flex-wrap items-center gap-1.5 text-[13px] text-gray-500" aria-label="Breadcrumb">
-                                    <asp:Literal ID="litBreadcrumb" runat="server" />
-                                </nav>
-                            </asp:ContentPlaceHolder>
-                        </asp:Panel>
-
                         <asp:ContentPlaceHolder ID="MainContent" runat="server" />
                     </main>
                 </div>
