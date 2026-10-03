@@ -39,14 +39,17 @@ namespace TripWay.Driver
             Bind();
         }
 
+        // One minute per click. The promise is the one number the customer is shown, and a
+        // five minute jump was coarse enough to be the wrong answer as often as the right one.
+        // ClampEta still holds the value inside MinEtaMinutes..MaxEtaMinutes at either end.
         protected void btnEtaUp_Click(object sender, EventArgs e)
         {
-            txtEta.Text = ClampEta(ParseEta(txtEta.Text) + 5).ToString();
+            txtEta.Text = ClampEta(ParseEta(txtEta.Text) + 1).ToString();
         }
 
         protected void btnEtaDown_Click(object sender, EventArgs e)
         {
-            txtEta.Text = ClampEta(ParseEta(txtEta.Text) - 5).ToString();
+            txtEta.Text = ClampEta(ParseEta(txtEta.Text) - 1).ToString();
         }
 
         protected void btnAccept_Click(object sender, EventArgs e)

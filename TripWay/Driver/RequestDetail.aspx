@@ -124,7 +124,7 @@
         var P = <%= PathJson %>;
         var ME = <%= MeJson %>;
         var AVG_SPEED_KMH = 25, ROAD_FACTOR = 1.3;
-        var meMarker = null, approachRoute = null, map = null;
+        var meMarker = null, approachRoute = null, tripRoute = null, map = null;
 
         // Drive-to-pickup shown along the real road, with live road distance and drive time.
         // Safe to call more than once: the line is built the first time and re-pointed after,
@@ -166,13 +166,31 @@
                 map = L.map('mapRequest').setView([16.890, 97.633], 14);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
                 var pts = [];
-                if (P.pickup) { L.marker(P.pickup, { icon: L.divIcon({ className: '', html: '<span class="block size-4 rounded-full bg-emerald-500 border-2 border-white shadow"></span>' }) }).addTo(map); pts.push(P.pickup); }
-                if (P.drop) { L.marker(P.drop, { icon: L.divIcon({ className: '', html: '<span class="block size-4 rounded-full bg-rose-500 border-2 border-white shadow"></span>' }) }).addTo(map); pts.push(P.drop); }
+                /* Markers are placed before the lines on purpose: the route helper draws each
+                   line and its white casing behind everything else, so placing them first is
+                   what keeps the dots readable where the blue line runs through them. The title
+                   is a native tooltip, which is enough to tell the three apart on a map that
+                   only has colour and a number to go on. */
+                if (P.pickup) { L.marker(P.pickup, { title: 'Pickup', icon: L.divIcon({ className: '', html: '<span class="block size-4 rounded-full bg-emerald-500 border-2 border-white shadow"></span>' }) }).addTo(map); pts.push(P.pickup); }
+                if (P.drop) { L.marker(P.drop, { title: 'Destination', icon: L.divIcon({ className: '', html: '<span class="block size-4 rounded-full bg-rose-500 border-2 border-white shadow"></span>' }) }).addTo(map); pts.push(P.drop); }
                 if (P.stops && P.stops.length > 2) {
                     for (var si = 1; si < P.stops.length - 1; si++) {
-                        L.marker(P.stops[si], { icon: L.divIcon({ className: '', html: '<span class="flex items-center justify-center size-5 rounded-full bg-blue-500 text-white text-[10px] font-bold border-2 border-white shadow">' + (si + 1) + '</span>' }) }).addTo(map);
+                        L.marker(P.stops[si], { title: 'Stop ' + (si + 1), icon: L.divIcon({ className: '', html: '<span class="flex items-center justify-center size-5 rounded-full bg-blue-500 text-white text-[10px] font-bold border-2 border-white shadow">' + (si + 1) + '</span>' }) }).addTo(map);
                         pts.push(P.stops[si]);
                     }
+                }
+
+                /* The trip itself: pickup, every stop in order, then the destination, followed
+                   along the real road as one solid blue line. P.stops already holds that whole
+                   ordered list - the markers above are read out of the same array - so no second
+                   source of truth is introduced. Falls back to the straight pair for a trip
+                   whose stop list did not come back, which is better than showing no line. */
+                var tripPts = (P.stops && P.stops.length) ? P.stops.slice() : [P.pickup, P.drop];
+                tripPts = tripPts.filter(function (q) { return !!q; });
+                if (tripPts.length > 1) {
+                    tripRoute = TripRoute.create(map, tripPts, {
+                        color: '#1d4ed8', weight: 4, opacity: 0.9, fit: false, guide: false
+                    });
                 }
                 if (ME) {
                     meMarker = L.marker(ME, { icon: L.divIcon({ className: '', html: '<span class="flex items-center justify-center size-5 rounded-full bg-gray-900 text-white text-[9px] font-bold border-2 border-white shadow">You</span>' }) }).addTo(map);

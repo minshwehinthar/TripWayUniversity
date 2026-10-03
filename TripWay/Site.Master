@@ -915,8 +915,8 @@
         }
 
         // ---- image lightbox ---------------------------------------------------
-        // The same overlay card every other panel uses, sized down to max-w-2xl, with no
-        // heading: just the picture in the frame. Esc, the backdrop and the close button all
+        // The same overlay card every other panel uses, sized down to max-w-sm, with no
+        // heading: just the picture in a small frame. Esc, the backdrop and the close button all
         // still work, because those are the shell's, not this one's.
         //
         // Markup is built here instead of in a page so a page only has to carry the
@@ -957,9 +957,10 @@
             view.src = src;
             body.appendChild(view);
 
-            // max-w-2xl rather than the default max-w-4xl: a document reads comfortably in a
-            // normal sized dialog, and the narrower card leaves the page behind it visible.
-            appOpenModal(null, 'max-w-2xl');
+            // max-w-sm, half of the max-w-2xl it was before. The card is deliberately narrow
+            // now, so the picture keeps its own proportions inside a small frame instead of
+            // sitting in a wide empty one.
+            appOpenModal(null, 'max-w-sm');
 
             // Added after the open, because opening an overlay clears the class for the
             // card-shaped ones and this is the only one that wants the image-specific rules.
