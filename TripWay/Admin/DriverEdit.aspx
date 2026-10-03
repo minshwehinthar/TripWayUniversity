@@ -169,7 +169,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 mt-5">
                     <%-- NRC photo --%>
                     <div data-tw-upload>
-                        <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Photo</label>
+                        <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Front</label>
 
                         <div id="kycTileNrc" runat="server" data-tw-preview-tile class="mb-2">
                             <span id="kycCoverNrc" runat="server" data-tw-cover data-tw-has-doc="0" class="relative block h-24 overflow-hidden rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/40">
@@ -190,7 +190,7 @@
                     </div>
                     <%-- The other side of the card, stored in its own column --%>
                     <div data-tw-upload>
-                        <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Photo (Back)</label>
+                        <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Back</label>
 
                         <div id="kycTileNrcBack" runat="server" data-tw-preview-tile class="mb-2">
                             <span id="kycCoverNrcBack" runat="server" data-tw-cover data-tw-has-doc="0" class="relative block h-24 overflow-hidden rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/40">

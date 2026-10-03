@@ -407,6 +407,10 @@
 
         .tw-lb-close {
             position: absolute;
+            /* Above the panel it shares a parent with: both are positioned with an automatic
+               z-index, so the one later in the markup wins and the panel would otherwise
+               swallow every click meant for this button. */
+            z-index: 20;
             top: -0.75rem;
             right: -0.75rem;
             width: 2.25rem;
@@ -430,7 +434,17 @@
         #appModal.tw-modal-image > div { max-width: none; background: none; border-radius: 0; }
         #appModal.tw-modal-image #appModalPanel { max-width: none; }
         #appModal.tw-modal-image #appModalBody { padding: 0; }
-        #appModal.tw-modal-image .tw-lb-close { top: 1rem; right: 1rem; background: rgba(255, 255, 255, 0.92); }
+        /* Icon only, no plate behind it: a white cross on a dark blurred backdrop reads on
+           its own, and the card-shaped overlays keep the white circle they were built with. */
+        #appModal.tw-modal-image .tw-lb-close {
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 2.75rem;
+            height: 2.75rem;
+            background: none;
+            color: #fff;
+            box-shadow: none;
+        }
 
         @media (max-width: 640px) {
             .tw-detail-grid { grid-template-columns: 1fr; }
@@ -722,7 +736,11 @@
              so the server controls inside keep their postback wiring. --%>
         <div id="appModal" class="fixed inset-0 z-[1000] hidden items-start justify-center overflow-y-auto bg-black/50 p-4 md:p-8">
             <div class="relative w-full max-w-4xl rounded-2xl bg-white">
-                <button type="button" id="appModalClose" class="tw-lb-close" aria-label="Close">&times;</button>
+                <button type="button" id="appModalClose" class="tw-lb-close" aria-label="Close" title="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-5" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 <div id="appModalPanel" class="relative w-full max-w-4xl">
                     <div id="appModalBody" class="p-6"></div>
                 </div>

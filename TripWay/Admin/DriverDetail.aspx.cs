@@ -137,8 +137,8 @@ namespace TripWay.Admin
             Helper.TripHelper.EnsureDriverNrcBackPhoto();
 
             var docs = new List<DocItem>();
-            AddDoc(docs, "NRC Photo", r["NRCPhotoUrl"]);
-            AddDoc(docs, "NRC Photo (Back)", r["NRCPhotoBackUrl"]);
+            AddDoc(docs, "NRC Front", r["NRCPhotoUrl"]);
+            AddDoc(docs, "NRC Back", r["NRCPhotoBackUrl"]);
             AddDoc(docs, "License Photo", r["LicensePhotoUrl"]);
             AddDoc(docs, "Vehicle Photo", r["VehiclePhotoUrl"]);
             AddDoc(docs, "Reg. Document", r["VehicleRegDocUrl"]);

@@ -96,7 +96,7 @@ namespace TripWay.Driver
             RegDocStored = ToDoc(r["VehicleRegDocUrl"]);
 
             var docs = new List<DocItem>();
-            AddDoc(docs, "NRC", NrcStored);
+            AddDoc(docs, "NRC Front", NrcStored);
             AddDoc(docs, "NRC Back", NrcBackStored);
             AddDoc(docs, "License", LicenseStored);
             AddDoc(docs, "Vehicle", VehicleStored);

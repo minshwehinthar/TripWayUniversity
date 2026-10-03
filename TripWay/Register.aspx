@@ -221,7 +221,7 @@
                             placeholder="Filled in from the vehicle type, editable" />
                     </div>
                     <div class="flex flex-col gap-1.5" data-tw-upload>
-                        <label class="text-sm text-gray-900 font-bold">NRC Photo (front)</label>
+                        <label class="text-sm text-gray-900 font-bold">NRC Front</label>
                         <%-- Never hidden: the grey 4:3 box stands there from the start, so the slot
                              reads as waiting for a file rather than appearing only once something
                              is chosen. The fill is a steady grey, not a pulsing skeleton: nothing
@@ -245,10 +245,10 @@
                         </button>
                         <span class="block truncate text-xs text-gray-400" data-tw-name data-tw-hint="No file chosen">No file chosen</span>
                         <asp:RequiredFieldValidator ID="rfvNrcPhoto" runat="server" ControlToValidate="fuNrcPhoto"
-                            ErrorMessage="NRC photo is required" CssClass="text-xs text-red-500" Display="Dynamic" Enabled="false" />
+                            ErrorMessage="NRC Front is required" CssClass="text-xs text-red-500" Display="Dynamic" Enabled="false" />
                     </div>
                     <div class="flex flex-col gap-1.5" data-tw-upload>
-                        <label class="text-sm text-gray-900 font-bold">NRC Photo (Back)</label>
+                        <label class="text-sm text-gray-900 font-bold">NRC Back</label>
                         <%-- Never hidden: the grey 4:3 box stands there from the start, so the slot
                              reads as waiting for a file rather than appearing only once something
                              is chosen. The fill is a steady grey, not a pulsing skeleton: nothing
@@ -272,7 +272,7 @@
                         </button>
                         <span class="block truncate text-xs text-gray-400" data-tw-name data-tw-hint="No file chosen">No file chosen</span>
                         <asp:RequiredFieldValidator ID="rfvNrcPhotoBack" runat="server" ControlToValidate="fuNrcPhotoBack"
-                            ErrorMessage="NRC back photo is required" CssClass="text-xs text-red-500" Display="Dynamic" Enabled="false" />
+                            ErrorMessage="NRC Back is required" CssClass="text-xs text-red-500" Display="Dynamic" Enabled="false" />
                     </div>
                     <div class="flex flex-col gap-1.5" data-tw-upload>
                         <label class="text-sm text-gray-900 font-bold">Driver License Photo</label>

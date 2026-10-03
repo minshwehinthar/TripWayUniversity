@@ -164,7 +164,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 border-t border-gray-100 pt-5 mt-5">
                     <%-- NRC photo --%>
                     <div data-tw-upload>
-                        <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Photo</label>
+                        <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Front</label>
 
                         <%-- Live preview for this document only, hidden until a file is picked --%>
                         <div data-tw-preview-tile class="hidden mb-2">
@@ -182,11 +182,11 @@
                         <button type="button" data-tw-pick data-tw-name data-tw-hint="Choose file"
                             class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">Choose file</button>
                             <asp:RequiredFieldValidator ID="rfvNrcPhoto" runat="server" ControlToValidate="fuNrcPhoto"
-                                ErrorMessage="NRC photo is required" CssClass="text-xs text-red-500" Display="Dynamic" />
+                                ErrorMessage="NRC Front is required" CssClass="text-xs text-red-500" Display="Dynamic" />
                     </div>
                     <%-- The other side of the same card, stored in its own column --%>
                     <div data-tw-upload>
-                        <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Photo (Back)</label>
+                        <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Back</label>
 
                         <%-- Live preview for this document only, hidden until a file is picked --%>
                         <div data-tw-preview-tile class="hidden mb-2">
@@ -204,7 +204,7 @@
                         <button type="button" data-tw-pick data-tw-name data-tw-hint="Choose file"
                             class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">Choose file</button>
                             <asp:RequiredFieldValidator ID="rfvNrcPhotoBack" runat="server" ControlToValidate="fuNrcPhotoBack"
-                                ErrorMessage="NRC back photo is required" CssClass="text-xs text-red-500" Display="Dynamic" />
+                                ErrorMessage="NRC Back is required" CssClass="text-xs text-red-500" Display="Dynamic" />
                     </div>
 
                     <%-- License photo --%>

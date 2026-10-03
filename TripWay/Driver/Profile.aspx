@@ -171,7 +171,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 border-t border-gray-100 pt-5 mt-5">
                 <%-- NRC photo --%>
                 <div data-tw-upload data-tw-share-preview="kycPreviewTile">
-                    <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Photo</label>
+                    <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Front</label>
                     <asp:FileUpload ID="fuNrcPhoto" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
                     <button type="button" data-tw-pick data-tw-name data-tw-hint="Choose file"
                                 class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">Choose file</button>
@@ -179,7 +179,7 @@
 
                 <%-- The other side of the same card, stored in its own column --%>
                 <div data-tw-upload data-tw-share-preview="kycPreviewTile">
-                    <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Photo (Back)</label>
+                    <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Back</label>
                     <asp:FileUpload ID="fuNrcPhotoBack" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
                     <button type="button" data-tw-pick data-tw-name data-tw-hint="Choose file"
                                 class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">Choose file</button>
