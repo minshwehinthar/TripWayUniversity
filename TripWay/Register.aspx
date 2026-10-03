@@ -80,7 +80,30 @@
                     </div>
                     <div class="flex flex-col gap-1.5 md:col-span-2">
                         <label class="text-sm text-gray-900 font-bold">Profile Photo <span class="text-gray-400 font-normal">(optional)</span></label>
-                        <asp:FileUpload ID="fuProfilePhoto" runat="server" CssClass="tw-input tw-file" />
+                        <%-- Picker, button and live preview follow the data-tw-upload contract in
+                             Scripts/tw-upload.js, already loaded by Site.Master. The account does
+                             not exist yet, so there is no stored photo: the preview just covers
+                             the placeholder. Nothing is uploaded until the form is submitted. --%>
+                        <div data-tw-upload class="flex items-center gap-3">
+                            <span data-tw-cover class="relative block size-14 shrink-0">
+                                <span class="absolute inset-0 size-14 rounded-xl bg-blue-50 text-blue-400 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0 1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5Z" />
+                                    </svg>
+                                </span>
+                                <img data-tw-preview alt="Profile photo preview" class="hidden absolute inset-0 size-14 rounded-xl object-cover" />
+                            </span>
+                            <div class="min-w-0 flex-1">
+                                <asp:FileUpload ID="fuProfilePhoto" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
+                                <button type="button" data-tw-pick class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                    </svg>
+                                    Choose photo
+                                </button>
+                                <span class="mt-1 block truncate text-xs text-gray-400" data-tw-name data-tw-hint="JPG or PNG, up to 4 MB">JPG or PNG, up to 4 MB</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="flex flex-col gap-1.5 md:col-span-2">
                         <label class="text-sm text-gray-900 font-bold">Home / Default Pickup Address <span class="text-gray-400 font-normal">(optional)</span></label>
@@ -139,9 +162,29 @@
                         <asp:RequiredFieldValidator ID="rfvNrc" runat="server" ControlToValidate="txtNrc"
                             ErrorMessage="NRC is required" CssClass="text-xs text-red-500" Display="Dynamic" Enabled="false" />
                     </div>
-                    <div class="flex flex-col gap-1.5">
+                    <div class="flex flex-col gap-1.5" data-tw-upload>
                         <label class="text-sm text-gray-900 font-bold">NRC Photo (front &amp; back)</label>
-                        <asp:FileUpload ID="fuNrcPhoto" runat="server" CssClass="tw-input tw-file" />
+                        <%-- One preview slot per document, hidden until a file is picked, so all
+                             four driver documents stay side by side instead of overwriting one
+                             shared preview. --%>
+                        <div data-tw-preview-tile class="hidden">
+                            <span data-tw-cover class="relative block h-24 overflow-hidden rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/40">
+                                <span data-tw-fallback class="absolute inset-0 items-center justify-center text-blue-300" style="display:none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                    </svg>
+                                </span>
+                                <img data-tw-preview alt="NRC photo preview" class="hidden absolute inset-0 size-full object-cover" />
+                            </span>
+                        </div>
+                        <asp:FileUpload ID="fuNrcPhoto" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
+                        <button type="button" data-tw-pick class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                            Choose file
+                        </button>
+                        <span class="block truncate text-xs text-gray-400" data-tw-name data-tw-hint="No file chosen">No file chosen</span>
                         <asp:RequiredFieldValidator ID="rfvNrcPhoto" runat="server" ControlToValidate="fuNrcPhoto"
                             ErrorMessage="NRC photo is required" CssClass="text-xs text-red-500" Display="Dynamic" Enabled="false" />
                     </div>
@@ -151,9 +194,26 @@
                         <asp:RequiredFieldValidator ID="rfvLicenseNumber" runat="server" ControlToValidate="txtLicenseNumber"
                             ErrorMessage="License number is required" CssClass="text-xs text-red-500" Display="Dynamic" Enabled="false" />
                     </div>
-                    <div class="flex flex-col gap-1.5">
+                    <div class="flex flex-col gap-1.5" data-tw-upload>
                         <label class="text-sm text-gray-900 font-bold">Driver License Photo</label>
-                        <asp:FileUpload ID="fuLicensePhoto" runat="server" CssClass="tw-input tw-file" />
+                        <div data-tw-preview-tile class="hidden">
+                            <span data-tw-cover class="relative block h-24 overflow-hidden rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/40">
+                                <span data-tw-fallback class="absolute inset-0 items-center justify-center text-blue-300" style="display:none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                    </svg>
+                                </span>
+                                <img data-tw-preview alt="Driver license preview" class="hidden absolute inset-0 size-full object-cover" />
+                            </span>
+                        </div>
+                        <asp:FileUpload ID="fuLicensePhoto" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
+                        <button type="button" data-tw-pick class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                            Choose file
+                        </button>
+                        <span class="block truncate text-xs text-gray-400" data-tw-name data-tw-hint="No file chosen">No file chosen</span>
                         <asp:RequiredFieldValidator ID="rfvLicensePhoto" runat="server" ControlToValidate="fuLicensePhoto"
                             ErrorMessage="License photo is required" CssClass="text-xs text-red-500" Display="Dynamic" Enabled="false" />
                     </div>
@@ -171,15 +231,52 @@
                         <asp:RequiredFieldValidator ID="rfvPlateNumber" runat="server" ControlToValidate="txtPlateNumber"
                             ErrorMessage="Plate number is required" CssClass="text-xs text-red-500" Display="Dynamic" Enabled="false" />
                     </div>
-                    <div class="flex flex-col gap-1.5">
+                    <div class="flex flex-col gap-1.5" data-tw-upload>
                         <label class="text-sm text-gray-900 font-bold">Vehicle Photo</label>
-                        <asp:FileUpload ID="fuVehiclePhoto" runat="server" CssClass="tw-input tw-file" />
+                        <div data-tw-preview-tile class="hidden">
+                            <span data-tw-cover class="relative block h-24 overflow-hidden rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/40">
+                                <span data-tw-fallback class="absolute inset-0 items-center justify-center text-blue-300" style="display:none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                    </svg>
+                                </span>
+                                <img data-tw-preview alt="Vehicle photo preview" class="hidden absolute inset-0 size-full object-cover" />
+                            </span>
+                        </div>
+                        <asp:FileUpload ID="fuVehiclePhoto" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
+                        <button type="button" data-tw-pick class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                            Choose file
+                        </button>
+                        <span class="block truncate text-xs text-gray-400" data-tw-name data-tw-hint="No file chosen">No file chosen</span>
                         <asp:RequiredFieldValidator ID="rfvVehiclePhoto" runat="server" ControlToValidate="fuVehiclePhoto"
                             ErrorMessage="Vehicle photo is required" CssClass="text-xs text-red-500" Display="Dynamic" Enabled="false" />
                     </div>
-                    <div class="flex flex-col gap-1.5">
+                    <div class="flex flex-col gap-1.5" data-tw-upload>
                         <label class="text-sm text-gray-900 font-bold">Vehicle Registration Document (photo)</label>
-                        <asp:FileUpload ID="fuRegDoc" runat="server" CssClass="tw-input tw-file" />
+                        <%-- The only picker here that also takes a PDF, so the fallback chip is
+                             what a picked PDF shows instead of a broken image. --%>
+                        <div data-tw-preview-tile class="hidden">
+                            <span data-tw-cover class="relative block h-24 overflow-hidden rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/40">
+                                <span data-tw-fallback class="absolute inset-0 flex-col items-center justify-center gap-1 text-blue-400" style="display:none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                    </svg>
+                                    <span class="text-[11px] font-bold uppercase tracking-wide">Document</span>
+                                </span>
+                                <img data-tw-preview alt="Registration document preview" class="hidden absolute inset-0 size-full object-cover" />
+                            </span>
+                        </div>
+                        <asp:FileUpload ID="fuRegDoc" runat="server" data-tw-input accept=".jpg,.jpeg,.png,.pdf" CssClass="hidden" />
+                        <button type="button" data-tw-pick class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                            Choose file
+                        </button>
+                        <span class="block truncate text-xs text-gray-400" data-tw-name data-tw-hint="JPG, PNG or PDF, up to 4 MB">JPG, PNG or PDF, up to 4 MB</span>
                         <asp:RequiredFieldValidator ID="rfvRegDoc" runat="server" ControlToValidate="fuRegDoc"
                             ErrorMessage="Registration document is required" CssClass="text-xs text-red-500" Display="Dynamic" Enabled="false" />
                     </div>
