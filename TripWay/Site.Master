@@ -213,10 +213,19 @@
             width: 100%;
             border: 1px solid #e5e7eb;
             border-radius: 0.5rem;
-            padding: 0.5rem 0.75rem;
+            padding: 0.5rem 0.875rem;
             font-size: 0.875rem;
             color: #111827;
             background: #fff;
+        }
+        /* The filter dropdowns are sized w-auto, which sets them to the intrinsic width of
+           their widest option - but they sit in a flex row, where the default flex-shrink:1
+           still let the toolbar squeeze them until the option text was cut off. Letting the
+           drop arrow keep its own room on the right is what stops the text running under it.
+           ddlPerPage keeps its own !px-2.5 override, so it stays compact. */
+        select.tw-input {
+            flex-shrink: 0;
+            padding-right: 2rem;
         }
         .tw-input:focus {
             outline: none;
