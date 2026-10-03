@@ -20,6 +20,7 @@ namespace TripWay.Admin
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 { "name", "d.FullName" },
+                { "phone", "d.PhoneNumber" },
                 { "vehicle", "v.Name" },
                 { "trips", "tripCount" },
                 { "kyc", "d.KYCStatus" },

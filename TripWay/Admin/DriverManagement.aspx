@@ -44,7 +44,7 @@
             <asp:Repeater ID="rptDrivers" runat="server" OnItemCommand="rptDrivers_ItemCommand"
                 OnItemDataBound="rptDrivers_ItemDataBound">
                 <HeaderTemplate>
-                    <table class="tw-table w-full text-sm min-w-[1000px]">
+                    <table class="tw-table w-full text-sm min-w-[1120px]">
                         <thead>
                             <tr>
                                 <th class="w-14">No</th>
@@ -55,6 +55,15 @@
                                             <asp:LinkButton ID="lnkSortnameD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="name" OnClick="SortHeaderDesc_Click" ToolTip="Sort Z to A"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
                                         </span>
                                         <span>Driver</span>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="tw-sort">
+                                            <asp:LinkButton ID="lnkSortphoneA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="phone" OnClick="SortHeaderAsc_Click" ToolTip="Sort A to Z"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton>
+                                            <asp:LinkButton ID="lnkSortphoneD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="phone" OnClick="SortHeaderDesc_Click" ToolTip="Sort Z to A"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton>
+                                        </span>
+                                        <span>Phone</span>
                                     </div>
                                 </th>
                                 <th>
@@ -121,9 +130,16 @@
                                 <span class="tw-avatar tw-avatar-photo <%# GetAvatarCss(Eval("DriverID")) %>" style='<%# HasPhoto(Eval("ProfilePhotoUrl")) ? "display:none" : "" %>'><%# GetInitial(Eval("FullName").ToString()) %></span>
                                 <div class="min-w-0">
                                     <div class="font-semibold text-gray-900 text-sm truncate"><%# Eval("FullName") %></div>
-                                    <div class="text-xs text-gray-400"><%# Eval("PhoneNumber") %></div>
+                                    <%-- The email sits under the name and the phone has a column
+                                         of its own. A driver can be created with no email, so an
+                                         absent one reads as a dash rather than a blank line that
+                                         looks like the row failed to load. --%>
+                                    <div class="text-xs text-gray-400 truncate"><%# string.IsNullOrEmpty(Convert.ToString(Eval("Email"))) ? "-" : Eval("Email") %></div>
                                 </div>
                             </div>
+                        </td>
+                        <td>
+                            <div class="text-sm text-gray-700"><%# string.IsNullOrEmpty(Convert.ToString(Eval("PhoneNumber"))) ? "-" : Eval("PhoneNumber") %></div>
                         </td>
                         <td>
                             <div class="font-semibold text-gray-900 text-sm truncate"><%# Eval("VehicleTypeName") %></div>
