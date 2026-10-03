@@ -338,12 +338,17 @@
 
                     <main id="mainContentArea" runat="server" class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
                         <%-- Pages that want their own trail supply this; everything else gets the
-                             one Site.master.cs builds into litBreadcrumb. --%>
-                        <asp:ContentPlaceHolder ID="BreadcrumbContent" runat="server">
-                            <nav class="mb-4 flex flex-wrap items-center gap-1.5 text-[13px] text-gray-500" aria-label="Breadcrumb">
-                                <asp:Literal ID="litBreadcrumb" runat="server" />
-                            </nav>
-                        </asp:ContentPlaceHolder>
+                             one Site.master.cs builds into litBreadcrumb. The whole area is hidden on
+                             public pages and when logged out, on the same rule as the sidebar and
+                             app header: there is no trail to show there, and with no dashboard to
+                             point at, the leading crumb would render as a link to nowhere. --%>
+                        <asp:Panel ID="pnlBreadcrumb" runat="server">
+                            <asp:ContentPlaceHolder ID="BreadcrumbContent" runat="server">
+                                <nav class="mb-4 flex flex-wrap items-center gap-1.5 text-[13px] text-gray-500" aria-label="Breadcrumb">
+                                    <asp:Literal ID="litBreadcrumb" runat="server" />
+                                </nav>
+                            </asp:ContentPlaceHolder>
+                        </asp:Panel>
 
                         <asp:ContentPlaceHolder ID="MainContent" runat="server" />
                     </main>

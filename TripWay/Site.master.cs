@@ -183,6 +183,9 @@ namespace TripWay
         {
             if (litBreadcrumb == null) return;
 
+            // Hidden by SetupNavigation, so there is nothing to draw and nothing to look up.
+            if (pnlBreadcrumb != null && !pnlBreadcrumb.Visible) return;
+
             string path = Request.Url.AbsolutePath;
             string file = System.IO.Path.GetFileNameWithoutExtension(path);
             AdminPage page = AdminPageFor(path, file);
@@ -277,6 +280,10 @@ namespace TripWay
 
             pnlSidebar.Visible = !isPublicPage && loggedIn;
             pnlAppHeader.Visible = !isPublicPage && loggedIn;
+            // The trail belongs to the same shell as the sidebar, so it follows the same rule. A
+            // public page, or a logged out visitor on the login and register pages, has no dashboard
+            // to point the first crumb at.
+            pnlBreadcrumb.Visible = !isPublicPage && loggedIn;
             pnlPublicHeader.Visible = isPublicPage || !loggedIn;
             pnlFooter.Visible = isPublicPage || !loggedIn;
             lnkLogin.Visible = !loggedIn;

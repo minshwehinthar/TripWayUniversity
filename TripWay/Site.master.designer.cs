@@ -16,6 +16,7 @@ namespace TripWay
         protected global::System.Web.UI.WebControls.LinkButton lnkLogout;
         protected global::System.Web.UI.WebControls.Panel pnlAppHeader;
         protected global::System.Web.UI.WebControls.Literal litBreadcrumb;
+        protected global::System.Web.UI.WebControls.Panel pnlBreadcrumb;
         
         protected global::System.Web.UI.WebControls.Literal litUserInfo;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl mainContentArea;
