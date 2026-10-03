@@ -611,14 +611,22 @@ namespace TripWay.Customer
         private int _bookedTripId;
 
         /// <summary>
-        /// Thin wrapper so an unexpected failure is reported like every other refusal.
+        /// Books the trip, or refuses it with a message, then leaves for the trip if it worked.
         ///
-        /// The booking path talks to the database and every failure below it was written as a
-        /// checked refusal with a message. Anything that was not on that list - a deadlock, a
-        /// command timeout, a connection dropped mid-insert - used to escape the handler and
-        /// reach the customer as an unhandled error page. Those are intermittent by nature,
-        /// so the same booking would work on a retry and fail on the first attempt, with no
-        /// explanation and nothing to try again from.
+        /// A booking that succeeded ends this response with a 302 to ActiveTrip.aspx. That is
+        /// deliberately done here, by the server, rather than by handing the page a URL and
+        /// letting the script follow it: the redirect was previously client-side, which meant a
+        /// successful booking only reached the trip page if every script on the page parsed,
+        /// evaluated and ran to completion. A syntax error in any inline block, a missing
+        /// library, or a throw at the top level of any of them left the customer sitting on the
+        /// form they had just successfully booked from, with a trip in the database and no
+        /// indication of it. A refusal still renders this page, because that message has
+        /// nowhere else to live.
+        ///
+        /// This also covers the partial failure in the catch below, where the trip reached the
+        /// database and only something after it failed: the customer is sent to the trip that
+        /// exists rather than told it failed, because otherwise they would book the same ride
+        /// again and be refused by HasActiveTrip.
         /// </summary>
         protected void btnCreateTrip_Click(object sender, EventArgs e)
         {
@@ -635,17 +643,21 @@ namespace TripWay.Customer
 
                 if (_bookedTripId > 0)
                 {
-                    // The trip is in the database; something after it failed, most likely a
-                    // waypoint or the activity log. Calling that a failed booking would invite
-                    // the customer to book the same ride again and be refused by HasActiveTrip,
-                    // so they are sent to the trip that actually exists.
                     ConfirmToastKind = "success";
-                    ConfirmToastText = "Driver request sent. We are looking for a driver for you now.";
                     ConfirmRedirect = "ActiveTrip.aspx?trip=" + _bookedTripId;
-                    return;
                 }
+                else
+                {
+                    ShowMessage("We could not send your request just now. Please try again.", true);
+                }
+            }
 
-                ShowMessage("We could not send your request just now. Please try again.", true);
+            // Outside the try on purpose: Response.Redirect ends the response by throwing
+            // ThreadAbortException, and the catch above would otherwise swallow the redirect and
+            // show the customer a success toast on this page instead of sending them to the trip.
+            if (ConfirmToastKind == "success" && !string.IsNullOrEmpty(ConfirmRedirect))
+            {
+                Response.Redirect(ResolveUrl(ConfirmRedirect), true);
             }
         }
 

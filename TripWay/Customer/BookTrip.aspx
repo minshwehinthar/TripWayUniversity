@@ -677,9 +677,21 @@
         // cannot undo the server's decision.
         var confirmBlockedByServer = false;
 
+        // Set once the form is on its way to the server, so a point check that lands while the
+        // post is still in flight cannot hand the customer a live button and invite a second
+        // booking. Nothing clears it: either the response navigates away, or the page reloads
+        // with a fresh button.
+        var confirmSubmitting = false;
+
         function syncConfirmAvailability() {
             var btn = document.getElementById('<%= btnCreateTrip.ClientID %>');
             if (!btn) return;
+
+            if (confirmSubmitting) {
+                btn.disabled = true;
+                btn.classList.add('opacity-60', 'cursor-not-allowed');
+                return;
+            }
 
             if (pendingPointChecks > 0) {
                 btn.disabled = true;
@@ -712,11 +724,20 @@
         // Belt and braces for the paths that do not go through the button: Enter on the confirm
         // button is a real click, and a hand-triggered form.submit() is still reachable from the
         // console. Both must wait too, rather than posting a half-updated form.
+        //
+        // Taking the lock here also replaces the guard the client-side redirect used to carry.
+        // That disabled the button just before navigating, which no longer exists because the
+        // redirect is the server's job now, and a button left live while the post is in flight
+        // can be pressed twice and book two trips. Disabling on the way out closes that gap.
         function confirmReadyToSubmit() {
-            if (pendingPointChecks === 0) return true;
-            var btn = document.getElementById('<%= btnCreateTrip.ClientID %>');
-            if (btn) btn.focus();
-            return false;
+            if (pendingPointChecks > 0) {
+                var pending = document.getElementById('<%= btnCreateTrip.ClientID %>');
+                if (pending) pending.focus();
+                return false;
+            }
+            confirmSubmitting = true;
+            syncConfirmAvailability();
+            return true;
         }
 
         // Small cache so dragging/zooming and repeated taps on the same spot do
@@ -1758,40 +1779,23 @@
         /// that was just made and is looking for a driver. The toast it replaces said the same
         /// thing, less usefully, and holding the page for it only delayed the trip.
         /// </summary>
+        /// <summary>
+        /// Reports a refused booking as a toast.
+        ///
+        /// Only refusals reach this page any more. A booking that worked leaves with a 302 from
+        /// btnCreateTrip_Click before this markup is ever rendered, so there is no success case
+        /// here to handle and nothing left to navigate: the trip page is already on its way.
+        /// </summary>
         function handleConfirmResult() {
             var res = <%= ConfirmToastJson %>;
             if (!res) return;
-
-            if (res.kind !== 'success') {
-                TwToast.error(res.text, 5200);
-                return;
-            }
-
-            if (!res.go) {
-                // Nothing to navigate to, so this is the one case where the confirmation has
-                // to be read here rather than on the trip page.
-                TwToast.success(res.text, 2200);
-                return;
-            }
-
-            // Disable before navigating: the click that got here is still on its way out of the
-            // DOM, and a button that is live until the page unloads can be pressed again in
-            // that gap and book a second trip.
-            var btn = document.getElementById('<%= btnCreateTrip.ClientID %>');
-            if (btn) {
-                btn.disabled = true;
-                btn.classList.add('opacity-60', 'cursor-not-allowed');
-            }
-            window.location.href = res.go;
+            if (res.kind === 'error' && res.text) TwToast.error(res.text, 5200);
         }
 
         // Registered before the page's own initialisation below, and deliberately not part of
-        // it. handleConfirmResult is the only thing here that navigates, so it must not share a
-        // failure domain with four unrelated set-up routines: it used to be the fifth statement
-        // in that listener, which meant a throw anywhere in the point, payment, keyboard or
-        // hotel search set-up silently cancelled the redirect and the customer was left staring
-        // at a page they had just successfully booked from. Registering it first also means the
-        // navigation is issued before the rest of the page work starts.
+        // it, so a throw in the point, payment, keyboard or hotel search set-up cannot stop a
+        // refusal from being reported. It used to be the fifth statement in that listener,
+        // which meant those failures silenced the one message the customer needed to read.
         document.addEventListener('DOMContentLoaded', function () {
             try {
                 handleConfirmResult();
