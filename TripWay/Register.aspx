@@ -82,23 +82,34 @@
                         <label class="text-sm text-gray-900 font-bold">Profile Photo <span class="text-gray-400 font-normal">(optional)</span></label>
                         <%-- Picker, button and live preview follow the data-tw-upload contract in
                              Scripts/tw-upload.js, already loaded by Site.Master. The account does
-                             not exist yet, so there is no stored photo: the preview just covers
-                             the placeholder. Nothing is uploaded until the form is submitted. --%>
-                        <div data-tw-upload class="flex items-center gap-3">
-                            <span data-tw-cover class="relative block size-14 shrink-0">
-                                <span class="tw-skeleton tw-skeleton-avatar absolute inset-0 size-14 rounded-xl"></span>
-                                <img data-tw-preview alt="Profile photo preview" class="hidden absolute inset-0 size-14 rounded-xl object-cover" />
-                            </span>
-                            <div class="min-w-0 flex-1">
-                                <asp:FileUpload ID="fuProfilePhoto" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
-                                <button type="button" data-tw-pick class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                             not exist yet, so there is no stored photo: the skeleton just sits
+                             there until a file is picked, and nothing is uploaded until the form
+                             is submitted. The photo group is stacked above the picker rather than
+                             beside it, matching the document slots below and keeping the picker
+                             in the spot the plain file input used to occupy. --%>
+                        <div data-tw-upload class="flex flex-col items-start gap-2">
+                            <div class="relative shrink-0">
+                                <span data-tw-cover class="relative block size-14">
+                                    <span class="tw-skeleton tw-skeleton-avatar absolute inset-0 size-14 rounded-xl"></span>
+                                    <img data-tw-preview alt="Profile photo preview" class="hidden absolute inset-0 size-14 rounded-xl object-cover" />
+                                </span>
+                                <%-- Pencil on the photo, the same control Customer/Profile.aspx uses --%>
+                                <button type="button" data-tw-pick
+                                    class="absolute -bottom-1.5 -right-1.5 inline-flex size-6 items-center justify-center rounded-full bg-white text-gray-600 shadow-md border border-gray-200 hover:text-blue-600 hover:border-blue-200"
+                                    title="Choose profile photo" aria-label="Choose profile photo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897l12.681-12.68Z" />
                                     </svg>
-                                    Choose photo
                                 </button>
-                                <span class="mt-1 block truncate text-xs text-gray-400" data-tw-name data-tw-hint="JPG or PNG, up to 4 MB">JPG or PNG, up to 4 MB</span>
+                                <asp:FileUpload ID="fuProfilePhoto" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
                             </div>
+                            <button type="button" data-tw-pick class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                </svg>
+                                Choose photo
+                            </button>
+                            <span class="block w-full truncate text-xs text-gray-400" data-tw-name data-tw-hint="JPG or PNG, up to 4 MB">JPG or PNG, up to 4 MB</span>
                         </div>
                     </div>
                     <div class="flex flex-col gap-1.5 md:col-span-2">
