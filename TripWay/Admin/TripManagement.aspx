@@ -126,7 +126,7 @@
                         <td><%# Eval("ServiceName") %></td>
                         <td>
                             <div class="flex items-center gap-3">
-                                <div style='<%# HasPhoto(Eval("CustomerPhoto")) ? "" : "display:none" %>'><asp:Image runat="server" ImageUrl='<%# PhotoSrc(Eval("CustomerPhoto")) %>' AlternateText="Customer photo" CssClass="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" /></div><div style='<%# HasPhoto(Eval("CustomerPhoto")) ? "display:none" : "" %>'><span class="tw-avatar tw-avatar-photo tw-avatar-green"><%# GetInitial(Eval("CustomerName").ToString()) %></span></div>
+                                <div style='<%# HasPhoto(Eval("CustomerPhoto")) ? "" : "display:none" %>'><asp:Image runat="server" ImageUrl='<%# PhotoSrc(Eval("CustomerPhoto")) %>' AlternateText="Customer photo" CssClass="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" /></div><div style='<%# HasPhoto(Eval("CustomerPhoto")) ? "display:none" : "" %>'><span class="tw-skeleton tw-skeleton-avatar size-10 shrink-0"></span></div>
                                 <div class="min-w-0">
                                     <div class="font-semibold text-gray-900 text-sm truncate"><%# Eval("CustomerName") %></div>
                                     <div class="text-xs text-gray-400"><%# String.IsNullOrEmpty(Convert.ToString(Eval("CustomerPhone"))) ? "—" : Eval("CustomerPhone") %></div>
@@ -135,7 +135,7 @@
                         </td>
                         <td>
                             <div class="flex items-center gap-3">
-                                <div style='<%# HasPhoto(Eval("DriverPhoto")) ? "" : "display:none" %>'><asp:Image runat="server" ImageUrl='<%# DriverPhotoSrc(Eval("DriverPhoto")) %>' AlternateText="Driver photo" CssClass="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" /></div><div style='<%# HasPhoto(Eval("DriverPhoto")) ? "display:none" : "" %>'><span class="tw-avatar tw-avatar-photo tw-avatar-amber"><%# GetInitial(Eval("DriverName").ToString()) %></span></div>
+                                <div style='<%# HasPhoto(Eval("DriverPhoto")) ? "" : "display:none" %>'><asp:Image runat="server" ImageUrl='<%# DriverPhotoSrc(Eval("DriverPhoto")) %>' AlternateText="Driver photo" CssClass="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" /></div><div style='<%# HasPhoto(Eval("DriverPhoto")) ? "display:none" : "" %>'><span class="tw-skeleton tw-skeleton-avatar size-10 shrink-0"></span></div>
                                 <div class="min-w-0">
                                     <div class="font-semibold text-gray-900 text-sm truncate"><%# Eval("DriverName") %></div>
                                     <div class="text-xs text-gray-400"><%# String.IsNullOrEmpty(Convert.ToString(Eval("DriverPhone"))) ? "—" : Eval("DriverPhone") %></div>

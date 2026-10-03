@@ -71,7 +71,7 @@
                                 <asp:Image ID="imgCustomerPhoto" runat="server" CssClass="size-14 rounded-full object-cover shrink-0 ring-2 ring-white" />
                             </asp:Panel>
                             <asp:Panel ID="pnlInitial" runat="server">
-                                <span class="tw-avatar tw-avatar-blue size-14 text-xl"><asp:Label ID="lblCustomerInitial" runat="server" /></span>
+                                <span class="tw-skeleton tw-skeleton-avatar size-14 shrink-0"></span>
                             </asp:Panel>
                             <div class="min-w-0">
                                 <div class="font-bold text-gray-900 text-sm truncate"><asp:Label ID="lblCustomerName" runat="server" /></div>

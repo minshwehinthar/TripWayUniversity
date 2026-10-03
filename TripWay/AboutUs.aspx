@@ -110,7 +110,7 @@
                                  exclusive panels could both end up hidden and leave an empty gap;
                                  this cannot, because the initials are always rendered. --%>
                             <div class="relative size-16 shrink-0">
-                                <span class="absolute inset-0 size-16 rounded-lg bg-blue-50 text-[#007AFF] flex items-center justify-center font-bold text-lg"><%# AboutInitials(Eval("Name")) %></span>
+                                <span class="tw-skeleton absolute inset-0 size-16 rounded-lg"></span>
                                 <asp:Image runat="server" Visible='<%# HasAboutPhoto(Container.DataItem, "LogoPhotoUrl") %>'
                                     ImageUrl='<%# AboutPhotoUrl(Container.DataItem, "LogoPhotoUrl") %>'
                                     CssClass="absolute inset-0 size-16 rounded-lg object-cover"
@@ -142,7 +142,7 @@
                         <div class="bg-white p-6 rounded-lg shadow-sm text-center space-y-3">
                             <%-- Same base-layer arrangement as the hotel card. --%>
                             <div class="relative size-20 mx-auto">
-                                <span class="absolute inset-0 size-20 rounded-full bg-blue-50 text-[#007AFF] flex items-center justify-center font-bold text-2xl"><%# AboutInitials(Eval("FullName")) %></span>
+                                <span class="tw-skeleton tw-skeleton-avatar absolute inset-0 size-20 rounded-full"></span>
                                 <asp:Image runat="server" Visible='<%# HasAboutPhoto(Container.DataItem, "ProfilePhotoUrl") %>'
                                     ImageUrl='<%# AboutPhotoUrl(Container.DataItem, "ProfilePhotoUrl") %>'
                                     CssClass="absolute inset-0 size-20 rounded-full object-cover"

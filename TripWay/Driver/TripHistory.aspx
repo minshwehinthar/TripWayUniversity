@@ -117,7 +117,7 @@
                         <td class="!text-center"><span class="text-gray-400 text-xs"><%# GetRowNumber(Container.ItemIndex) %></span></td>
                         <td>
                             <div class="flex items-center gap-3">
-                                <asp:Panel ID="pnlCustomerPhoto" runat="server" Visible="false"><asp:Image runat="server" ImageUrl='<%# CustomerPhoto(Eval("CustomerPhoto")) %>' CssClass="size-10 rounded-full object-cover bg-white border border-slate-100 shrink-0" /></asp:Panel><asp:Panel ID="pnlCustomerInitials" runat="server"><span class="tw-avatar tw-avatar-photo tw-avatar-photo-border <%# GetAvatarCss(Eval("CustomerID")) %>"><%# GetInitial(Eval("CustomerName").ToString()) %></span></asp:Panel>
+                                <asp:Panel ID="pnlCustomerPhoto" runat="server" Visible="false"><asp:Image runat="server" ImageUrl='<%# CustomerPhoto(Eval("CustomerPhoto")) %>' CssClass="size-10 rounded-full object-cover bg-white border border-slate-100 shrink-0" /></asp:Panel><asp:Panel ID="pnlCustomerInitials" runat="server"><span class="tw-skeleton tw-skeleton-avatar size-10 shrink-0"></span></asp:Panel>
                                 <div class="min-w-0">
                                     <div class="font-semibold text-gray-900 text-sm truncate"><%# Server.HtmlEncode(Eval("CustomerName").ToString()) %></div>
                                     <div class="text-xs text-gray-400"><%# Server.HtmlEncode(Eval("CustomerPhone").ToString()) %></div>

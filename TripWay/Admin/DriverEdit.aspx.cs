@@ -60,7 +60,6 @@ namespace TripWay.Admin
             lblCardName.InnerText = Enc(r["FullName"]);
             lblCardEmail.InnerText = Enc(r["Email"]);
             lblCardId.Text = DriverIdParam.ToString("N0");
-            lblAvatar.Text = GetInitial(r["FullName"].ToString());
 
             string photo = Helper.TripHelper.DriverPhotoUrl(r["ProfilePhotoUrl"]);
             imgDriverPhoto.Visible = photo.Length > 0;

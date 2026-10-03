@@ -224,6 +224,24 @@
         .tw-avatar-photo { width: 2.5rem; height: 2.5rem; box-shadow: 0 0 0 2px #f3f4f6; }
         .tw-avatar-photo-border { box-shadow: none; border: 1px solid #f1f5f9; }
 
+        /* ---- skeletons ------------------------------------------------------
+           What stands in when a slot has no image. It has to hold the exact box the
+           image would have taken, or every card and row jumps the moment a photo is
+           missing, so the ratio lives here instead of being left to each page:
+           media (package photos, document thumbnails, gallery tiles) is 4:3 and
+           avatars are 1:1. Only the ratio is set - width and height still come from
+           the Tailwind size-* class on the element, which is how one rule covers the
+           size-8, size-10 and size-14 avatars. The pulse is defined here rather than
+           leaning on Tailwind's animate-pulse so a slot keeps working even if the
+           class is never seen by the CDN's scanner. */
+        .tw-skeleton { background: #e2e8f0; animation: tw-skeleton-pulse 1.6s ease-in-out infinite; }
+        .tw-skeleton-media { aspect-ratio: 4 / 3; }
+        .tw-skeleton-avatar { aspect-ratio: 1 / 1; border-radius: 9999px; }
+        @keyframes tw-skeleton-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.55; }
+        }
+
         /* ---- inputs -------------------------------------------------------- */
         .tw-input {
             display: block;

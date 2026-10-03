@@ -31,7 +31,6 @@ namespace TripWay.Customer
         protected global::System.Web.UI.WebControls.Panel pnlDriverPhoto;
         protected global::System.Web.UI.WebControls.Image imgDriverPhoto;
         protected global::System.Web.UI.WebControls.Panel pnlDriverAvatar;
-        protected global::System.Web.UI.WebControls.Label lblDriverInitial;
         protected global::System.Web.UI.WebControls.Label lblDriverName;
         protected global::System.Web.UI.WebControls.Label lblDriverRatingInline;
         protected global::System.Web.UI.WebControls.HyperLink lnkDriverPhone;

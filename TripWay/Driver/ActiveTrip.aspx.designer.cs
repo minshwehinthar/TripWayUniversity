@@ -33,7 +33,6 @@ namespace TripWay.Driver
         protected global::System.Web.UI.WebControls.Panel pnlPhoto;
         protected global::System.Web.UI.WebControls.Image imgCustomerPhoto;
         protected global::System.Web.UI.WebControls.Panel pnlInitial;
-        protected global::System.Web.UI.WebControls.Label lblCustInitial;
         protected global::System.Web.UI.WebControls.Label lblCustName;
         protected global::System.Web.UI.WebControls.Label lblCustPhone;
         protected global::System.Web.UI.WebControls.Panel pnlCustomerContacts;

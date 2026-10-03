@@ -43,7 +43,6 @@ namespace TripWay.Admin
             pnlError.Visible = false;
 
             DataRow r = t.Rows[0];
-            lblAvatar.Text = GetInitial(r["FullName"].ToString());
             ShowPhoto(r["ProfilePhotoUrl"]);
             lblName.Text = Enc(r["FullName"]);
             lblEmail.Text = Enc(r["Email"]);

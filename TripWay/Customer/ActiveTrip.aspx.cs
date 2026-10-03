@@ -132,7 +132,6 @@ namespace TripWay.Customer
 
             string driverName = r["DriverName"].ToString();
             lblDriverName.Text = driverName;
-            lblDriverInitial.Text = GetInitial(driverName);
             lblDriverPlate.Text = r["VehiclePlateNumber"] == DBNull.Value ? "" : r["VehiclePlateNumber"].ToString();
             lblDriverRating.Text = r["AverageRating"] == DBNull.Value
                 ? "New driver"

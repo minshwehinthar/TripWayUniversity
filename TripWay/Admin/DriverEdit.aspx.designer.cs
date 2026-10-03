@@ -29,7 +29,6 @@ namespace TripWay.Admin
         protected global::System.Web.UI.WebControls.Button btnSave;
 
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl imgDefaultPhoto;
-        protected global::System.Web.UI.WebControls.Label lblAvatar;
         protected global::System.Web.UI.WebControls.Image imgDriverPhoto;
         protected global::System.Web.UI.WebControls.FileUpload fuProfilePhoto;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl lblCardName;

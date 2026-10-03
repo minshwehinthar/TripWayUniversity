@@ -91,7 +91,6 @@ namespace TripWay.Admin
             string name = r["CustomerName"] == DBNull.Value ? "" : r["CustomerName"].ToString();
             string phone = r["CustomerPhone"] == DBNull.Value ? "" : r["CustomerPhone"].ToString();
             lblCustName.Text = string.IsNullOrWhiteSpace(name) ? "Customer" : name;
-            lblCustInitial.Text = GetInitial(name);
             lblCustPhone.Text = phone;
             lblCustPhoneText.Text = string.IsNullOrWhiteSpace(phone) ? "No phone on file" : phone;
             lblCustSince.Text = r["CustomerSince"] == DBNull.Value
@@ -107,7 +106,6 @@ namespace TripWay.Admin
                 lblDriverPhoneText.Text = "—";
                 lblDriverPlate.Text = "—";
                 lblDriverRating.Text = "—";
-                lblDriverInitial.Text = "?";
                 lnkDriverProfile.Visible = false;
                 pnlDriverPhotoPanel.Visible = false;
                 pnlDriverInitialPanel.Visible = true;
@@ -117,7 +115,6 @@ namespace TripWay.Admin
                 string dName = r["DriverName"].ToString();
                 string dPhone = r["DriverPhone"] == DBNull.Value ? "" : r["DriverPhone"].ToString();
                 lblDriverName.Text = dName;
-                lblDriverInitial.Text = GetInitial(dName);
                 lblDriverPhone.Text = dPhone;
                 lblDriverPhoneText.Text = string.IsNullOrWhiteSpace(dPhone) ? "No phone on file" : dPhone;
                 lblDriverPlate.Text = r["PlateNumber"] == DBNull.Value ? "—" : r["PlateNumber"].ToString();

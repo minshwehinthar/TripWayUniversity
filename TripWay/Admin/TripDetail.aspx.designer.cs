@@ -37,7 +37,6 @@ namespace TripWay.Admin
         protected global::System.Web.UI.WebControls.Panel pnlPhoto;
         protected global::System.Web.UI.WebControls.Image imgCustomerPhoto;
         protected global::System.Web.UI.WebControls.Panel pnlInitial;
-        protected global::System.Web.UI.WebControls.Label lblCustInitial;
         protected global::System.Web.UI.WebControls.Label lblCustName;
         protected global::System.Web.UI.WebControls.Label lblCustPhone;
         protected global::System.Web.UI.WebControls.Label lblCustPhoneText;
@@ -47,7 +46,6 @@ namespace TripWay.Admin
         protected global::System.Web.UI.WebControls.Panel pnlDriverPhotoPanel;
         protected global::System.Web.UI.WebControls.Image imgDriverPhoto;
         protected global::System.Web.UI.WebControls.Panel pnlDriverInitialPanel;
-        protected global::System.Web.UI.WebControls.Label lblDriverInitial;
         protected global::System.Web.UI.WebControls.Label lblDriverName;
         protected global::System.Web.UI.WebControls.Label lblDriverPhone;
         protected global::System.Web.UI.WebControls.HyperLink lnkDriverProfile;

@@ -79,12 +79,13 @@
         }
         function avatar(r, extra) {
             var cls = 'size-11 rounded-full object-cover shrink-0 ring-2 ring-white ' + (extra || '');
-            if (r.customerPhoto) return '<img src="' + esc(r.customerPhoto) + '" alt="" class="' + cls + '" onerror="this.replaceWith(twInitialAvatar(\'' + esc(r.customer) + '\'))" />';
-            return twInitialAvatar(r.customer);
+            if (r.customerPhoto) return '<img src="' + esc(r.customerPhoto) + '" alt="" class="' + cls + '" onerror="this.replaceWith(twSkeletonAvatar())" />';
+            return twSkeletonAvatar();
         }
-        function twInitialAvatar(name) {
-            var ch = (name && name.trim()) ? name.trim().charAt(0).toUpperCase() : '?';
-            return '<span class="size-11 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold shrink-0 ring-2 ring-white">' + esc(ch) + '</span>';
+        /* Keeps the photo's size and ring, so the row does not jump when there is no
+           photo to show. */
+        function twSkeletonAvatar() {
+            return '<span class="tw-skeleton tw-skeleton-avatar size-11 shrink-0 ring-2 ring-white"></span>';
         }
 
         function refreshNow() {

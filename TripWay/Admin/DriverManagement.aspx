@@ -112,7 +112,7 @@
                         <td class="!text-center"><span class="text-gray-500 text-xs font-semibold tabular-nums"><%# GetRowNumber(Container.ItemIndex) %></span></td>
                         <td>
                             <div class="flex items-center gap-3">
-                                <div style='<%# HasPhoto(Eval("ProfilePhotoUrl")) ? "" : "display:none" %>'><asp:Image runat="server" ImageUrl='<%# DriverPhotoSrc(Eval("ProfilePhotoUrl")) %>' AlternateText="Driver photo" CssClass="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" /></div><div style='<%# HasPhoto(Eval("ProfilePhotoUrl")) ? "display:none" : "" %>'><span class="tw-avatar tw-avatar-photo tw-avatar-amber"><%# GetInitial(Eval("FullName").ToString()) %></span></div>
+                                <div style='<%# HasPhoto(Eval("ProfilePhotoUrl")) ? "" : "display:none" %>'><asp:Image runat="server" ImageUrl='<%# DriverPhotoSrc(Eval("ProfilePhotoUrl")) %>' AlternateText="Driver photo" CssClass="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" /></div><div style='<%# HasPhoto(Eval("ProfilePhotoUrl")) ? "display:none" : "" %>'><span class="tw-skeleton tw-skeleton-avatar size-10 shrink-0"></span></div>
                                 <div class="min-w-0">
                                     <div class="font-semibold text-gray-900 text-sm truncate"><%# Eval("FullName") %></div>
                                     <div class="text-xs text-gray-400"><%# Eval("PhoneNumber") %></div>

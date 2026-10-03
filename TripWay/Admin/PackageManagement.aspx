@@ -110,7 +110,7 @@
                                 <img src='<%# CoverThumbUrl(Eval("CoverPhotoUrl")) %>' alt="" class="size-10 rounded-full object-cover shrink-0 ring-2 ring-gray-100" />
                             </asp:PlaceHolder>
                             <asp:PlaceHolder runat="server" Visible='<%# !HasCoverPhoto(Eval("CoverPhotoUrl")) %>'>
-                                <span class="tw-avatar tw-avatar-photo <%# GetAvatarCss(Eval("PackageID")) %>"><%# GetInitial(Eval("Name").ToString()) %></span>
+                                <span class="tw-skeleton tw-skeleton-avatar size-10 shrink-0"></span>
                             </asp:PlaceHolder>
                         </td>
                         <td class="font-semibold text-gray-900 text-sm truncate"><%# Eval("Name") %></td>

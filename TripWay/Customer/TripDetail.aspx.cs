@@ -103,7 +103,6 @@ namespace TripWay.Customer
                 pnlDriver.Visible = true;
                 string driverName = r["DriverName"].ToString();
                 lblDriverName.Text = driverName;
-                lblDriverInitial.Text = GetInitial(driverName);
                 lblDriverRatingInline.Text = r["AverageRating"] == DBNull.Value
                     ? "New driver"
                     : Helper.TripHelper.StarSvg(true, "size-3.5") + " " + Convert.ToDecimal(r["AverageRating"]).ToString("0.0");

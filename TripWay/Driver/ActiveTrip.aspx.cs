@@ -366,7 +366,6 @@ namespace TripWay.Driver
             lblCustName.Text = string.IsNullOrWhiteSpace(name) ? "Customer" : name;
             lblCustPhone.Text = phone;
             lblCustPhoneText.Text = string.IsNullOrWhiteSpace(phone) ? "No phone on file" : phone;
-            lblCustInitial.Text = GetInitial(name);
             lblCustSince.Text = r["CustomerSince"] == DBNull.Value
                 ? "—"
                 : Helper.TripHelper.FormatMyanmarTime(r["CustomerSince"], "MMM yyyy");

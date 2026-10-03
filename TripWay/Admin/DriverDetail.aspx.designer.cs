@@ -8,7 +8,6 @@ namespace TripWay.Admin
 
         protected global::System.Web.UI.WebControls.Image imgDriverPhoto;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl pnlDriverAvatar;
-        protected global::System.Web.UI.WebControls.Label lblAvatar;
         protected global::System.Web.UI.WebControls.Label lblName;
         protected global::System.Web.UI.WebControls.Label lblEmail;
         protected global::System.Web.UI.WebControls.Label lblJoined;

@@ -59,7 +59,6 @@ namespace TripWay.Driver
             txtSeatCapacity.Text = r["SeatCapacity"].ToString();
             txtPlate.Text = r["VehiclePlateNumber"].ToString();
             lblJoined.InnerText = r["CreatedAt"] == DBNull.Value ? "" : "Joined " + FormatTime(r["CreatedAt"], "dd MMM yyyy");
-            lblAvatar.Text = GetInitial(lblName.InnerText);
 
             string photoPath = r["ProfilePhotoUrl"] == DBNull.Value ? "" : r["ProfilePhotoUrl"].ToString();
             if (!string.IsNullOrEmpty(photoPath))

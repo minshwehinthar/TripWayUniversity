@@ -17,10 +17,8 @@
         <div data-tw-upload class="bg-white rounded-lg shadow-sm p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">
             <div class="relative shrink-0">
                 <span data-tw-cover class="relative block size-20">
-                    <%-- Default photo placeholder (initials) --%>
-                    <span id="imgDefaultPhoto" runat="server" class="absolute inset-0 size-20 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
-                        <span class="text-2xl font-bold"><asp:Label ID="lblAvatar" runat="server" /></span>
-                    </span>
+                    <%-- Skeleton holds the avatar box until a photo is picked or stored --%>
+                    <span id="imgDefaultPhoto" runat="server" class="tw-skeleton tw-skeleton-avatar absolute inset-0 size-20 rounded-2xl"></span>
                     <asp:Image ID="imgProfilePhoto" runat="server" Visible="false" CssClass="absolute inset-0 size-20 rounded-2xl object-cover" />
                     <%-- Live preview of the selected photo, drawn over the stored one --%>
                     <img data-tw-preview alt="Profile photo preview" class="hidden absolute inset-0 size-20 rounded-2xl object-cover" />

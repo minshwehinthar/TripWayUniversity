@@ -84,16 +84,6 @@ namespace TripWay
             pnlAboutDriversEmpty.Visible = dt.Rows.Count == 0;
         }
 
-        /// <summary>Hotels have a logo; drivers do not, so both fall back to initials.</summary>
-        protected string AboutInitials(object value)
-        {
-            string text = Raw(value);
-            if (text.Length == 0) return "?";
-
-            var words = text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (words.Length == 1) return Safe(words[0].Substring(0, 1).ToUpperInvariant());
-            return Safe((words[0].Substring(0, 1) + words[words.Length - 1].Substring(0, 1)).ToUpperInvariant());
-        }
 
         /// <summary>
         /// Pulls a photo column out of the bound row and returns the display path, or "" when

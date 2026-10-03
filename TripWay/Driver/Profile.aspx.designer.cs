@@ -7,7 +7,6 @@ namespace TripWay.Driver
         protected global::System.Web.UI.WebControls.FileUpload fuProfilePhoto;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl pnlRemovePhoto;
         protected global::System.Web.UI.WebControls.CheckBox chkRemovePhoto;
-        protected global::System.Web.UI.WebControls.Label lblAvatar;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl lblName;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl lblEmail;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl lblKycPill;

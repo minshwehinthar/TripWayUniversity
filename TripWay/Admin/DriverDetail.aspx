@@ -22,9 +22,7 @@
             <div class="bg-white rounded-lg shadow-sm p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">
                 <div class="relative shrink-0">
                     <span data-tw-cover class="relative block size-20">
-                        <span id="pnlDriverAvatar" runat="server" class="absolute inset-0 size-20 rounded-2xl bg-emerald-600/10 text-emerald-600 flex items-center justify-center">
-                            <span class="text-2xl font-bold"><asp:Label ID="lblAvatar" runat="server" /></span>
-                        </span>
+                        <span id="pnlDriverAvatar" runat="server" class="tw-skeleton tw-skeleton-avatar absolute inset-0 size-20 rounded-2xl"></span>
                         <asp:Image ID="imgDriverPhoto" runat="server" Visible="false" CssClass="absolute inset-0 size-20 rounded-2xl object-cover" />
                     </span>
                 </div>

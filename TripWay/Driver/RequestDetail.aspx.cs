@@ -141,7 +141,6 @@ namespace TripWay.Driver
 
             string customerName = r["CustomerName"].ToString();
             lblCustomerName.Text = customerName;
-            lblCustomerInitial.Text = GetInitial(customerName);
             string phone = r["CustomerPhone"] == DBNull.Value ? "" : r["CustomerPhone"].ToString();
             lblCustomerPhone.Text = string.IsNullOrWhiteSpace(phone) ? "No phone on file" : phone;
             if (!string.IsNullOrWhiteSpace(phone))
