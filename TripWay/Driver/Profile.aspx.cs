@@ -90,7 +90,9 @@ namespace TripWay.Driver
             lblOnlineText.Text = IsOnlineNow ? "Online" : "Offline";
 
             NrcStored = ToDoc(r["NRCPhotoUrl"]);
-            NrcBackStored = ToDoc(r["NRCPhotoBackUrl"]);
+            // d.* only carries the column when it is really there, so this asks rather than
+            // assuming: an NRC without a back photo is a missing tile, not a dead page.
+            NrcBackStored = HasBackColumn ? ToDoc(r["NRCPhotoBackUrl"]) : null;
             LicenseStored = ToDoc(r["LicensePhotoUrl"]);
             VehicleStored = ToDoc(r["VehiclePhotoUrl"]);
             RegDocStored = ToDoc(r["VehicleRegDocUrl"]);
@@ -121,6 +123,12 @@ namespace TripWay.Driver
             }
             lblKycPill.Attributes["class"] = css;
             lblKycPill.InnerText = kyc;
+        }
+
+        /// <summary>Whether Drivers really has the NRC back-photo column on this database.</summary>
+        private bool HasBackColumn
+        {
+            get { return Helper.TripHelper.HasDriverNrcBackPhotoColumn(); }
         }
 
         private void AddDoc(List<DocItem> docs, string label, DocItem item)
@@ -234,7 +242,7 @@ namespace TripWay.Driver
             };
 
             if (nrcUrl != null) { sets.Add("NRCPhotoUrl=@nrc"); pars.Add(new SqlParameter("@nrc", nrcUrl)); }
-            if (nrcBackUrl != null) { sets.Add("NRCPhotoBackUrl=@nrcb"); pars.Add(new SqlParameter("@nrcb", nrcBackUrl)); }
+            if (nrcBackUrl != null && HasBackColumn) { sets.Add("NRCPhotoBackUrl=@nrcb"); pars.Add(new SqlParameter("@nrcb", nrcBackUrl)); }
             if (licUrl != null) { sets.Add("LicensePhotoUrl=@lic"); pars.Add(new SqlParameter("@lic", licUrl)); }
             if (vehUrl != null) { sets.Add("VehiclePhotoUrl=@veh"); pars.Add(new SqlParameter("@veh", vehUrl)); }
             if (regUrl != null) { sets.Add("VehicleRegDocUrl=@reg"); pars.Add(new SqlParameter("@reg", regUrl)); }

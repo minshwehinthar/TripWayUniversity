@@ -138,7 +138,7 @@ namespace TripWay.Admin
 
             var docs = new List<DocItem>();
             AddDoc(docs, "NRC Front", r["NRCPhotoUrl"]);
-            AddDoc(docs, "NRC Back", r["NRCPhotoBackUrl"]);
+            AddDoc(docs, "NRC Back", HasBackColumn ? r["NRCPhotoBackUrl"] : null);
             AddDoc(docs, "License Photo", r["LicensePhotoUrl"]);
             AddDoc(docs, "Vehicle Photo", r["VehiclePhotoUrl"]);
             AddDoc(docs, "Reg. Document", r["VehicleRegDocUrl"]);
@@ -155,6 +155,12 @@ namespace TripWay.Admin
             imgDriverPhoto.Visible = has;
             pnlDriverAvatar.Visible = !has;
             if (has) imgDriverPhoto.ImageUrl = ResolveUrl("~/" + url);
+        }
+
+        /// <summary>Whether Drivers really has the NRC back-photo column on this database.</summary>
+        private bool HasBackColumn
+        {
+            get { return Helper.TripHelper.HasDriverNrcBackPhotoColumn(); }
         }
 
         private void AddDoc(List<DocItem> docs, string label, object url)

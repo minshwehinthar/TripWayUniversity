@@ -416,13 +416,15 @@
             width: 2.25rem;
             height: 2.25rem;
             border-radius: 9999px;
-            background: #fff;
+            /* The cross is drawn in the current colour, so it can sit on the white card in
+               near-black and on the dark backdrop in white, with no plate behind it either
+               way. A circle here only ever framed the icon. */
+            background: none;
             color: #111827;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
         }
 
         /* Image viewer. The photograph is the whole interface: the white card, its
@@ -430,20 +432,33 @@
            picture, and the backdrop takes a light blur so the page behind reads as out
            of play without going black. Only present while an image is open, so every
            other overlay keeps the card it was designed around. */
-        #appModal.tw-modal-image { background-color: rgba(0, 0, 0, 0.72); backdrop-filter: blur(3px); align-items: center; padding: 0; overflow: hidden; }
+        #appModal.tw-modal-image {
+            background-color: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(3px);
+            padding: 0;
+            overflow: hidden;
+            /* Both axes stated here. The overlay carries items-start and is built for panels
+               that hang from the top, and inheriting that would leave the photograph sitting
+               high instead of in the middle of the screen. */
+            align-items: center;
+            justify-content: center;
+        }
         #appModal.tw-modal-image > div { max-width: none; max-height: none; width: 100%; height: 100%; background: none; border-radius: 0; }
         #appModal.tw-modal-image #appModalPanel { max-width: none; width: 100%; height: 100%; }
-        #appModal.tw-modal-image #appModalBody { padding: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
-        /* Icon only, no plate behind it: a white cross on a dark blurred backdrop reads on
-           its own, and the card-shaped overlays keep the white circle they were built with. */
+        #appModal.tw-modal-image #appModalBody {
+            padding: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Same icon, drawn in white for the dark backdrop. */
         #appModal.tw-modal-image .tw-lb-close {
             top: 0.75rem;
             right: 0.75rem;
             width: 2.75rem;
             height: 2.75rem;
-            background: none;
             color: #fff;
-            box-shadow: none;
         }
 
         @media (max-width: 640px) {

@@ -299,6 +299,7 @@ namespace TripWay.Helper
         }
 
         private static bool? _nrcBackChecked;
+        private static bool? _nrcBackColumnPresent;
 
         /// <summary>
         /// An NRC is a card with two sides, and one upload cannot show both, so the back is kept
@@ -323,6 +324,38 @@ namespace TripWay.Helper
                 {
                     _nrcBackChecked = false;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Whether the NRC back-photo column is genuinely there.
+        ///
+        /// EnsureDriverNrcBackPhoto adds it but deliberately swallows a failure, because a
+        /// database the app is not allowed to alter should still serve the rest of the site.
+        /// That leaves a caller with a choice it should not have to guess at: name the column
+        /// and get an invalid column name, or read it and get a column that is not in the
+        /// table. Both take the page down with a server error over a slot that is only ever
+        /// a picture. So this asks, and the callers go on without the column when it is
+        /// absent, which loses one tile rather than the screen.
+        /// </summary>
+        public static bool HasDriverNrcBackPhotoColumn()
+        {
+            lock (SchemaCheckLock)
+            {
+                if (_nrcBackColumnPresent.HasValue) return _nrcBackColumnPresent.Value;
+                try
+                {
+                    DataTable t = DBHelper.ExecuteQuery(
+                        "SELECT CASE WHEN COL_LENGTH('dbo.Drivers','NRCPhotoBackUrl') IS NULL THEN 0 ELSE 1 END AS HasCol");
+                    _nrcBackColumnPresent = t.Rows.Count > 0
+                        && t.Rows[0]["HasCol"] != DBNull.Value
+                        && Convert.ToInt32(t.Rows[0]["HasCol"]) == 1;
+                }
+                catch
+                {
+                    _nrcBackColumnPresent = false;
+                }
+                return _nrcBackColumnPresent.Value;
             }
         }
 

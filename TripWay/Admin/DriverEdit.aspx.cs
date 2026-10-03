@@ -113,15 +113,20 @@ namespace TripWay.Admin
         /// </summary>
         private void BindStoredDocuments()
         {
-            DataTable t = Helper.DBHelper.ExecuteQuery(
-                @"SELECT NRCPhotoUrl, LicensePhotoUrl, VehiclePhotoUrl, VehicleRegDocUrl
-                    FROM Drivers WHERE DriverID=@id",
-                new SqlParameter("@id", DriverIdParam));
+            bool hasBack = Helper.TripHelper.HasDriverNrcBackPhotoColumn();
+            string sql = hasBack
+                ? @"SELECT NRCPhotoUrl, NRCPhotoBackUrl, LicensePhotoUrl, VehiclePhotoUrl, VehicleRegDocUrl
+                    FROM Drivers WHERE DriverID=@id"
+                : @"SELECT NRCPhotoUrl, LicensePhotoUrl, VehiclePhotoUrl, VehicleRegDocUrl
+                    FROM Drivers WHERE DriverID=@id";
+
+            DataTable t = Helper.DBHelper.ExecuteQuery(sql, new SqlParameter("@id", DriverIdParam));
             if (t.Rows.Count == 0) return;
 
             DataRow r = t.Rows[0];
             ShowStored(kycTileNrc, kycCoverNrc, imgNrcDoc, kycFallbackNrc, r["NRCPhotoUrl"]);
-            ShowStored(kycTileNrcBack, kycCoverNrcBack, imgNrcDocBack, kycFallbackNrcBack, r["NRCPhotoBackUrl"]);
+            ShowStored(kycTileNrcBack, kycCoverNrcBack, imgNrcDocBack, kycFallbackNrcBack,
+                hasBack ? r["NRCPhotoBackUrl"] : null);
             ShowStored(kycTileLicense, kycCoverLicense, imgLicenseDoc, kycFallbackLicense, r["LicensePhotoUrl"]);
             ShowStored(kycTileVehicle, kycCoverVehicle, imgVehicleDoc, kycFallbackVehicle, r["VehiclePhotoUrl"]);
             ShowStored(kycTileReg, kycCoverReg, imgRegDoc, kycFallbackReg, r["VehicleRegDocUrl"]);
@@ -202,10 +207,16 @@ namespace TripWay.Admin
                 return;
             }
 
+            // The back-photo column is named only when the database really has it. It is added
+            // on page load, but a database the app cannot alter should still save the driver
+            // rather than refuse the whole form over one optional column.
+            string nrcBackSql = Helper.TripHelper.HasDriverNrcBackPhotoColumn()
+                ? ", NRCPhotoBackUrl=@NrcBackPhoto" : "";
+
             Helper.DBHelper.ExecuteNonQuery(
                 @"UPDATE Drivers SET FullName=@Name, Email=@Email, PhoneNumber=@Phone,
-                          NRCNumber=@Nrc, NRCPhotoUrl=@NrcPhoto, NRCPhotoBackUrl=@NrcBackPhoto,
-                          LicenseNumber=@License, LicensePhotoUrl=@LicensePhoto,
+                          NRCNumber=@Nrc, NRCPhotoUrl=@NrcPhoto" + nrcBackSql + @"
+                          , LicenseNumber=@License, LicensePhotoUrl=@LicensePhoto,
                           VehicleTypeID=@VehType, VehiclePlateNumber=@Plate,
                           VehiclePhotoUrl=@VehPhoto, VehicleRegDocUrl=@RegDoc,
                           SeatCapacity=@Seats, PaymentAccount=@PayAcc,
@@ -262,16 +273,19 @@ namespace TripWay.Admin
             public string ProfilePhoto;
         }
 
-        private Documents CurrentDocuments()
+private Documents CurrentDocuments()
         {
-            DataTable t = Helper.DBHelper.ExecuteQuery(
-                "SELECT NRCPhotoUrl, NRCPhotoBackUrl, LicensePhotoUrl, VehiclePhotoUrl, VehicleRegDocUrl, ProfilePhotoUrl FROM Drivers WHERE DriverID=@id",
-                new SqlParameter("@id", DriverIdParam));
+            bool hasBack = Helper.TripHelper.HasDriverNrcBackPhotoColumn();
+            string sql = hasBack
+                ? "SELECT NRCPhotoUrl, NRCPhotoBackUrl, LicensePhotoUrl, VehiclePhotoUrl, VehicleRegDocUrl, ProfilePhotoUrl FROM Drivers WHERE DriverID=@id"
+                : "SELECT NRCPhotoUrl, LicensePhotoUrl, VehiclePhotoUrl, VehicleRegDocUrl, ProfilePhotoUrl FROM Drivers WHERE DriverID=@id";
+
+            DataTable t = Helper.DBHelper.ExecuteQuery(sql, new SqlParameter("@id", DriverIdParam));
             var docs = new Documents();
             if (t.Rows.Count == 0) return docs;
             DataRow r = t.Rows[0];
             docs.NrcPhoto = r["NRCPhotoUrl"].ToString();
-            docs.NrcBackPhoto = r["NRCPhotoBackUrl"] == DBNull.Value ? "" : r["NRCPhotoBackUrl"].ToString();
+            docs.NrcBackPhoto = hasBack && r["NRCPhotoBackUrl"] != DBNull.Value ? r["NRCPhotoBackUrl"].ToString() : "";
             docs.LicensePhoto = r["LicensePhotoUrl"].ToString();
             docs.VehiclePhoto = r["VehiclePhotoUrl"].ToString();
             docs.RegDoc = r["VehicleRegDocUrl"].ToString();
