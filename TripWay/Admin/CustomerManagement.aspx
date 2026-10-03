@@ -133,7 +133,7 @@
                                  fixed height and 0.5rem corners. Choosing a value saves it at once. --%>
                             <asp:DropDownList ID="ddlRowStatus" runat="server" AutoPostBack="true"
                                 OnSelectedIndexChanged="ddlRowStatus_SelectedIndexChanged"
-                                CssClass='<%# "tw-input w-auto !h-8 !px-2.5 !rounded-full " + GetStatusCss(Convert.ToString(Eval("Status"))) %>'
+                                CssClass='<%# "tw-input w-auto !h-8 !pl-3 !pr-7 !rounded-full " + GetStatusCss(Convert.ToString(Eval("Status"))) %>'
                                 CausesValidation="false">
                                 <asp:ListItem Text="Active" Value="Active" />
                                 <asp:ListItem Text="Pending" Value="Pending" />

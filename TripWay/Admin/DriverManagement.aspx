@@ -133,7 +133,7 @@
                                  this, and choosing a value saves it at once. --%>
                             <asp:DropDownList ID="ddlRowKyc" runat="server" AutoPostBack="true"
                                 OnSelectedIndexChanged="ddlRowKyc_SelectedIndexChanged"
-                                CssClass='<%# "tw-input w-auto !h-8 !px-2.5 !rounded-full " + GetStatusCss(Convert.ToString(Eval("KYCStatus"))) %>'
+                                CssClass='<%# "tw-input w-auto !h-8 !pl-3 !pr-7 !rounded-full " + GetStatusCss(Convert.ToString(Eval("KYCStatus"))) %>'
                                 CausesValidation="false">
                                 <asp:ListItem Text="Pending" Value="Pending" />
                                 <asp:ListItem Text="Approved" Value="Approved" />
