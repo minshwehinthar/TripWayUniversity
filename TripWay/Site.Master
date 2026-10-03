@@ -327,6 +327,11 @@
             padding-left: 0;
             padding-right: 0;
         }
+        /* Both toggle glyphs sit in the markup and CSS picks which one shows, off the
+           same class that drives the width. Nothing has to be rebuilt in script. */
+        #sideNav .side-toggle-collapsed { display: none; }
+        #sideNav.tw-collapsed .side-toggle-expanded { display: none; }
+        #sideNav.tw-collapsed .side-toggle-collapsed { display: inline-block; }
     </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -421,9 +426,10 @@
                             </div>
                         </div>
 
-                        <button id="btnSideToggle" type="button" onclick="toggleSidebar()" aria-label="Collapse sidebar"
+                        <button id="btnSideToggle" type="button" aria-label="Collapse sidebar" aria-expanded="true"
                             class="absolute top-5 -right-3 z-50 flex items-center justify-center size-7 rounded-full border border-gray-200 bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-600 shadow-sm transition-colors duration-150">
-                            <%= TripWay.Helper.Heroicons.SvgFromName("arrow-left", "size-3.5") %>
+                            <%= TripWay.Helper.Heroicons.SvgFromName("arrow-left", "side-toggle-expanded size-3.5") %>
+                            <%= TripWay.Helper.Heroicons.SvgFromName("arrow-right", "side-toggle-collapsed size-3.5") %>
                         </button>
 
                         <nav class="flex-1 py-3 overflow-y-auto overflow-x-hidden">
@@ -567,17 +573,27 @@
         // ---- collapsible app sidebar -------------------------------------------
         // Narrows the rail to an icon-only column rather than hiding it, so the nav
         // stays reachable at every width. The choice is remembered per browser.
+        //
+        // The click is bound here instead of through an onclick attribute, and the glyph
+        // is swapped in CSS off the same class, so no markup is ever built inside script.
+        // Those two were why the toggle did nothing: the icon markup used to be dropped
+        // into a single quoted string literal, but SvgFromName writes its attributes with
+        // single quotes too, so the string ended early and the whole script block failed
+        // to parse, leaving every function in it undefined.
+        function setSidebarCollapsed(s, btn, collapsed) {
+            s.classList.toggle('tw-collapsed', collapsed);
+            if (btn) {
+                btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                btn.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+            }
+            try { localStorage.setItem('tw-side', collapsed ? '1' : '0'); } catch (e) { }
+        }
+
         function toggleSidebar() {
             var s = document.getElementById('sideNav');
             if (!s) return;
-            var collapsed = s.classList.toggle('tw-collapsed');
-            var btn = document.getElementById('btnSideToggle');
-            if (btn) {
-                btn.innerHTML = collapsed
-                    ? '<%= TripWay.Helper.Heroicons.SvgFromName("arrow-right", "size-3.5") %>'
-                    : '<%= TripWay.Helper.Heroicons.SvgFromName("arrow-left", "size-3.5") %>';
-            }
-            try { localStorage.setItem('tw-side', collapsed ? '1' : '0'); } catch (e) { }
+            setSidebarCollapsed(s, document.getElementById('btnSideToggle'),
+                !s.classList.contains('tw-collapsed'));
         }
 
         // ---- public header mobile menu ------------------------------------------
@@ -588,18 +604,18 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             var s = document.getElementById('sideNav');
-            if (s) {
-                var collapsed = false;
-                try { collapsed = localStorage.getItem('tw-side') === '1'; } catch (e) { }
-                // Never start collapsed on a narrow screen: the rail plus the content
-                // has to leave the page usable on a phone.
-                if (collapsed && window.innerWidth >= 640) {
-                    s.classList.add('tw-collapsed');
-                    var btn = document.getElementById('btnSideToggle');
-                    if (btn) {
-                        btn.innerHTML = '<%= TripWay.Helper.Heroicons.SvgFromName("arrow-right", "size-3.5") %>';
-                    }
-                }
+            if (!s) return;
+            var btn = document.getElementById('btnSideToggle');
+            if (btn) {
+                btn.addEventListener('click', function () { toggleSidebar(); });
+            }
+
+            var collapsed = false;
+            try { collapsed = localStorage.getItem('tw-side') === '1'; } catch (e) { }
+            // Never start collapsed on a narrow screen: the rail plus the content
+            // has to leave the page usable on a phone.
+            if (collapsed && window.innerWidth >= 640) {
+                setSidebarCollapsed(s, btn, true);
             }
         });
 
