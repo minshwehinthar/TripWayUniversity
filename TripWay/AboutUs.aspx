@@ -105,15 +105,16 @@
                 <asp:Repeater ID="rptAboutHotels" runat="server">
                     <ItemTemplate>
                         <div class="bg-white p-5 rounded-lg shadow-sm h-full flex gap-4">
-                            <div class="shrink-0">
-                                <asp:Panel ID="pnlAboutPhotoUrl" runat="server" Visible="false">
-                                    <asp:Image runat="server" ImageUrl='<%# AboutPhotoUrl(Eval("LogoPhotoUrl")) %>'
-                                        CssClass="size-16 rounded-lg object-cover" />
-                                </asp:Panel>
-                                <asp:Panel ID="pnlAboutHotelInitials" runat="server" Visible="false"
-                                    CssClass="size-16 rounded-lg bg-blue-50 text-[#007AFF] flex items-center justify-center font-bold text-lg">
-                                    <%# AboutInitials(Eval("Name")) %>
-                                </asp:Panel>
+                            <%-- Initials are the base layer and the logo sits on top of them,
+                                 rather than two panels taking turns being visible. Two mutually
+                                 exclusive panels could both end up hidden and leave an empty gap;
+                                 this cannot, because the initials are always rendered. --%>
+                            <div class="relative size-16 shrink-0">
+                                <span class="absolute inset-0 size-16 rounded-lg bg-blue-50 text-[#007AFF] flex items-center justify-center font-bold text-lg"><%# AboutInitials(Eval("Name")) %></span>
+                                <asp:Image runat="server" Visible='<%# HasAboutPhoto(Container.DataItem, "LogoPhotoUrl") %>'
+                                    ImageUrl='<%# AboutPhotoUrl(Container.DataItem, "LogoPhotoUrl") %>'
+                                    CssClass="absolute inset-0 size-16 rounded-lg object-cover"
+                                    onerror="this.style.visibility='hidden'" />
                             </div>
                             <div class="min-w-0">
                                 <h3 class="font-semibold text-gray-900 text-sm truncate"><%# AboutText(Eval("Name")) %></h3>
@@ -139,14 +140,14 @@
                 <asp:Repeater ID="rptAboutDrivers" runat="server">
                     <ItemTemplate>
                         <div class="bg-white p-6 rounded-lg shadow-sm text-center space-y-3">
-                            <asp:Panel ID="pnlAboutDriverPhoto" runat="server" Visible="false">
-                                <asp:Image runat="server" ImageUrl='<%# AboutPhotoUrl(Eval("ProfilePhotoUrl")) %>'
-                                    CssClass="size-20 rounded-full object-cover mx-auto" />
-                            </asp:Panel>
-                            <asp:Panel ID="pnlAboutDriverInitials" runat="server"
-                                CssClass="size-20 rounded-full bg-blue-50 text-[#007AFF] flex items-center justify-center font-bold text-2xl mx-auto">
-                                <%# AboutInitials(Eval("FullName")) %>
-                            </asp:Panel>
+                            <%-- Same base-layer arrangement as the hotel card. --%>
+                            <div class="relative size-20 mx-auto">
+                                <span class="absolute inset-0 size-20 rounded-full bg-blue-50 text-[#007AFF] flex items-center justify-center font-bold text-2xl"><%# AboutInitials(Eval("FullName")) %></span>
+                                <asp:Image runat="server" Visible='<%# HasAboutPhoto(Container.DataItem, "ProfilePhotoUrl") %>'
+                                    ImageUrl='<%# AboutPhotoUrl(Container.DataItem, "ProfilePhotoUrl") %>'
+                                    CssClass="absolute inset-0 size-20 rounded-full object-cover"
+                                    onerror="this.style.visibility='hidden'" />
+                            </div>
                             <div>
                                 <h3 class="font-semibold text-gray-900 text-sm truncate"><%# AboutText(Eval("FullName")) %></h3>
                                 <p class="text-xs text-gray-500 mt-0.5"><%# AboutText(Eval("VehicleName")) %></p>

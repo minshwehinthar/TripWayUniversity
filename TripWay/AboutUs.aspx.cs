@@ -41,29 +41,6 @@ namespace TripWay
             rptAboutHotels.DataBind();
             pnlAboutHotels.Visible = dt.Rows.Count > 0;
             pnlAboutHotelsEmpty.Visible = dt.Rows.Count == 0;
-
-            // Decide logo-vs-initials per card once the items exist, not from inside
-            // the data-binding expression, where rptAboutHotels.Items is still empty.
-            foreach (RepeaterItem item in rptAboutHotels.Items)
-            {
-                var holder = item.FindControl("pnlAboutPhotoUrl") as Panel;
-                var initials = item.FindControl("pnlAboutHotelInitials") as Panel;
-                if (holder == null || initials == null) continue;
-
-                bool hasLogo = HotelLogoOf(item.DataItem).Length > 0;
-                holder.Visible = hasLogo;
-                initials.Visible = !hasLogo;
-            }
-        }
-
-        /// <summary>
-        /// HotelPhotoUrl takes the stored path value, not the row, so pull the column out first.
-        /// </summary>
-        private static string HotelLogoOf(object dataItem)
-        {
-            var row = dataItem as DataRowView;
-            if (row == null) return "";
-            return Helper.TripHelper.HotelPhotoUrl(row["LogoPhotoUrl"]);
         }
 
         /// <summary>
@@ -87,9 +64,12 @@ namespace TripWay
                     "WHERE d.KYCStatus = 'Approved' " +
                     "ORDER BY d.AverageRating DESC, d.DriverID");
             }
-            catch
+            catch (System.Data.SqlClient.SqlException)
             {
-                // Fall back to the column-less query so the section still renders.
+                /* The column genuinely does not exist yet, so fall back to the column-less
+                   query and let the cards show initials. Narrow on purpose: a bare catch here
+                   used to swallow anything at all and drop ProfilePhotoUrl from the result,
+                   which made every driver lose their photo with nothing to show for it. */
                 dt = Helper.DBHelper.ExecuteQuery(
                     "SELECT TOP 8 d.FullName, vt.Name AS VehicleName, d.AverageRating, " +
                     "(SELECT COUNT(*) FROM Trips t WHERE t.DriverID = d.DriverID AND t.Status = 'Completed') AS CompletedTrips " +
@@ -102,22 +82,6 @@ namespace TripWay
             rptAboutDrivers.DataBind();
             pnlAboutDrivers.Visible = dt.Rows.Count > 0;
             pnlAboutDriversEmpty.Visible = dt.Rows.Count == 0;
-
-            // Same rule as the hotel cards: photo when there is one, initials otherwise.
-            foreach (RepeaterItem item in rptAboutDrivers.Items)
-            {
-                var photo = item.FindControl("pnlAboutDriverPhoto") as Panel;
-                var initials = item.FindControl("pnlAboutDriverInitials") as Panel;
-                if (photo == null || initials == null) continue;
-
-                var row = item.DataItem as DataRowView;
-                // The fallback query has no ProfilePhotoUrl column, so check before indexing.
-                bool hasPhoto = row != null
-                    && row.Row.Table.Columns.Contains("ProfilePhotoUrl")
-                    && Helper.TripHelper.DriverPhotoUrl(row["ProfilePhotoUrl"]).Length > 0;
-                photo.Visible = hasPhoto;
-                initials.Visible = !hasPhoto;
-            }
         }
 
         /// <summary>Hotels have a logo; drivers do not, so both fall back to initials.</summary>
@@ -132,13 +96,31 @@ namespace TripWay
         }
 
         /// <summary>
-        /// Resolves a stored photo path for display. Empty when there is no photo, in which
-        /// case the caller shows the initials tile instead. Shared by hotels and drivers.
+        /// Pulls a photo column out of the bound row and returns the display path, or "" when
+        /// there is nothing to show. Takes the column name because the driver fallback query
+        /// deliberately omits ProfilePhotoUrl, and indexing a column that is not in the table
+        /// throws rather than returning null.
         /// </summary>
-        protected string AboutPhotoUrl(object storedPath)
+        protected string AboutPhotoUrl(object dataItem, string column)
         {
-            string url = Helper.TripHelper.HotelPhotoUrl(storedPath);
+            string url = StoredPhotoOf(dataItem, column);
             return url.Length == 0 ? "" : ResolveUrl("~/" + url);
+        }
+
+        /// <summary>
+        /// Whether the card has a photo to overlay. Bound to the image's Visible, so the
+        /// initials underneath are always rendered and the photo is only ever drawn on top.
+        /// </summary>
+        protected bool HasAboutPhoto(object dataItem, string column)
+        {
+            return StoredPhotoOf(dataItem, column).Length > 0;
+        }
+
+        private static string StoredPhotoOf(object dataItem, string column)
+        {
+            var row = dataItem as DataRowView;
+            if (row == null || !row.Row.Table.Columns.Contains(column)) return "";
+            return Helper.TripHelper.HotelPhotoUrl(row[column]);
         }
 
         protected string AboutText(object value)
