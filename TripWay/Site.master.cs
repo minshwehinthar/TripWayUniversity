@@ -73,6 +73,29 @@ namespace TripWay
                 { "RequestDetail", "TripRequests" }
             };
 
+        // The customer and driver trail labels, keyed by folder and file name together because both
+        // sides reuse names like Dashboard, Profile and TripDetail. Left to the file name alone the
+        // label was guessed, which called Customer/TripHistory "Trip History" while its own sidebar
+        // calls it "Past Trips". Only the pages that do not write their own trail reach this; the
+        // four that override BreadcrumbContent keep their own labels.
+        private static readonly Dictionary<string, string> SideLabels =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Customer/Dashboard",   "Dashboard" },
+                { "Customer/BookTrip",    "Book a Trip" },
+                { "Customer/ActiveTrip",  "Active Trip" },
+                { "Customer/TripHistory", "Past Trips" },
+                { "Customer/TripDetail",  "Trip Details" },
+                { "Customer/Profile",     "Profile" },
+                { "Driver/Dashboard",     "Dashboard" },
+                { "Driver/TripRequests",  "Trip Requests" },
+                { "Driver/ActiveTrip",    "Active Trip" },
+                { "Driver/TripHistory",   "Trip History" },
+                { "Driver/TripDetail",    "Trip Details" },
+                { "Driver/RequestDetail", "Request Details" },
+                { "Driver/Profile",       "Profile" }
+            };
+
         protected void Page_Load(object sender, EventArgs e)
         {
             SetupNavigation();
@@ -118,6 +141,29 @@ namespace TripWay
         }
 
         /// <summary>
+        /// The trail label for a customer or driver page, or null when the page is not one of theirs.
+        /// The folder is pulled off the front of the path so the two sides cannot read each other's
+        /// entries, and so an unmapped page still falls back to the file name.
+        /// </summary>
+        private static string SideLabel(string absolutePath, string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName)) return null;
+
+            int lastSlash = absolutePath.LastIndexOf('/');
+            if (lastSlash < 0) return null;
+            string folder = absolutePath.Substring(0, lastSlash);
+            int folderSlash = folder.LastIndexOf('/');
+            if (folderSlash >= 0) folder = folder.Substring(folderSlash + 1);
+
+            if (!string.Equals(folder, "Customer", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(folder, "Driver", StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            string label;
+            return SideLabels.TryGetValue(folder + "/" + fileName, out label) ? label : null;
+        }
+
+        /// <summary>
         /// The record id for a page's extra crumb, or null when the page has no record level or the id
         /// is not in the query string.
         /// </summary>
@@ -158,7 +204,8 @@ namespace TripWay
                 if (!isDashboard)
                     sb.Append(CrumbLink("Dashboard", _dashUrl, true)).Append(separator);
                 sb.Append("<li class=\"text-sm font-semibold text-gray-900\">")
-                  .Append(System.Web.HttpUtility.HtmlEncode(Prettify(file))).Append("</li>");
+                  .Append(System.Web.HttpUtility.HtmlEncode(SideLabel(path, file) ?? Prettify(file)))
+                  .Append("</li>");
             }
             else if (string.IsNullOrEmpty(page.Parent))
             {
