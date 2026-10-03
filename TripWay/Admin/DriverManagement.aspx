@@ -125,15 +125,17 @@
                         </td>
                         <td><%# Eval("TripCount") %></td>
                         <td>
-                            <%-- The row editor is a plain drop-down list, sized like the "Show" picker above it rather than
-                                 like a text field: it only ever holds one short word, so a full-height
-                                 input box is wasted space on every row. The padding and the rounding
-                                 are trimmed here, so the important utilities have to beat .tw-input's
-                                 fixed height and 0.5rem corners. KYCStatus is the one field behind
-                                 this, and choosing a value saves it at once. --%>
+                            <%-- The row editor is a plain drop-down list carrying just the KYC word, so it is
+                                 sized exactly like the Event picker in ActivityLogs: tw-input
+                                 w-auto and nothing else. It used to trim the height, padding and
+                                 rounding to keep the row compact, but !h-8 fought .tw-input's
+                                 own vertical padding and clipped the text instead, and the
+                                 trimmed corners stopped matching the filter above.
+                                 KYCStatus is the one field behind this, and choosing a value
+                                 saves it at once. --%>
                             <asp:DropDownList ID="ddlRowKyc" runat="server" AutoPostBack="true"
                                 OnSelectedIndexChanged="ddlRowKyc_SelectedIndexChanged"
-                                CssClass='<%# "tw-input w-auto !h-8 !py-0 !pl-3 !pr-7 !rounded-full " + GetStatusCss(Convert.ToString(Eval("KYCStatus"))) %>'
+                                CssClass='<%# "tw-input w-auto " + GetStatusCss(Convert.ToString(Eval("KYCStatus"))) %>'
                                 CausesValidation="false">
                                 <asp:ListItem Text="Pending" Value="Pending" />
                                 <asp:ListItem Text="Approved" Value="Approved" />

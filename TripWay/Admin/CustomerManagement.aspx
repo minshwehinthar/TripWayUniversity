@@ -126,14 +126,16 @@
                         <td>MMK <%# string.Format("{0:N0}", Eval("TotalSpent")) %></td>
                         <td class="whitespace-nowrap"><%# FormatTime(Eval("CreatedAt"), "dd MMM yyyy") %></td>
                         <td>
-                            <%-- The row editor is a plain drop-down list, sized like the "Show" picker above it rather than
-                                 like a text field: it only ever holds one short word, so a full-height
-                                 input box is wasted space on every row. The padding and the rounding
-                                 are trimmed here, so the important utilities have to beat .tw-input's
-                                 fixed height and 0.5rem corners. Choosing a value saves it at once. --%>
+                            <%-- The row editor is a plain drop-down list carrying just the status word, so it is
+                                 sized exactly like the Event picker in ActivityLogs: tw-input
+                                 w-auto and nothing else. It used to trim the height, padding and
+                                 rounding to keep the row compact, but !h-8 fought .tw-input's
+                                 own vertical padding and clipped the text instead, and the
+                                 trimmed corners stopped matching the filter above.
+                                 Choosing a value saves it at once. --%>
                             <asp:DropDownList ID="ddlRowStatus" runat="server" AutoPostBack="true"
                                 OnSelectedIndexChanged="ddlRowStatus_SelectedIndexChanged"
-                                CssClass='<%# "tw-input w-auto !h-8 !py-0 !pl-3 !pr-7 !rounded-full " + GetStatusCss(Convert.ToString(Eval("Status"))) %>'
+                                CssClass='<%# "tw-input w-auto " + GetStatusCss(Convert.ToString(Eval("Status"))) %>'
                                 CausesValidation="false">
                                 <asp:ListItem Text="Active" Value="Active" />
                                 <asp:ListItem Text="Pending" Value="Pending" />
