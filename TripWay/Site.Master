@@ -550,16 +550,32 @@
         // to know the current page while it renders, so this matches on location
         // afterwards and tags the link with the class the stylesheet keys off.
         (function () {
+            var NAV_MAP = {
+                'default.aspx': 'Home',
+                'services.aspx': 'Services',
+                'faqs.aspx': 'FAQs',
+                'aboutus.aspx': 'About',
+                'contactus.aspx': 'Contact'
+            };
+
+            function currentNavKey() {
+                var path = (location.pathname || '').replace(/\\/g, '/');
+                // Taking the last segment leaves an empty string when the path ends at
+                // a directory, which is what the site root looks like: the browser is
+                // at / but Default.aspx is the document being served. Without this the
+                // lookup missed and nothing lit up on the home page.
+                var last = path.split('/').pop() || '';
+                var key = NAV_MAP[last.toLowerCase()];
+                if (key) return key;
+                // No match, and no file extension either, so this is a directory rather
+                // than a page of its own. Login.aspx and Register.aspx do have one, so
+                // they correctly end up with nothing highlighted.
+                if (last === '' || last.indexOf('.') === -1) return 'Home';
+                return null;
+            }
+
             function markActive() {
-                var path = (location.pathname || '').replace(/\\/g, '/').split('/').pop() || '';
-                var map = {
-                    'default.aspx': 'Home',
-                    'services.aspx': 'Services',
-                    'faqs.aspx': 'FAQs',
-                    'aboutus.aspx': 'About',
-                    'contactus.aspx': 'Contact'
-                };
-                var key = map[path.toLowerCase()];
+                var key = currentNavKey();
                 if (!key) return;
                 var links = document.querySelectorAll('#publicNav [data-nav], #publicMobileNav [data-nav]');
                 for (var i = 0; i < links.length; i++) {
