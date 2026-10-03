@@ -15,6 +15,7 @@ namespace TripWay.Admin
         protected global::System.Web.UI.WebControls.TextBox txtNrc;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvNrc;
         protected global::System.Web.UI.WebControls.FileUpload fuNrcPhoto;
+        protected global::System.Web.UI.WebControls.FileUpload fuNrcPhotoBack;
         protected global::System.Web.UI.WebControls.TextBox txtLicenseNumber;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvLicenseNumber;
         protected global::System.Web.UI.WebControls.FileUpload fuLicensePhoto;
@@ -36,18 +37,22 @@ namespace TripWay.Admin
         protected global::System.Web.UI.WebControls.Label lblCardId;
 
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycTileNrc;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycTileNrcBack;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycTileLicense;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycTileVehicle;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycTileReg;
         protected global::System.Web.UI.WebControls.Image imgNrcDoc;
+        protected global::System.Web.UI.WebControls.Image imgNrcDocBack;
         protected global::System.Web.UI.WebControls.Image imgLicenseDoc;
         protected global::System.Web.UI.WebControls.Image imgVehicleDoc;
         protected global::System.Web.UI.WebControls.Image imgRegDoc;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycCoverNrc;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycCoverNrcBack;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycCoverLicense;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycCoverVehicle;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycCoverReg;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycFallbackNrc;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycFallbackNrcBack;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycFallbackLicense;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycFallbackVehicle;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl kycFallbackReg;

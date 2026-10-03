@@ -20,6 +20,12 @@ namespace TripWay
                 BindVehicleTypes();
             }
 
+            /* The driver insert below names NRCPhotoBackUrl and ProfilePhotoUrl, so the columns
+               are made sure of before anything tries to write them. Both self-heal on the fly
+               like the rest of the schema checks. */
+            Helper.TripHelper.EnsureDriverProfilePhoto();
+            Helper.TripHelper.EnsureDriverNrcBackPhoto();
+
             UpdatePanels();
         }
 
@@ -57,6 +63,7 @@ namespace TripWay
             rfvDriverPhone.Enabled = !customer;
             rfvNrc.Enabled = !customer;
             rfvNrcPhoto.Enabled = !customer;
+            rfvNrcPhotoBack.Enabled = !customer;
             rfvLicenseNumber.Enabled = !customer;
             rfvLicensePhoto.Enabled = !customer;
             rfvVehicleType.Enabled = !customer;
@@ -143,23 +150,32 @@ namespace TripWay
                 return;
             }
 
-            // Upload all KYC documents first.
+            /* Both sides of the NRC are uploaded separately, because one file cannot show the
+               front and the back of the card an admin has to approve. */
             string nrcPhoto = SaveUpload(fuNrcPhoto, "NRCPhotos", "NRC");
+            string nrcBackPhoto = SaveUpload(fuNrcPhotoBack, "NRCPhotos", "NRCBack");
             string licensePhoto = SaveUpload(fuLicensePhoto, "LicensePhotos", "License");
             string vehiclePhoto = SaveUpload(fuVehiclePhoto, "VehiclePhotos", "Vehicle");
             string regDoc = SaveUpload(fuRegDoc, "RegDocs", "RegDoc");
 
-            if (nrcPhoto.Length == 0 || licensePhoto.Length == 0 || vehiclePhoto.Length == 0 || regDoc.Length == 0)
+            // The avatar is optional and lives apart from the KYC papers, so a refused photo is
+            // not fatal here the way a refused document is.
+            string photoUrl = "";
+            if (fuDriverPhoto.HasFile)
+                photoUrl = SaveUpload(fuDriverPhoto, "DriverPhotos", "Photo");
+
+            if (nrcPhoto.Length == 0 || nrcBackPhoto.Length == 0 || licensePhoto.Length == 0
+                || vehiclePhoto.Length == 0 || regDoc.Length == 0)
             {
                 // A document can be missing because it was never chosen, or because it was
                 // refused for its type or size, so both reasons are named here.
-                bool anyChosen = fuNrcPhoto.HasFile || fuLicensePhoto.HasFile
+                bool anyChosen = fuNrcPhoto.HasFile || fuNrcPhotoBack.HasFile || fuLicensePhoto.HasFile
                               || fuVehiclePhoto.HasFile || fuRegDoc.HasFile;
                 ShowMessage(anyChosen
                     ? "Those files were not accepted. Use a JPG or PNG photo, or a PDF for the "
                       + "registration document, each under "
                       + (Helper.TripHelper.MaxImageBytes / (1024 * 1024)) + " MB."
-                    : "All KYC documents (NRC, license, vehicle photo, registration) are required.",
+                    : "All KYC documents (both NRC sides, license, vehicle photo, registration) are required.",
                     true);
                 return;
             }
@@ -168,16 +184,17 @@ namespace TripWay
             int.TryParse(txtSeatCapacity.Text.Trim(), out seatCapacity);
 
             Helper.DBHelper.ExecuteNonQuery(
-                "INSERT INTO Drivers (FullName, Email, PasswordHash, PhoneNumber, NRCNumber, NRCPhotoUrl, LicenseNumber, LicensePhotoUrl, " +
-                "VehicleTypeID, VehiclePlateNumber, VehiclePhotoUrl, VehicleRegDocUrl, SeatCapacity, PaymentAccount, KYCStatus) " +
-                "VALUES (@Name, @Email, @Hash, @Phone, @Nrc, @NrcPhoto, @License, @LicensePhoto, @" +
-                "VehType, @Plate, @VehPhoto, @RegDoc, @Seats, @PayAcc, 'Pending')",
+                "INSERT INTO Drivers (FullName, Email, PasswordHash, PhoneNumber, NRCNumber, NRCPhotoUrl, NRCPhotoBackUrl, LicenseNumber, LicensePhotoUrl, " +
+                "VehicleTypeID, VehiclePlateNumber, VehiclePhotoUrl, VehicleRegDocUrl, SeatCapacity, PaymentAccount, ProfilePhotoUrl, KYCStatus) " +
+                "VALUES (@Name, @Email, @Hash, @Phone, @Nrc, @NrcPhoto, @NrcBack, @License, @LicensePhoto, @" +
+                "VehType, @Plate, @VehPhoto, @RegDoc, @Seats, @PayAcc, @Photo, 'Pending')",
                 new SqlParameter("@Name", txtDriverName.Text.Trim()),
                 new SqlParameter("@Email", email),
                 new SqlParameter("@Hash", Helper.AuthHelper.HashPassword(txtDriverPassword.Text)),
                 new SqlParameter("@Phone", txtDriverPhone.Text.Trim()),
                 new SqlParameter("@Nrc", txtNrc.Text.Trim()),
                 new SqlParameter("@NrcPhoto", nrcPhoto),
+                new SqlParameter("@NrcBack", nrcBackPhoto),
                 new SqlParameter("@License", txtLicenseNumber.Text.Trim()),
                 new SqlParameter("@LicensePhoto", licensePhoto),
                 new SqlParameter("@VehType", int.Parse(ddlVehicleType.SelectedValue)),
@@ -185,7 +202,8 @@ namespace TripWay
                 new SqlParameter("@VehPhoto", vehiclePhoto),
                 new SqlParameter("@RegDoc", regDoc),
                 new SqlParameter("@Seats", seatCapacity),
-                new SqlParameter("@PayAcc", (object)txtPaymentAccount.Text.Trim() ?? DBNull.Value));
+                new SqlParameter("@PayAcc", (object)txtPaymentAccount.Text.Trim() ?? DBNull.Value),
+                new SqlParameter("@Photo", (object)photoUrl ?? DBNull.Value));
 
             Helper.TripHelper.LogActivity("DriverRegistered", null,
                 "New driver account with KYC Pending: " + email + " (vehicle type " + ddlVehicleType.SelectedItem.Text + ")");

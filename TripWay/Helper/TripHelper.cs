@@ -298,6 +298,34 @@ namespace TripWay.Helper
             }
         }
 
+        private static bool? _nrcBackChecked;
+
+        /// <summary>
+        /// An NRC is a card with two sides, and one upload cannot show both, so the back is kept
+        /// in a column of its own. Added on the fly like the driver profile photo, so an existing
+        /// database picks it up instead of failing the registration insert. Drivers who registered
+        /// before this column existed simply have no back photo, which is why it is nullable.
+        /// </summary>
+        public static void EnsureDriverNrcBackPhoto()
+        {
+            if (_nrcBackChecked.HasValue) return;
+            lock (SchemaCheckLock)
+            {
+                if (_nrcBackChecked.HasValue) return;
+                try
+                {
+                    DBHelper.ExecuteNonQuery(
+                        "IF COL_LENGTH('dbo.Drivers','NRCPhotoBackUrl') IS NULL " +
+                        "ALTER TABLE dbo.Drivers ADD NRCPhotoBackUrl NVARCHAR(300) NULL;");
+                    _nrcBackChecked = true;
+                }
+                catch
+                {
+                    _nrcBackChecked = false;
+                }
+            }
+        }
+
         /// <summary>
         /// Brand icon for a payment method, or "" when the method has no icon
         /// (for example the in-app wallet). Callers should hide the &lt;img&gt; when empty.

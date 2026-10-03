@@ -22,6 +22,7 @@ namespace TripWay
         protected global::System.Web.UI.WebControls.FileUpload fuProfilePhoto;
         protected global::System.Web.UI.WebControls.TextBox txtDefaultAddress;
         protected global::System.Web.UI.WebControls.Panel pnlDriver;
+        protected global::System.Web.UI.WebControls.FileUpload fuDriverPhoto;
         protected global::System.Web.UI.WebControls.TextBox txtDriverName;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvDriverName;
         protected global::System.Web.UI.WebControls.TextBox txtDriverEmail;
@@ -38,6 +39,8 @@ namespace TripWay
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvNrc;
         protected global::System.Web.UI.WebControls.FileUpload fuNrcPhoto;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvNrcPhoto;
+        protected global::System.Web.UI.WebControls.FileUpload fuNrcPhotoBack;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvNrcPhotoBack;
         protected global::System.Web.UI.WebControls.TextBox txtLicenseNumber;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvLicenseNumber;
         protected global::System.Web.UI.WebControls.FileUpload fuLicensePhoto;

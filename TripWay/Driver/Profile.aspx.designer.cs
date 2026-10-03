@@ -27,6 +27,7 @@ namespace TripWay.Driver
         protected global::System.Web.UI.WebControls.Panel pnlNoDocs;
         protected global::System.Web.UI.WebControls.Literal litEmpty;
         protected global::System.Web.UI.WebControls.FileUpload fuNrcPhoto;
+        protected global::System.Web.UI.WebControls.FileUpload fuNrcPhotoBack;
         protected global::System.Web.UI.WebControls.FileUpload fuLicensePhoto;
         protected global::System.Web.UI.WebControls.FileUpload fuVehiclePhoto;
         protected global::System.Web.UI.WebControls.FileUpload fuRegDoc;

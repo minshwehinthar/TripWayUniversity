@@ -23,6 +23,7 @@ namespace TripWay.Driver
         /// and its name until the driver picks a replacement. Null when nothing is uploaded.
         /// </summary>
         public DocItem NrcStored { get; private set; }
+        public DocItem NrcBackStored { get; private set; }
         public DocItem LicenseStored { get; private set; }
         public DocItem VehicleStored { get; private set; }
         public DocItem RegDocStored { get; private set; }
@@ -41,6 +42,10 @@ namespace TripWay.Driver
 
         private void LoadProfile()
         {
+            /* The back of the NRC was added after the table shipped, so the column is made
+               sure of before SELECT d.* is read column by column below. */
+            Helper.TripHelper.EnsureDriverNrcBackPhoto();
+
             DataTable t = Helper.DBHelper.ExecuteQuery(
                 @"SELECT d.*, v.Name AS VehicleTypeName FROM Drivers d
                   INNER JOIN VehicleTypes v ON d.VehicleTypeID = v.VehicleTypeID
@@ -85,12 +90,14 @@ namespace TripWay.Driver
             lblOnlineText.Text = IsOnlineNow ? "Online" : "Offline";
 
             NrcStored = ToDoc(r["NRCPhotoUrl"]);
+            NrcBackStored = ToDoc(r["NRCPhotoBackUrl"]);
             LicenseStored = ToDoc(r["LicensePhotoUrl"]);
             VehicleStored = ToDoc(r["VehiclePhotoUrl"]);
             RegDocStored = ToDoc(r["VehicleRegDocUrl"]);
 
             var docs = new List<DocItem>();
             AddDoc(docs, "NRC", NrcStored);
+            AddDoc(docs, "NRC Back", NrcBackStored);
             AddDoc(docs, "License", LicenseStored);
             AddDoc(docs, "Vehicle", VehicleStored);
             AddDoc(docs, "Reg. Doc", RegDocStored);
@@ -171,6 +178,7 @@ namespace TripWay.Driver
             if (!Page.IsValid) return;
 
             string nrcUrl = SaveUpload(fuNrcPhoto, "NRCPhotos", "NRC");
+            string nrcBackUrl = SaveUpload(fuNrcPhotoBack, "NRCPhotos", "NRCBack");
             string licUrl = SaveUpload(fuLicensePhoto, "LicensePhotos", "License");
             string vehUrl = SaveUpload(fuVehiclePhoto, "VehiclePhotos", "Vehicle");
             string regUrl = SaveUpload(fuRegDoc, "RegDocs", "RegDoc");
@@ -206,7 +214,7 @@ namespace TripWay.Driver
                 }
             }
 
-            bool docsChanged = nrcUrl != null || licUrl != null || vehUrl != null || regUrl != null;
+            bool docsChanged = nrcUrl != null || nrcBackUrl != null || licUrl != null || vehUrl != null || regUrl != null;
 
             var sets = new List<string>
             {
@@ -226,6 +234,7 @@ namespace TripWay.Driver
             };
 
             if (nrcUrl != null) { sets.Add("NRCPhotoUrl=@nrc"); pars.Add(new SqlParameter("@nrc", nrcUrl)); }
+            if (nrcBackUrl != null) { sets.Add("NRCPhotoBackUrl=@nrcb"); pars.Add(new SqlParameter("@nrcb", nrcBackUrl)); }
             if (licUrl != null) { sets.Add("LicensePhotoUrl=@lic"); pars.Add(new SqlParameter("@lic", licUrl)); }
             if (vehUrl != null) { sets.Add("VehiclePhotoUrl=@veh"); pars.Add(new SqlParameter("@veh", vehUrl)); }
             if (regUrl != null) { sets.Add("VehicleRegDocUrl=@reg"); pars.Add(new SqlParameter("@reg", regUrl)); }

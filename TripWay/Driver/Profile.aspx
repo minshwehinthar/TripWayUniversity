@@ -122,7 +122,7 @@
             <div class="border-t border-gray-100 pt-5 mt-5">
                 <h3 class="text-sm font-bold text-gray-900 mb-1">Registered KYC Documents</h3>
                 <p class="text-xs text-gray-400 mb-3">Click any document to view it full size.</p>
-                <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
                     <asp:Repeater ID="rptDocs" runat="server">
                         <ItemTemplate>
                             <button type="button" class="group block w-full cursor-pointer text-left"
@@ -143,7 +143,7 @@
                             </button>
                         </ItemTemplate>
                     </asp:Repeater>
-                    <asp:Panel ID="pnlNoDocs" runat="server" Visible="false" CssClass="col-span-2 md:col-span-4">
+                    <asp:Panel ID="pnlNoDocs" runat="server" Visible="false" CssClass="col-span-2 md:col-span-3">
                         <p class="text-sm text-gray-400 text-center py-6"><asp:Literal ID="litEmpty" runat="server" /></p>
                     </asp:Panel>
 
@@ -168,11 +168,19 @@
                 <p class="text-xs text-gray-400 mt-3">Need to update a document? Pick the new file below and save &mdash; your KYC returns to Pending for a re-check.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 border-t border-gray-100 pt-5 mt-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 border-t border-gray-100 pt-5 mt-5">
                 <%-- NRC photo --%>
                 <div data-tw-upload data-tw-share-preview="kycPreviewTile">
                     <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Photo</label>
                     <asp:FileUpload ID="fuNrcPhoto" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
+                    <button type="button" data-tw-pick data-tw-name data-tw-hint="Choose file"
+                                class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">Choose file</button>
+                </div>
+
+                <%-- The other side of the same card, stored in its own column --%>
+                <div data-tw-upload data-tw-share-preview="kycPreviewTile">
+                    <label class="block text-sm font-bold text-gray-900 mb-1.5">NRC Photo (Back)</label>
+                    <asp:FileUpload ID="fuNrcPhotoBack" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
                     <button type="button" data-tw-pick data-tw-name data-tw-hint="Choose file"
                                 class="tw-btn-outline w-full justify-center !h-9 !px-3 !text-xs">Choose file</button>
                 </div>

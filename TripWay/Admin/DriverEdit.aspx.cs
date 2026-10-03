@@ -25,6 +25,10 @@ namespace TripWay.Admin
         {
             Helper.AuthHelper.RequireAdmin(this);
 
+            /* The NRC back column postdates this page, so it is made sure of before the load
+               reads it and before an update names it. */
+            Helper.TripHelper.EnsureDriverNrcBackPhoto();
+
             if (DriverIdParam == 0)
             {
                 Response.Redirect("DriverManagement.aspx");
@@ -117,6 +121,7 @@ namespace TripWay.Admin
 
             DataRow r = t.Rows[0];
             ShowStored(kycTileNrc, kycCoverNrc, imgNrcDoc, kycFallbackNrc, r["NRCPhotoUrl"]);
+            ShowStored(kycTileNrcBack, kycCoverNrcBack, imgNrcDocBack, kycFallbackNrcBack, r["NRCPhotoBackUrl"]);
             ShowStored(kycTileLicense, kycCoverLicense, imgLicenseDoc, kycFallbackLicense, r["LicensePhotoUrl"]);
             ShowStored(kycTileVehicle, kycCoverVehicle, imgVehicleDoc, kycFallbackVehicle, r["VehiclePhotoUrl"]);
             ShowStored(kycTileReg, kycCoverReg, imgRegDoc, kycFallbackReg, r["VehicleRegDocUrl"]);
@@ -185,8 +190,9 @@ namespace TripWay.Admin
                 profilePhoto = savedPhoto;
             }
 
-            string nrcPhoto, licensePhoto, vehiclePhoto, regDoc;
+            string nrcPhoto, nrcBackPhoto, licensePhoto, vehiclePhoto, regDoc;
             if (!TryReplace(fuNrcPhoto, "NRCPhotos", "NRC", old.NrcPhoto, out nrcPhoto)
+                || !TryReplace(fuNrcPhotoBack, "NRCPhotos", "NRCBack", old.NrcBackPhoto, out nrcBackPhoto)
                 || !TryReplace(fuLicensePhoto, "LicensePhotos", "License", old.LicensePhoto, out licensePhoto)
                 || !TryReplace(fuVehiclePhoto, "VehiclePhotos", "Vehicle", old.VehiclePhoto, out vehiclePhoto)
                 || !TryReplace(fuRegDoc, "RegDocs", "RegDoc", old.RegDoc, out regDoc))
@@ -198,7 +204,7 @@ namespace TripWay.Admin
 
             Helper.DBHelper.ExecuteNonQuery(
                 @"UPDATE Drivers SET FullName=@Name, Email=@Email, PhoneNumber=@Phone,
-                          NRCNumber=@Nrc, NRCPhotoUrl=@NrcPhoto,
+                          NRCNumber=@Nrc, NRCPhotoUrl=@NrcPhoto, NRCPhotoBackUrl=@NrcBackPhoto,
                           LicenseNumber=@License, LicensePhotoUrl=@LicensePhoto,
                           VehicleTypeID=@VehType, VehiclePlateNumber=@Plate,
                           VehiclePhotoUrl=@VehPhoto, VehicleRegDocUrl=@RegDoc,
@@ -210,6 +216,7 @@ namespace TripWay.Admin
                 new SqlParameter("@Phone", txtPhone.Text.Trim()),
                 new SqlParameter("@Nrc", txtNrc.Text.Trim()),
                 new SqlParameter("@NrcPhoto", nrcPhoto),
+                new SqlParameter("@NrcBackPhoto", nrcBackPhoto),
                 new SqlParameter("@License", txtLicenseNumber.Text.Trim()),
                 new SqlParameter("@LicensePhoto", licensePhoto),
                 new SqlParameter("@VehType", vehicleTypeId),
@@ -225,6 +232,7 @@ namespace TripWay.Admin
 
             // Only now that the row points at the new files is it safe to drop the old ones.
             DeleteSuperseded(nrcPhoto, old.NrcPhoto, "Uploads/NRCPhotos");
+            DeleteSuperseded(nrcBackPhoto, old.NrcBackPhoto, "Uploads/NRCPhotos");
             DeleteSuperseded(licensePhoto, old.LicensePhoto, "Uploads/LicensePhotos");
             DeleteSuperseded(vehiclePhoto, old.VehiclePhoto, "Uploads/VehiclePhotos");
             DeleteSuperseded(regDoc, old.RegDoc, "Uploads/RegDocs");
@@ -247,6 +255,7 @@ namespace TripWay.Admin
         private class Documents
         {
             public string NrcPhoto;
+            public string NrcBackPhoto;
             public string LicensePhoto;
             public string VehiclePhoto;
             public string RegDoc;
@@ -256,12 +265,13 @@ namespace TripWay.Admin
         private Documents CurrentDocuments()
         {
             DataTable t = Helper.DBHelper.ExecuteQuery(
-                "SELECT NRCPhotoUrl, LicensePhotoUrl, VehiclePhotoUrl, VehicleRegDocUrl, ProfilePhotoUrl FROM Drivers WHERE DriverID=@id",
+                "SELECT NRCPhotoUrl, NRCPhotoBackUrl, LicensePhotoUrl, VehiclePhotoUrl, VehicleRegDocUrl, ProfilePhotoUrl FROM Drivers WHERE DriverID=@id",
                 new SqlParameter("@id", DriverIdParam));
             var docs = new Documents();
             if (t.Rows.Count == 0) return docs;
             DataRow r = t.Rows[0];
             docs.NrcPhoto = r["NRCPhotoUrl"].ToString();
+            docs.NrcBackPhoto = r["NRCPhotoBackUrl"] == DBNull.Value ? "" : r["NRCPhotoBackUrl"].ToString();
             docs.LicensePhoto = r["LicensePhotoUrl"].ToString();
             docs.VehiclePhoto = r["VehiclePhotoUrl"].ToString();
             docs.RegDoc = r["VehicleRegDocUrl"].ToString();
