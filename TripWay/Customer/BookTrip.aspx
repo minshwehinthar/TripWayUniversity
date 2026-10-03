@@ -688,28 +688,24 @@
         /// <summary>
         /// Why Confirm cannot be pressed yet because the route is incomplete, or '' when it can.
         ///
-        /// These mirror the server's own requirements exactly, because a client-side block that
-        /// is stricter than the server stops bookings the server would have accepted:
+        /// Point-to-point needs two points. hfPickupLat comes from the first point and hfDropLat
+        /// from the last, so one point cannot make a bookable trip.
         ///
-        /// Point-to-point needs two points. hfPickupLat comes from the first point and
-        /// hfDropLat from the last, and a booking with either missing is refused.
+        /// Hourly needs one: it is a pickup with nowhere to go, and the server refuses without it.
         ///
-        /// Hourly needs one. It is a pickup with nowhere to go, and the server refuses without
-        /// a pickup point.
-        ///
-        /// Package needs none. Its route is the itinerary, and when the customer has not set a
-        /// pickup the server falls back to the package's first place, so a package with no point
-        /// set is a valid booking and must not be blocked here.
+        /// Package needs one as well, and this is stricter than the server. The server falls back
+        /// to the package's first place when the customer has set no pickup, so a package with an
+        /// empty map is a booking it would accept. The page refuses it anyway, because the green
+        /// Pickup node on the map and in the route list is meant to be where the customer says
+        /// they are collected - not a stop chosen for them out of the itinerary by default. The
+        /// itinerary stops are still added around it; only the pickup is theirs to set.
         /// </summary>
         function missingPointReason() {
             var n = route.points.length;
             if (currentService === 'p2p') {
                 return n >= 2 ? '' : 'Set a Start and an End point on the map to request a driver.';
             }
-            if (currentService === 'hourly') {
-                return n >= 1 ? '' : 'Tap the map to set your pickup point to request a driver.';
-            }
-            return '';
+            return n >= 1 ? '' : 'Tap the map to set your pickup point to request a driver.';
         }
 
         function syncConfirmAvailability() {
