@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Web.UI.WebControls;
 
 namespace TripWay
 {
@@ -53,6 +54,32 @@ namespace TripWay
                 "No day tour packages have been published yet.");
         }
 
+        protected void rptHeroPackages_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            StampPackageBookUrl(e, "lnkHeroPackage");
+        }
+
+        protected void rptPackages_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            StampPackageBookUrl(e, "lnkPackageBook");
+        }
+
+        // Eval() is only legal inside a <%# %> expression on a databound control, and a bare
+        // html <a> is not one, so the card link is stamped here per row instead. The markup
+        // href is the Register fallback, which also covers a row we fail to read.
+        private void StampPackageBookUrl(RepeaterItemEventArgs e, string linkId)
+        {
+            if (e.Item.ItemType != ListItemType.Item && e.Item.ItemType != ListItemType.AlternatingItem) return;
+
+            var link = e.Item.FindControl(linkId) as System.Web.UI.HtmlControls.HtmlAnchor;
+            if (link == null) return;
+
+            var package = e.Item.DataItem as DataRowView;
+            if (package == null) return;
+
+            link.HRef = PackageBookUrl(package["PackageID"]);
+        }
+
         /// <summary>
         /// Where a package card should send the visitor. A signed-in Customer goes straight
         /// to BookTrip with that package already chosen.
@@ -61,7 +88,7 @@ namespace TripWay
         /// sent there would be dropped on their dashboard after signing in with the package
         /// forgotten. That silent loss is worse than asking them to register first.
         /// </summary>
-        protected string PackageBookUrl(object packageId)
+        private string PackageBookUrl(object packageId)
         {
             if (!Helper.AuthHelper.IsLoggedIn() || Helper.AuthHelper.GetRole() != "Customer")
                 return ResolveUrl("~/Register.aspx");

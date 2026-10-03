@@ -63,9 +63,9 @@
 
             <!-- Hero visual: featured package cards -->
             <div class="grid grid-cols-2 gap-4">
-                <asp:Repeater ID="rptHeroPackages" runat="server">
+                <asp:Repeater ID="rptHeroPackages" runat="server" OnItemDataBound="rptHeroPackages_ItemDataBound">
                     <ItemTemplate>
-                        <a href='<%= PackageBookUrl(Eval("PackageID")) %>' class="rounded-xl overflow-hidden border border-slate-100 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                        <a runat="server" id="lnkHeroPackage" href='<%= ResolveUrl("~/Register.aspx") %>' class="rounded-xl overflow-hidden border border-slate-100 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
                             <div class="p-4">
                                 <div class="flex items-center justify-between gap-2">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#eff6ff] text-[#007AFF]">Day Tour</span>
@@ -212,7 +212,7 @@
             </div>
 
             <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <asp:Repeater ID="rptPackages" runat="server">
+                <asp:Repeater ID="rptPackages" runat="server" OnItemDataBound="rptPackages_ItemDataBound">
                     <ItemTemplate>
                         <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden flex flex-col group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                             <div class="p-5 flex-1 flex flex-col">
@@ -224,7 +224,7 @@
                                 <p class="mt-2 text-sm text-slate-500 leading-relaxed flex-1 line-clamp-3"><%# Eval("Description") %></p>
                                 <div class="mt-4 flex items-center justify-between pt-3 border-t border-[#e2e8f0]">
                                     <span class="text-base font-extrabold text-[#007AFF]">MMK <%# string.Format("{0:N0}", Eval("BaseFare")) %></span>
-                                    <a href='<%= PackageBookUrl(Eval("PackageID")) %>' class="inline-flex items-center gap-1.5 text-xs font-bold text-[#007AFF]">
+                                    <a runat="server" id="lnkPackageBook" href='<%= ResolveUrl("~/Register.aspx") %>' class="inline-flex items-center gap-1.5 text-xs font-bold text-[#007AFF]">
                                         Book <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-2.5 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
                                     </a>
                                 </div>
