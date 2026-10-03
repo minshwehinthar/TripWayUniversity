@@ -510,6 +510,7 @@
                     </asp:Panel>
 
                     <asp:Button ID="btnCreateTrip" runat="server" Text="Confirm &amp; Request Driver" OnClick="btnCreateTrip_Click"
+                        OnClientClick="return confirmReadyToSubmit();"
                         CssClass="tw-btn-primary w-full justify-center rounded-xl" />
 
                     <p class="text-[11px] text-slate-400 text-center">No charge until a driver accepts your trip.</p>
@@ -651,6 +652,72 @@
         // get two answers back out of order. Only the newest click is allowed to
         // place a point; older replies are dropped.
         var areaCheckSeq = 0;
+
+        // How many reverse lookups are in flight right now.
+        //
+        // A point only reaches route.points, and so the hidden fields the server reads, once
+        // the Nominatim lookup for it comes back. Confirm used to post whenever it was clicked,
+        // so a customer who tapped the map and reached for Confirm straight away posted a form
+        // that still described the previous state - and was then told to set a point they had
+        // just set, or, worse, booked a trip to the wrong place. Whether it failed depended
+        // purely on how long the network took, which is why it looked random. Confirm now waits
+        // for the map to catch up instead.
+        var pendingPointChecks = 0;
+
+        // Nominatim allows roughly a request per second and answers 403 when pushed, and a
+        // dropped connection can leave the fetch pending indefinitely. Without this the button
+        // would stay disabled forever and the trip could not be booked at all, which is a worse
+        // failure than the one being fixed. On expiry the page stops pretending it is still
+        // waiting: a point that never arrives was never going to reach the server either.
+        var pointCheckStallMs = 8000;
+        var pointCheckStallTimer = null;
+
+        // Page_Load disables Confirm outright when the customer already has a trip in flight,
+        // and renders that as a disabled button. Remembered so re-enabling after a point check
+        // cannot undo the server's decision.
+        var confirmBlockedByServer = false;
+
+        function syncConfirmAvailability() {
+            var btn = document.getElementById('<%= btnCreateTrip.ClientID %>');
+            if (!btn) return;
+
+            if (pendingPointChecks > 0) {
+                btn.disabled = true;
+                btn.classList.add('opacity-60', 'cursor-not-allowed');
+                if (pointCheckStallTimer) clearTimeout(pointCheckStallTimer);
+                pointCheckStallTimer = setTimeout(function () {
+                    pointCheckStallTimer = null;
+                    pendingPointChecks = 0;
+                    syncConfirmAvailability();
+                }, pointCheckStallMs);
+                return;
+            }
+
+            if (pointCheckStallTimer) { clearTimeout(pointCheckStallTimer); pointCheckStallTimer = null; }
+            if (confirmBlockedByServer) return;   // leave the server's own disabled state alone
+            btn.disabled = false;
+            btn.classList.remove('opacity-60', 'cursor-not-allowed');
+        }
+
+        function beginPointCheck() {
+            pendingPointChecks++;
+            syncConfirmAvailability();
+        }
+
+        function endPointCheck() {
+            pendingPointChecks = Math.max(0, pendingPointChecks - 1);
+            syncConfirmAvailability();
+        }
+
+        // Belt and braces for the paths that do not go through the button: Enter on the confirm
+        // button is a real click, and a hand-triggered form.submit() is still reachable from the
+        // console. Both must wait too, rather than posting a half-updated form.
+        function confirmReadyToSubmit() {
+            if (pendingPointChecks === 0) return true;
+            var btn = document.getElementById('<%= btnCreateTrip.ClientID %>');
+            if (btn) btn.focus();
+            return false;
+        }
 
         // Small cache so dragging/zooming and repeated taps on the same spot do
         // not hammer the public Nominatim instance, which allows roughly one
@@ -879,17 +946,23 @@
             // Address text decides this, not the coordinates. Nothing on the page
             // changes until the reverse lookup comes back and passes: a rejected
             // click must not move a pin, clear the chosen hotel or shift the End.
+            beginPointCheck();
             validateByAddress(lat, lng, function (addr) {
-                if (addr === null) return;            // refused: error already shown
+                // Released last, after the point has been committed and syncHidden has run
+                // inside redrawRoute, so Confirm is never live against a stale form. Every
+                // exit from this callback has to release it - the refused branch included -
+                // or Confirm stays disabled for the rest of the session.
+                if (addr === null) { endPointCheck(); return; }   // refused: error already shown
 
                 // Read the stage now, because choosePoint may advance or reset it.
                 var wasEndStage = (pointStage === STAGE.end);
 
-                if (!choosePoint(lat, lng, addr)) return;
+                if (!choosePoint(lat, lng, addr)) { endPointCheck(); return; }
                 // Moving the destination by hand means it is no longer the chosen hotel.
                 if (wasEndStage) clearHotelSelection();
                 redrawRoute();
                 if (typeof onOk === 'function') onOk();
+                endPointCheck();
             });
         }
 
@@ -1725,6 +1798,11 @@
             } catch (err) {
                 if (window.console && console.error) console.error(err);
             }
+
+            // Whatever state Page_Load decided is the baseline this page starts from. Captured
+            // before anything here can re-enable the button.
+            var confirmBtn = document.getElementById('<%= btnCreateTrip.ClientID %>');
+            if (confirmBtn && confirmBtn.disabled) confirmBlockedByServer = true;
         });
 
         document.addEventListener('DOMContentLoaded', function () {

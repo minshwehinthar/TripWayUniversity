@@ -605,7 +605,51 @@ namespace TripWay.Customer
             return Convert.ToDecimal(value).ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
+        // Set as soon as InsertTrip returns a real id, so the catch below can tell a booking
+        // that failed outright from one that is in the database and only tripped over
+        // something that came afterwards.
+        private int _bookedTripId;
+
+        /// <summary>
+        /// Thin wrapper so an unexpected failure is reported like every other refusal.
+        ///
+        /// The booking path talks to the database and every failure below it was written as a
+        /// checked refusal with a message. Anything that was not on that list - a deadlock, a
+        /// command timeout, a connection dropped mid-insert - used to escape the handler and
+        /// reach the customer as an unhandled error page. Those are intermittent by nature,
+        /// so the same booking would work on a retry and fail on the first attempt, with no
+        /// explanation and nothing to try again from.
+        /// </summary>
         protected void btnCreateTrip_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                BookTripOrRefuse();
+            }
+            catch (Exception ex)
+            {
+                // The message is kept out of the toast: it is whatever the driver underneath
+                // happened to say, which is not something to hand a customer.
+                Helper.TripHelper.LogActivity("BookFailed", 0,
+                    "Customer " + CustomerId + " could not be booked: " + ex.Message);
+
+                if (_bookedTripId > 0)
+                {
+                    // The trip is in the database; something after it failed, most likely a
+                    // waypoint or the activity log. Calling that a failed booking would invite
+                    // the customer to book the same ride again and be refused by HasActiveTrip,
+                    // so they are sent to the trip that actually exists.
+                    ConfirmToastKind = "success";
+                    ConfirmToastText = "Driver request sent. We are looking for a driver for you now.";
+                    ConfirmRedirect = "ActiveTrip.aspx?trip=" + _bookedTripId;
+                    return;
+                }
+
+                ShowMessage("We could not send your request just now. Please try again.", true);
+            }
+        }
+
+        private void BookTripOrRefuse()
         {
             if (HasActiveTrip())
             {
@@ -720,7 +764,7 @@ namespace TripWay.Customer
                     }
                     decimal fare = Helper.TripHelper.RoundFare(
                         Helper.TripHelper.EstimateP2P(Convert.ToDecimal(rate["PerKmRate"]), km));
-                    CheckCapacity(vehicleType);
+                    if (RefuseIfOverCapacity(vehicleType)) return;
                     tripId = InsertTrip(vehicleType, serviceType, null, pickupLat, pickupLng, hfPickupAddr.Value, dropLat, dropLng, hfDropAddr.Value, km, 0, fare);
                     if (tripId > 0) InsertStops(tripId, pickupLat, pickupLng, hfPickupAddr.Value, dropLat, dropLng, hfDropAddr.Value);
                     break;
@@ -747,7 +791,7 @@ namespace TripWay.Customer
                         return;
                     }
                     decimal fareH = HourlyFare(rateH, hours);
-                    CheckCapacity(vehicleType);
+                    if (RefuseIfOverCapacity(vehicleType)) return;
                     tripId = InsertTrip(vehicleType, serviceType, null, pickupLat, pickupLng, hfPickupAddr.Value, null, null, null, null, hours, fareH);
                     break;
 
@@ -758,7 +802,7 @@ namespace TripWay.Customer
                         ShowMessage("Please choose a package.", true);
                         return;
                     }
-                    CheckCapacity(vehicleType);
+                    if (RefuseIfOverCapacity(vehicleType)) return;
                     // A tour is a single set price on the package itself, not a rate per km or
                     // per hour, so it is read from the package and used as it stands.
                     // IsActive is re-checked here rather than trusted from the dropdown: the
@@ -799,6 +843,8 @@ namespace TripWay.Customer
                     if (tripId > 0) InsertPackageStops(tripId, packagePlaces);
                     break;
             }
+
+            _bookedTripId = tripId;
 
             Helper.TripHelper.LogActivity("Requested", tripId,
                 "Customer " + CustomerId + " requested service '" + ddlServiceType.SelectedItem.Text
@@ -1125,19 +1171,48 @@ namespace TripWay.Customer
                 Helper.TripHelper.EstimateHourly(perHour == DBNull.Value ? 0m : Convert.ToDecimal(perHour), hours));
         }
 
-        private void CheckCapacity(int vehicleType)
+        /// <summary>
+        /// Whether the chosen vehicle can carry the chosen party, as a message to show.
+        ///
+        /// Returns null when the pairing is fine. This used to throw on an over-capacity party,
+        /// which made it the one refusal on this page that did not go through ShowMessage and
+        /// so escaped as an error page instead of a toast.
+        /// </summary>
+        private string CapacityProblem(int vehicleType)
         {
             DataTable dt = Helper.DBHelper.ExecuteQuery(
                 "SELECT MinSeatCapacity, MaxSeatCapacity FROM VehicleTypes WHERE VehicleTypeID=@v",
                 new SqlParameter("@v", vehicleType));
-            if (dt.Rows.Count == 0) return;
-            int pax = int.Parse(ddlPassengers.SelectedValue);
+            if (dt.Rows.Count == 0) return null;
+
+            // TryParse, not Parse: an unreadable passenger count is a reason to ask again, not
+            // a reason to abandon the whole booking with an error page.
+            int pax;
+            if (!int.TryParse(ddlPassengers.SelectedValue, out pax))
+            {
+                return "Please choose how many passengers are travelling.";
+            }
+
             int min = Convert.ToInt32(dt.Rows[0]["MinSeatCapacity"]);
             int max = Convert.ToInt32(dt.Rows[0]["MaxSeatCapacity"]);
             if (pax < min || pax > max)
             {
-                throw new Exception(string.Format("This vehicle carries {0}-{1} passengers.", min, max));
+                return string.Format("This vehicle carries {0}-{1} passengers.", min, max);
             }
+            return null;
+        }
+
+        /// <summary>
+        /// Reports an over-capacity party as a toast and says whether the caller should stop.
+        /// A method rather than a bare check so the three places that need it cannot each end
+        /// up handling the refusal slightly differently.
+        /// </summary>
+        private bool RefuseIfOverCapacity(int vehicleType)
+        {
+            string problem = CapacityProblem(vehicleType);
+            if (problem == null) return false;
+            ShowMessage(problem, true);
+            return true;
         }
 
         private bool HasActiveTrip()
