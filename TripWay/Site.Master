@@ -379,7 +379,7 @@
 
     <script src="<%= ResolveUrl("~/Scripts/tw-toast.js") %>"></script>
     <script src="<%= ResolveUrl("~/Scripts/tw-upload.js") %>"></script>
-    <script src="<%= ResolveUrl("~/Scripts/tw-scroll.js") %>"></script>
+    <script src="<%= ResolveUrl("~/Scripts/tripway-scroll.js") %>"></script>
     <script>
         // Every width appOpenModal knows how to swap. Anything a page asks for has to be in here,
         // otherwise two max-w-* classes can end up on the panel at once.
