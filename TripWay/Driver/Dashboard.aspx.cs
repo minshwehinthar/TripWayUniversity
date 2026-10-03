@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI.WebControls;
@@ -15,6 +16,22 @@ namespace TripWay.Driver
         /// so the knob never drifts away from the value in the database.
         /// </summary>
         public bool IsOnlineNow { get; private set; }
+
+        /// <summary>
+        /// Columns the Recent Trips header may sort by. These values are the only thing
+        /// that reaches SQL, and BuildOrderBy drops anything missing from here.
+        /// </summary>
+        private static readonly Dictionary<string, string> RecentSort =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "date",     "t.RequestedAt" },
+                { "service",  "s.Name" },
+                { "stops",    "StopsCount" },
+                { "customer", "CustomerName" },
+                { "fare",     "t.Fare" },
+                { "status",   "t.Status" },
+                { "payment",  "t.PaymentStatus" }
+            };
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -76,6 +93,9 @@ namespace TripWay.Driver
                 new SqlParameter("@id", DriverId));
             lblRating.Text = rating == null || rating == DBNull.Value ? "New" : Convert.ToDecimal(rating).ToString("0.0") + " " + Helper.TripHelper.StarSvg(true, "size-4");
 
+            string orderBy = Helper.SortHelper.BuildOrderBy(SortKey, SortDir, RecentSort);
+            if (string.IsNullOrEmpty(orderBy)) orderBy = " ORDER BY t.TripID DESC";
+
             rptRecent.DataSource = Helper.DBHelper.ExecuteQuery(
                 @"SELECT t.TripID, t.RequestedAt, t.Fare, t.Status, t.PaymentStatus,
                          s.Name AS ServiceName, ISNULL(c.FullName, '—') AS CustomerName,
@@ -83,12 +103,18 @@ namespace TripWay.Driver
                   FROM Trips t
                   INNER JOIN ServiceTypes s ON t.ServiceTypeID=s.ServiceTypeID
                   INNER JOIN Customers c ON t.CustomerID=c.CustomerID
-                  WHERE t.DriverID=@id
-                  ORDER BY t.TripID DESC",
+                  WHERE t.DriverID=@id" + orderBy,
                 new SqlParameter("@id", DriverId));
             rptRecent.DataBind();
             rptRecent.Visible = true;
             SetNoDataRow(rptRecent, rptRecent.Items.Count == 0);
+            SetActiveSortArrow(rptRecent, SortKey, SortDir);
+        }
+
+        /// <summary>SetSort calls this, so a header click reloads the recent trips table.</summary>
+        protected override void OnPageIndexNavigated()
+        {
+            LoadData();
         }
 
         protected void lnkToggleOnline_Click(object sender, EventArgs e)

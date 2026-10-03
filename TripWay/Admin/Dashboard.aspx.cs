@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
@@ -8,6 +9,22 @@ namespace TripWay.Admin
     public partial class DashboardPage : Helper.ListPageBase
     {
         public string DriversJson { get; private set; }
+
+        /// <summary>
+        /// Columns the Recent Trip Activity header may sort by. These values are the only
+        /// thing that reaches SQL, and BuildOrderBy drops anything missing from here.
+        /// </summary>
+        private static readonly Dictionary<string, string> ActivitySort =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "status",    "t.Status" },
+                { "service",   "s.Name" },
+                { "stops",     "StopsCount" },
+                { "customer",  "CustomerName" },
+                { "driver",    "DriverName" },
+                { "fare",      "t.Fare" },
+                { "requested", "t.RequestedAt" }
+            };
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -39,6 +56,18 @@ namespace TripWay.Admin
 
             BuildDriversJson(onlineCount);
 
+            LoadActivity();
+        }
+
+        /// <summary>
+        /// The Recent Trip Activity table. Kept on its own so a header click can reload just
+        /// this table: the counters and the online list above it do not depend on column order.
+        /// </summary>
+        private void LoadActivity()
+        {
+            string orderBy = Helper.SortHelper.BuildOrderBy(SortKey, SortDir, ActivitySort);
+            if (string.IsNullOrEmpty(orderBy)) orderBy = " ORDER BY t.TripID DESC";
+
             DataTable act = Helper.DBHelper.ExecuteQuery(
                 @"SELECT TOP 10 t.TripID, t.Status, t.Fare, t.RequestedAt,
                          s.Name AS ServiceName, ISNULL(c.FullName,'—') AS CustomerName,
@@ -47,12 +76,18 @@ namespace TripWay.Admin
                   FROM Trips t
                   INNER JOIN ServiceTypes s ON t.ServiceTypeID = s.ServiceTypeID
                   INNER JOIN Customers c ON t.CustomerID = c.CustomerID
-                  LEFT JOIN Drivers d ON t.DriverID = d.DriverID
-                  ORDER BY t.TripID DESC");
+                  LEFT JOIN Drivers d ON t.DriverID = d.DriverID" + orderBy);
             rptActivity.DataSource = act;
             rptActivity.DataBind();
             rptActivity.Visible = true;
             SetNoDataRow(rptActivity, rptActivity.Items.Count == 0);
+            SetActiveSortArrow(rptActivity, SortKey, SortDir);
+        }
+
+        /// <summary>SetSort calls this, so a header click reloads the activity table.</summary>
+        protected override void OnPageIndexNavigated()
+        {
+            LoadActivity();
         }
 
         private void BuildDriversJson(int onlineCount)
