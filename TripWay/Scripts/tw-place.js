@@ -7,10 +7,12 @@
  * counts as a usable address and on the one rule that matters most: a value the admin typed by
  * hand must never be replaced by a lookup.
  *
- * That last rule is the whole design. Anything this file writes is tagged data-auto="1", and
- * only a tagged value is ever refreshed. The moment the admin edits the box the tag is dropped,
- * so from then on the field is theirs and the map leaves it alone. Empty boxes are always fair
- * game, because there is nothing to lose by filling them.
+ * That last rule is the whole design: a value the admin typed by hand is never replaced by a
+ * lookup. Typing marks the box data-typed="1", and from then on the map leaves it alone -
+ * including on an edit form, where the address arrived from the server rather than from a
+ * person and must still follow the pin. Emptying the box clears the mark, because a field
+ * cleared on purpose is asking to be filled. Anything this file writes is tagged data-auto="1"
+ * purely to say where the value came from.
  *
  * A lookup that fails is not an error the admin can act on: the endpoint may be blocked, the
  * network may be down, or the point may simply have no address. Coordinates are saved either
@@ -126,7 +128,15 @@ window.TripPlace = (function () {
             });
     }
 
+    /* Whether a lookup may overwrite what is in the box. The rule is "the admin has not typed
+       here", tracked as data-typed rather than inferred from data-auto. Inferring it is what
+       made an edit form refuse to update: the address arrives from the server with no
+       data-auto on it, so it looked exactly like a value the admin had typed by hand, and
+       clicking the map did nothing. Proving the negative - this box was not touched by a
+       person - is the only question worth asking, and an empty box is always fair game
+       because there is nothing to lose. */
     function shouldFill(el) {
+        if (el.dataset.typed === '1') return false;
         return (el.value || '').trim().length === 0 || el.dataset.auto === '1';
     }
 
@@ -164,11 +174,14 @@ window.TripPlace = (function () {
         opts.token = 0;
         if (!opts.limit) opts.limit = 300;
 
-        /* The tag is dropped the moment the admin edits the box. Without this, a value this
-           file wrote would stay replaceable and a later map click would undo the correction the
-           admin just made. */
+        /* The box is marked as the admin's the moment they type in it, and unmarked again if
+           they empty it. Without the mark, a value this file wrote would stay replaceable and
+           a later map click would undo a correction; without the unmark, a field cleared on
+           purpose would refuse to fill itself again. */
         opts.address.addEventListener('input', function () {
             if (opts.address.dataset.auto) delete opts.address.dataset.auto;
+            if ((opts.address.value || '').trim().length === 0) delete opts.address.dataset.typed;
+            else opts.address.dataset.typed = '1';
         });
 
         /* A map handle plus an onPick callback is all it takes for the fill to follow the pin,

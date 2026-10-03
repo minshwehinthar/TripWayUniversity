@@ -41,17 +41,29 @@
         <div class="bg-white rounded-2xl shadow-sm p-6 space-y-4">
             <h2 class="font-bold text-gray-900">Cover Photo</h2>
             <p class="text-xs text-gray-400">Main image for the package card and the detail page header. JPG or PNG, up to 4 MB.</p>
-            <div class="flex flex-wrap items-center gap-4">
-                <asp:Panel ID="pnlCover" runat="server" Visible="false">
-                    <asp:Image ID="imgCover" runat="server" CssClass="size-28 rounded-xl object-cover ring-1 ring-gray-200" />
-                </asp:Panel>
-                <asp:Panel ID="pnlCoverNone" runat="server">
-                    <div class="size-28 rounded-xl bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center text-gray-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z"/></svg>
-                    </div>
-                </asp:Panel>
+            <%-- The shared picker markup, so the cover looks the same here and on the create
+                 form and previews the file before it is saved. The stored photo and the
+                 placeholder sit inside the cover, which is what lets a newly picked image be
+                 drawn over them; the native file box is replaced because its own thumbnail is
+                 a 16px icon in the corner and says nothing about how the image will crop. --%>
+            <div data-tw-upload class="flex flex-wrap items-center gap-4">
+                <span data-tw-cover class="relative block size-28 shrink-0">
+                    <asp:Panel ID="pnlCover" runat="server" Visible="false" CssClass="absolute inset-0 overflow-hidden rounded-xl">
+                        <asp:Image ID="imgCover" runat="server" CssClass="size-full object-cover" />
+                    </asp:Panel>
+                    <asp:Panel ID="pnlCoverNone" runat="server" CssClass="absolute inset-0 overflow-hidden rounded-xl">
+                        <span class="size-28 rounded-xl bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center text-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z"/></svg>
+                        </span>
+                    </asp:Panel>
+                    <img data-tw-preview alt="Cover photo preview" class="hidden absolute inset-0 size-full object-cover" />
+                </span>
                 <div class="flex-1 min-w-56 space-y-2">
-                    <asp:FileUpload ID="fuCover" runat="server" CssClass="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-gray-700 hover:file:bg-gray-200" />
+                    <asp:FileUpload ID="fuCover" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
+                    <div class="flex items-center gap-3">
+                        <button type="button" data-tw-pick class="tw-btn-outline">Choose image</button>
+                        <span data-tw-name data-tw-hint="JPG or PNG" class="truncate text-xs text-gray-400">JPG or PNG</span>
+                    </div>
                     <label class="flex items-center gap-2 text-sm text-gray-600">
                         <asp:CheckBox ID="chkRemoveCover" runat="server" />
                         Remove current cover photo
@@ -408,17 +420,19 @@
                 return '';
             }
 
-            /* Keeps the name in step with the point. A name the geocoder supplied is marked
-               with data-auto and is refreshed whenever the coordinates move, so picking a new
-               spot does not leave the previous spot's name behind. Anything the admin typed
-               is left alone for good, which is what makes the field editable. */
+            /* Keeps the name in step with the point. The question is whether a person typed
+               this name, tracked as data-typed, and not where the value came from: an edit
+               form's names arrive from the server unmarked, and asking "did the geocoder fill
+               this?" made every stored stop look hand-written, so choosing a new point left
+               the previous point's name sitting there. Anything typed is left alone for good,
+               which is what keeps the field editable. */
             function fillPlaceName(rowIndex, lat, lng) {
                 var row = rowOf(rowIndex);
                 var el = fieldIn(row, 'name');
                 if (!el) return;
 
-                // Only a name we filled in ourselves may be replaced.
-                if (el.value.trim().length > 0 && el.dataset.auto !== '1') return;
+                // Only a name a person typed may be kept.
+                if (el.dataset.typed === '1') return;
 
                 var key = row.getAttribute('data-key');
                 var token = (nameToken[key] || 0) + 1;
@@ -430,7 +444,7 @@
                     el.placeholder = NAME_HINT;
                     if (!name) return;
                     // The admin may have started typing while the lookup was in flight.
-                    if (el.value.trim().length > 0 && el.dataset.auto !== '1') return;
+                    if (el.dataset.typed === '1') return;
                     el.value = name;
                     el.dataset.auto = '1';
                     updateHint(rowIndex);
@@ -568,6 +582,9 @@
                 if (el.dataset.field === 'name') {
                     // Typed by hand from here on, so the geocoder must stop replacing it.
                     if (el.dataset.auto) delete el.dataset.auto;
+                    // Cleared on purpose is not typed: an emptied box should fill itself again.
+                    if (el.value.trim().length === 0) delete el.dataset.typed;
+                    else el.dataset.typed = '1';
                     updateHint(activeRow);
                     return;
                 }
@@ -575,7 +592,16 @@
             });
 
             var addBtn = document.getElementById('btnAddStop');
-            if (addBtn) addBtn.addEventListener('click', function () { addRow(); });
+            if (addBtn) addBtn.addEventListener('click', function () {
+                var row = addRow();
+                if (!row) return;
+                // The new stop is the one the admin is about to fill in, so it gets the caret
+                // rather than leaving them to find it in the list and click it.
+                var name = fieldIn(row, 'name');
+                if (!name) return;
+                select(row.getAttribute('data-row'), false);
+                name.focus();
+            });
 
             if (map) {
                 map.on('click', function (e) {

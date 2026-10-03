@@ -46,14 +46,23 @@
                  site: a real preview of the file just chosen, before anything is saved. The
                  native file box is replaced rather than decorated, because its own thumbnail
                  is a 16px icon in the corner of the field and says nothing about the crop. --%>
-            <div data-tw-upload class="flex flex-wrap items-center gap-3">
-                <asp:FileUpload ID="fuCover" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
-                <button type="button" data-tw-pick class="tw-btn-outline">Choose image</button>
-                <span data-tw-name data-tw-hint="JPG or PNG" class="text-xs text-gray-400">JPG or PNG</span>
-                <span data-tw-cover class="relative block w-full sm:w-64 h-40 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                    <span class="absolute inset-0 flex items-center justify-center text-xs text-gray-400">No image chosen yet</span>
+            <%-- The same picker and the same size-28 placeholder the edit page uses, so the two
+                 forms read as one design rather than the create form having a banner shape the
+                 edit form does not. --%>
+            <div data-tw-upload class="flex flex-wrap items-center gap-4">
+                <span data-tw-cover class="relative block size-28 shrink-0">
+                    <span class="size-28 rounded-xl bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center text-gray-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
+                    </span>
                     <img data-tw-preview alt="Cover photo preview" class="hidden absolute inset-0 size-full object-cover" />
                 </span>
+                <div class="flex-1 min-w-56 space-y-2">
+                    <asp:FileUpload ID="fuCover" runat="server" data-tw-input accept=".jpg,.jpeg,.png" CssClass="hidden" />
+                    <div class="flex items-center gap-3">
+                        <button type="button" data-tw-pick class="tw-btn-outline">Choose image</button>
+                        <span data-tw-name data-tw-hint="JPG or PNG" class="truncate text-xs text-gray-400">JPG or PNG</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -404,17 +413,19 @@
                 return '';
             }
 
-            /* Keeps the name in step with the point. A name the geocoder supplied is marked
-               with data-auto and is refreshed whenever the coordinates move, so picking a new
-               spot does not leave the previous spot's name behind. Anything the admin typed
-               is left alone for good, which is what makes the field editable. */
+            /* Keeps the name in step with the point. The question is whether a person typed
+               this name, tracked as data-typed, and not where the value came from: an edit
+               form's names arrive from the server unmarked, and asking "did the geocoder fill
+               this?" made every stored stop look hand-written, so choosing a new point left
+               the previous point's name sitting there. Anything typed is left alone for good,
+               which is what keeps the field editable. */
             function fillPlaceName(rowIndex, lat, lng) {
                 var row = rowOf(rowIndex);
                 var el = fieldIn(row, 'name');
                 if (!el) return;
 
-                // Only a name we filled in ourselves may be replaced.
-                if (el.value.trim().length > 0 && el.dataset.auto !== '1') return;
+                // Only a name a person typed may be kept.
+                if (el.dataset.typed === '1') return;
 
                 var key = row.getAttribute('data-key');
                 var token = (nameToken[key] || 0) + 1;
@@ -426,7 +437,7 @@
                     el.placeholder = NAME_HINT;
                     if (!name) return;
                     // The admin may have started typing while the lookup was in flight.
-                    if (el.value.trim().length > 0 && el.dataset.auto !== '1') return;
+                    if (el.dataset.typed === '1') return;
                     el.value = name;
                     el.dataset.auto = '1';
                     updateHint(rowIndex);
@@ -564,6 +575,9 @@
                 if (el.dataset.field === 'name') {
                     // Typed by hand from here on, so the geocoder must stop replacing it.
                     if (el.dataset.auto) delete el.dataset.auto;
+                    // Cleared on purpose is not typed: an emptied box should fill itself again.
+                    if (el.value.trim().length === 0) delete el.dataset.typed;
+                    else el.dataset.typed = '1';
                     updateHint(activeRow);
                     return;
                 }
@@ -571,7 +585,16 @@
             });
 
             var addBtn = document.getElementById('btnAddStop');
-            if (addBtn) addBtn.addEventListener('click', function () { addRow(); });
+            if (addBtn) addBtn.addEventListener('click', function () {
+                var row = addRow();
+                if (!row) return;
+                // The new stop is the one the admin is about to fill in, so it gets the caret
+                // rather than leaving them to find it in the list and click it.
+                var name = fieldIn(row, 'name');
+                if (!name) return;
+                select(row.getAttribute('data-row'), false);
+                name.focus();
+            });
 
             if (map) {
                 map.on('click', function (e) {
