@@ -8,6 +8,22 @@
     <title><%: Page.Title %> - TripWay</title>
     <script src="<%= ResolveUrl("~/Scripts/tailwind.js") %>"></script>
     <style>
+        /* ---- one type family ------------------------------------------------ */
+        /* Every page inherits this from the one place. It is the same stack
+           Tailwind's preflight already applies, so pinning it here changes no
+           existing text; it just stops any page quietly reaching for a second
+           family. */
+        html, body {
+            font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+                         "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+                         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+                         "Noto Color Emoji";
+        }
+        /* leaflet.css is linked from inside the page body, so it lands after this
+           block and a rule of equal specificity would lose to it. The body prefix
+           is what makes these win. */
+        body .leaflet-container { font-family: inherit; }
+
         /* ---- surfaces ------------------------------------------------------ */
         .tw-card {
             background: #fff;

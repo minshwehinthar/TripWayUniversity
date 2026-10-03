@@ -85,11 +85,11 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div class="flex flex-col gap-1">
                                         <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Latitude</label>
-                                        <asp:TextBox ID="txtLat" runat="server" CssClass="tw-input font-mono text-xs" placeholder="16.866100" Text='<%# Eval("Lat") %>' />
+                                        <asp:TextBox ID="txtLat" runat="server" CssClass="tw-input text-xs" placeholder="16.866100" Text='<%# Eval("Lat") %>' />
                                     </div>
                                     <div class="flex flex-col gap-1">
                                         <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Longitude</label>
-                                        <asp:TextBox ID="txtLng" runat="server" CssClass="tw-input font-mono text-xs" placeholder="96.195100" Text='<%# Eval("Lng") %>' />
+                                        <asp:TextBox ID="txtLng" runat="server" CssClass="tw-input text-xs" placeholder="96.195100" Text='<%# Eval("Lng") %>' />
                                     </div>
                                 </div>
                             </div>
