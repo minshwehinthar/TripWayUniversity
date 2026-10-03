@@ -783,6 +783,7 @@
 
     <script src="<%= ResolveUrl("~/Scripts/tw-toast.js") %>"></script>
     <script src="<%= ResolveUrl("~/Scripts/tw-upload.js") %>"></script>
+    <script src="<%= ResolveUrl("~/Scripts/tw-eta.js") %>"></script>
     <script src="<%= ResolveUrl("~/Scripts/tripway-scroll.js") %>"></script>
     <script>
         // ---- collapsible app sidebar -------------------------------------------

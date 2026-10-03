@@ -36,6 +36,12 @@
         <div id="pnlEmpty" class="hidden bg-white rounded-2xl shadow-sm p-10 text-center text-gray-400">No trip requests right now. New jobs will appear automatically.</div>
     </div>
 
+    <%-- Leaflet and the shared OSRM helper. No map is shown on this page: they are here so the
+         cards can be given real road distance and drive time, which a straight line cannot
+         produce. --%>
+    <script src="<%= ResolveUrl("~/Scripts/leaflet.js") %>"></script>
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Styles/leaflet/leaflet.css") %>" />
+    <script src="<%= ResolveUrl("~/Scripts/tripway-route.js") %>"></script>
     <script>
         var API = '<%= ResolveUrl("~/Handlers/TripApi.ashx") %>';
         var DETAIL_URL = '<%= ResolveUrl("~/Driver/RequestDetail.aspx") %>';
@@ -43,6 +49,14 @@
         var haveLocation = false, myLat = 0, myLng = 0;
         var pollFails = 0;
         var lastRequests = {};
+
+        // ---- road distance / drive time on every card ------------------------
+        // The cards rebuild every 5s from the poll, so these numbers cannot come from a
+        // request per card per poll: that is one OSRM call every 5 seconds per open tab,
+        // against a free public service that rate-limits. Instead one off-screen map does the
+        // routing and answers are cached, so a re-render is a dictionary lookup.
+        var roadCache = {}, roadPending = {}, roadFailed = {}, roadMap = null;
+        var ROAD_TTL_MS = 60000;
 
         function notePollIssue(msg) {
             pollFails++;
@@ -77,6 +91,110 @@
             if (r.etaSuggested > 0) return r.etaSuggested;
             return DEFAULT_ETA;
         }
+        /* ---- road routing ---------------------------------------------------
+           Coords are rounded to 3 decimals (~110m) for the cache key so ordinary GPS jitter
+           does not turn into a fresh OSRM call on every 5s poll, while a driver who has
+           genuinely moved still gets a new route. */
+        function roadKey(r) {
+            return [myLat.toFixed(3), myLng.toFixed(3),
+                    Number(r.lat).toFixed(3), Number(r.lng).toFixed(3)].join('|');
+        }
+
+        // Leaflet needs a sized element to exist as a map even when nothing is drawn on it.
+        // This one is parked off-screen and every line is cleared as soon as it reports.
+        function roadMapFor() {
+            if (roadMap) return roadMap;
+            if (typeof L === 'undefined' || typeof TripRoute === 'undefined') return null;
+            var host = document.createElement('div');
+            host.style.cssText = 'position:absolute;left:-9999px;top:0;width:320px;height:320px;';
+            document.body.appendChild(host);
+            roadMap = L.map(host, { zoomControl: false, attributionControl: false, interactive: false });
+            return roadMap;
+        }
+
+        function roadFor(r) {
+            if (!haveLocation) return null;
+            var hit = roadCache[roadKey(r)];
+            return hit && hit.km != null && (Date.now() - hit.at) < ROAD_TTL_MS ? hit : null;
+        }
+
+        // Local clock, because this number is for the driver looking at their own handset.
+        function clockAfter(minutes) {
+            try {
+                return new Date(Date.now() + minutes * 60000)
+                    .toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            } catch (e) { return ''; }
+        }
+
+        // Returns the cached answer, or null when one has to be fetched. Marks the key pending
+        // synchronously so the paint pass right after this never flashes "unavailable" for a
+        // request that is merely in flight.
+        function requestRoad(r) {
+            if (!haveLocation) return null;
+            var toLat = Number(r.lat), toLng = Number(r.lng);
+            if (!isFinite(toLat) || !isFinite(toLng)) return null;
+
+            var known = roadFor(r);
+            if (known) return known;
+
+            var map = roadMapFor();
+            var key = roadKey(r);
+            if (!map || roadPending[key]) return null;
+            /* A failure is remembered only until the TTL, not for the rest of the shift: one
+               dropped request from a busy public server should not cost this pickup its road
+               figures for the whole day, and retrying once a minute still cannot hammer it. */
+            if (roadFailed[key] && (Date.now() - roadFailed[key]) < ROAD_TTL_MS) return null;
+            roadPending[key] = true;
+
+            var line = null;
+            line = TripRoute.create(map, [[myLat, myLng], [toLat, toLng]], {
+                color: '#1d4ed8', weight: 3, opacity: 0.9, fit: false, guide: false,
+                onRoad: function (info) {
+                    delete roadPending[key];
+                    delete roadFailed[key];
+                    roadCache[key] = { km: info.km, minutes: Math.max(1, info.minutes), at: Date.now() };
+                    if (line) line.clear();
+                    paintRoad();
+                },
+                onFail: function () {
+                    delete roadPending[key];
+                    roadFailed[key] = Date.now();
+                    paintRoad();
+                }
+            });
+            return null;
+        }
+
+        /* What the card shows in the road strip. Falls back to the straight-line estimate, and
+           says so, rather than either showing nothing or passing off a ruler distance as a
+           road distance. */
+        function roadText(r) {
+            var road = requestRoad(r);
+            if (road) {
+                var when = clockAfter(road.minutes);
+                return '<b>' + road.km.toFixed(1) + ' km</b> along the road'
+                     + ' &middot; ' + road.minutes + ' min drive'
+                     + (when ? ' &middot; arrive by ' + when : '');
+            }
+            if (!haveLocation) return 'Waiting for your location to route';
+            var km = distanceKm(r);
+            if (km === null) return 'Pickup has no coordinates yet';
+            var key = roadKey(r);
+            if (roadPending[key]) return 'Routing along the road\u2026';
+            return '\u2248 ' + km.toFixed(1) + ' km straight \u00b7 ~' + etaFor(r)
+                 + ' min (road routing unavailable)';
+        }
+
+        // Called after every render and after every routing answer. Requests first so the text
+        // sees the just-set pending flag, then paints.
+        function paintRoad() {
+            for (var id in lastRequests) {
+                if (!Object.prototype.hasOwnProperty.call(lastRequests, id)) continue;
+                var cell = document.querySelector('[data-road="' + id + '"]');
+                if (cell) cell.innerHTML = roadText(lastRequests[id]);
+            }
+        }
+
         function avatar(r, extra) {
             var cls = 'size-11 rounded-full object-cover shrink-0 ring-2 ring-white ' + (extra || '');
             if (r.customerPhoto) return '<img src="' + esc(r.customerPhoto) + '" alt="" class="' + cls + '" onerror="this.replaceWith(twSkeletonAvatar())" />';
@@ -124,7 +242,6 @@
             for (var i2 = 0; i2 < list.length; i2++) {
                 var r = list[i2];
                 var km = distanceKm(r);
-                var eta = etaFor(r);
                 h += '<div class="tw-card" data-trip="' + r.trip + '">';
 
                 h += '<div class="flex items-start gap-3 mb-3">' + avatar(r);
@@ -148,9 +265,12 @@
                      '<div class="flex items-start gap-2"><span class="size-2.5 rounded-full bg-rose-500 shrink-0 mt-1"></span><span class="min-w-0">' + esc(r.dropoff || '—') + '</span></div>' +
                      '</div>';
 
+                // Road figures land here. Painted by paintRoad() once the strip is in the DOM.
+                h += '<div class="flex flex-wrap items-center gap-x-1.5 rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-semibold text-blue-700 mb-3" data-road="' + r.trip + '"></div>';
+
                 h += '<div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-400 mb-3">' +
                      '<span>⏱ ' + esc(r.requestedAgo || '') + '</span>' +
-                     '<span>' + (km !== null ? km.toFixed(1) + ' km away' : '📍 tap details for the map') + '</span>' +
+                     '<span>' + (km !== null ? '\u2248 ' + km.toFixed(1) + ' km straight' : '📍 tap details for the map') + '</span>' +
                      (r.stops > 2 ? '<span>' + (r.stops - 2) + ' stops</span>' : '') +
                      (r.tripKm > 0 ? '<span>Trip ' + Number(r.tripKm).toFixed(1) + ' km</span>' : '') +
                      '</div>';
@@ -161,6 +281,7 @@
                      '</div></div>';
             }
             listBox.innerHTML = h;
+            paintRoad();
         }
 
         function openAcceptDialog(tripId) {
@@ -168,6 +289,18 @@
             if (!r) return;
             var km = distanceKm(r);
             var eta = etaFor(r);
+            // The card may already hold a road answer by the time this dialog opens; prefer it
+            // over the ruler estimate so the two screens do not disagree about the same trip.
+            var road = roadFor(r);
+            var etaLine = road
+                ? 'Road route: about ' + road.minutes + ' min (' + road.km.toFixed(1)
+                  + ' km along the road).'
+                : (km !== null
+                    ? 'Straight-line estimate: about ' + eta + ' min (' + km.toFixed(1)
+                      + ' km as the crow flies at ' + AVG_SPEED_KMH + ' km/h).'
+                    : (r.etaSuggested > 0
+                        ? 'Estimate from your last location: about ' + r.etaSuggested + ' min. Adjust it if you know better.'
+                        : 'We could not read your location, so confirm the minutes manually.'));
             var html =
                 '<div class="flex items-start gap-3 mb-5">' + avatar(r, 'size-12') +
                 '<div><h3 class="text-lg font-bold text-gray-900">' + esc(r.customer) + '</h3>' +
@@ -186,12 +319,8 @@
                 '<button type="button" onclick="bumpEta(1)" class="tw-btn-outline px-3">+</button>' +
                 '</div>' +
                 '<p class="text-xs text-blue-700 mt-2">' +
-                (km !== null
-                    ? 'Map estimate: about ' + eta + ' min (' + km.toFixed(1) + ' km away at ' + AVG_SPEED_KMH + ' km/h).'
-                    : (r.etaSuggested > 0
-                        ? 'Map estimate from your last location: about ' + r.etaSuggested + ' min. Adjust it if you know better.'
-                        : 'We could not read your location, so confirm the minutes manually.')) +
-                ' The customer sees this time on their trip page.</p>' +
+                etaLine +
+                ' The customer sees this countdown on their Active Trip and Trip Detail pages, and as a record on their Trip History.</p>' +
                 '<div class="flex justify-end gap-2 mt-4">' +
                 '<button type="button" onclick="appCloseModal()" class="tw-btn-outline">Cancel</button>' +
                 '<button type="button" onclick="acceptJob(' + tripId + ')" class="tw-btn-primary">Confirm &amp; Accept</button>' +
@@ -233,6 +362,9 @@
                     myLat = pos.coords.latitude;
                     myLng = pos.coords.longitude;
                     refreshNow();
+                    // Route against the fresh fix without waiting for the next poll, so the
+                    // cards fill in immediately instead of up to 5s later.
+                    paintRoad();
                 }, function () { });
             }
         });

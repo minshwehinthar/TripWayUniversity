@@ -136,8 +136,7 @@ window.TripPlace = (function () {
        person - is the only question worth asking, and an empty box is always fair game
        because there is nothing to lose. */
     function shouldFill(el) {
-        if (el.dataset.typed === '1') return false;
-        return (el.value || '').trim().length === 0 || el.dataset.auto === '1';
+        return el.dataset.typed !== '1';
     }
 
     function refresh() {

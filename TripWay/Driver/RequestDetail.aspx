@@ -107,7 +107,7 @@
                                     <asp:TextBox ID="txtEta" runat="server" TextMode="Number" CssClass="tw-input text-center text-lg font-bold" />
                                     <asp:Button ID="btnEtaUp" runat="server" Text="+" CausesValidation="false" OnClick="btnEtaUp_Click" CssClass="tw-btn-outline" />
                                 </div>
-                                <p class="text-xs text-blue-700 mt-2" id="etaHint">The customer sees this time on their Active Trip, Trip Detail and Trip History pages.</p>
+                                <p class="text-xs text-blue-700 mt-2" id="etaHint">The customer sees this countdown on their Active Trip and Trip Detail pages, and as a record on their Trip History.</p>
                             </div>
                         </div>
                         <asp:Button ID="btnAccept" runat="server" Text="Accept Job" OnClick="btnAccept_Click" CausesValidation="false" CssClass="tw-btn-primary w-full justify-center" />
@@ -124,11 +124,16 @@
         var P = <%= PathJson %>;
         var ME = <%= MeJson %>;
         var AVG_SPEED_KMH = 25, ROAD_FACTOR = 1.3;
-        var meMarker = null, approachRoute = null;
+        var meMarker = null, approachRoute = null, map = null;
 
         // Drive-to-pickup shown along the real road, with live road distance and drive time.
-        function drawApproach(map, from) {
-            if (!from || !P.pickup) return null;
+        // Safe to call more than once: the line is built the first time and re-pointed after,
+        // so a driver who arrives without a stored location still gets a route once the
+        // browser tells us where they are.
+        function drawApproach(from) {
+            if (!map || !from || !P.pickup) return null;
+            if (approachRoute) { approachRoute.set([from, P.pickup]); return approachRoute; }
+
             approachRoute = TripRoute.create(map, [from, P.pickup], {
                 color: '#1d4ed8', weight: 3, opacity: 0.85, dashArray: '7 7', fit: false,
                 onRoad: function (info) {
@@ -158,7 +163,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             var el = document.getElementById('mapRequest');
             if (el) {
-                var map = L.map('mapRequest').setView([16.890, 97.633], 14);
+                map = L.map('mapRequest').setView([16.890, 97.633], 14);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
                 var pts = [];
                 if (P.pickup) { L.marker(P.pickup, { icon: L.divIcon({ className: '', html: '<span class="block size-4 rounded-full bg-emerald-500 border-2 border-white shadow"></span>' }) }).addTo(map); pts.push(P.pickup); }
@@ -173,7 +178,7 @@
                     meMarker = L.marker(ME, { icon: L.divIcon({ className: '', html: '<span class="flex items-center justify-center size-5 rounded-full bg-gray-900 text-white text-[9px] font-bold border-2 border-white shadow">You</span>' }) }).addTo(map);
                     pts.push(ME);
                 }
-                if (ME) drawApproach(map, ME);
+                if (ME) drawApproach(ME);
                 if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.25));
             }
 
@@ -191,7 +196,11 @@
                     setText('<%= lblDriveTime.ClientID %>', formatDriveTime(mins));
                     setText('<%= lblSuggestedEta.ClientID %>', mins + ' min');
                     if (meMarker) meMarker.setLatLng(here);
-                    if (approachRoute) approachRoute.set([{ lat: here[0], lng: here[1] }, P.pickup]);
+                    // Route from here rather than only re-pointing an existing line. This used
+                    // to be guarded on approachRoute, which was still null whenever the server
+                    // had no stored location for this driver, so the road never appeared at all
+                    // and the fields below quietly kept the straight-line estimate.
+                    drawApproach(here);
                 }, function () { });
             }
         });

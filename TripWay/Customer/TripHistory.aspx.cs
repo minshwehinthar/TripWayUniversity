@@ -116,6 +116,18 @@ namespace TripWay.Customer
                 + "</span><span data-tw-empty>" + Helper.TripHelper.StarSvg(false, "size-4") + "</span>";
         }
 
+        /// <summary>
+        /// ETA chip for a history row. Both columns are nullable - a ride can finish without
+        /// the driver ever giving an estimate - so the minutes are read defensively instead of
+        /// being cast straight out of the row, which would throw on DBNull.
+        /// </summary>
+        protected string HistoryEtaChip(object minutes, object setAt, string status)
+        {
+            int eta = minutes == null || minutes == DBNull.Value ? 0 : Convert.ToInt32(minutes);
+            if (eta <= 0) return "<span class=\"text-xs text-gray-400\">&mdash;</span>";
+            return Helper.TripHelper.EtaStatusChipHtml(eta, setAt, status);
+        }
+
         /// <summary>Template helper: resolved profile photo, or "" when the driver has none.</summary>
         protected string DriverPhoto(object storedPath)
         {
@@ -304,6 +316,8 @@ namespace TripWay.Customer
 
             string sql =
                 "SELECT t.TripID, t.DriverID, t.RequestedAt, t.Fare, t.Status, t.PaymentStatus, " +
+                // Arrival the driver promised on the ride, so the history row can show it.
+                "t.EtaMinutes, t.EtaSetAt, " +
                 "s.Name AS ServiceName, v.Name AS VehicleName, ISNULL(d.FullName, '—') AS DriverName, " +
                 "ISNULL(NULLIF(LTRIM(RTRIM(d.PhoneNumber)), ''), '—') AS DriverPhone, " +
                 "d.ProfilePhotoUrl AS DriverPhoto, " +

@@ -87,6 +87,9 @@
                                         <span>Status</span>
                                     </div>
                                 </th>
+                                <%-- Arrival the driver promised on the ride. Not sortable: a
+                                     settled trip's ETA is a record, not an ordering. --%>
+                                <th>ETA</th>
                                 <th>
                                     <div class="flex items-center gap-1.5">
                                         <span class="tw-sort">
@@ -127,6 +130,7 @@
                         <td><%# Server.HtmlEncode(Eval("VehicleName").ToString()) %></td>
                         <td class="font-semibold text-gray-900 whitespace-nowrap">MMK <%# string.Format("{0:N0}", Eval("Fare")) %></td>
                         <td><span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold <%# GetStatusCss(Eval("Status").ToString()) %>"><%# Server.HtmlEncode(Eval("Status").ToString()) %></span></td>
+                        <td><%# HistoryEtaChip(Eval("EtaMinutes"), Eval("EtaSetAt"), Eval("Status").ToString()) %></td>
                         <td><span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold <%# GetStatusCss(Eval("PaymentStatus").ToString()) %>"><%# Server.HtmlEncode(Eval("PaymentStatus").ToString()) %></span></td>
                         <td class="whitespace-nowrap">
                             <%-- The stars are the button: the panel shrink-wraps them, so the
