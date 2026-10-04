@@ -190,7 +190,7 @@
                     </div>
                     <div>
                         <p class="text-sm font-bold text-gray-900">Today's Trips</p>
-                        <p class="text-xs text-gray-500"><asp:Label ID="lblTodayDate" runat="server" Text="&nbsp;" /></p>
+                        <p class="text-xs text-gray-500"><asp:Label ID="lblTodayDate" runat="server" Text=" " /></p>
                     </div>
                 </div>
                 <div class="mt-4 relative h-56">
@@ -430,30 +430,60 @@
                     note.classList.add('flex');
                 }
 
+                /* Shows the reason a card could not be drawn instead of leaving it blank. A blank
+                   card and a card with no trips look identical, and a fault inside Chart.js
+                   used to abort the whole script, taking the other card down with it. */
+                function cardFailed(canvasId, noteId, what, detail) {
+                    var canvas = document.getElementById(canvasId);
+                    var note = document.getElementById(noteId);
+                    if (canvas) canvas.classList.add('hidden');
+                    if (!note) return;
+                    note.textContent = what + ' could not be drawn. ' + (detail || '');
+                    note.classList.remove('hidden');
+                    note.classList.add('flex');
+                    window.console && console.error('TripWay: ' + what + ' failed to draw: ' + (detail || 'unknown error'));
+                }
+
+                /* A label that is absent must never stop the charts: the writes below used to
+                   sit unguarded, so a missing element threw and left both canvases blank. */
+                function setText(id, value) {
+                    var el = document.getElementById(id);
+                    if (el) el.textContent = value;
+                    else window.console && console.error('TripWay: #' + id + ' is missing from the page.');
+                }
+
                 function init() {
                     /* The totals come from the database and have nothing to do with drawing,
                        so they are written before Chart.js is touched and survive its absence. */
                     var week = readJson('earningsData');
-                    if (week) {
-                        document.getElementById('lblWeekTotal').textContent =
-                            Number(week.total || 0).toLocaleString('en-US');
-                    }
+                    if (week) setText('lblWeekTotal', Number(week.total || 0).toLocaleString('en-US'));
 
                     var today = readJson('driverTodayData');
-                    if (today) {
-                        document.getElementById('lblTodayDate').textContent = today.date || '';
-                    }
+                    if (today) setText('lblTodayDate', today.date || '');
 
                     if (!window.Chart) { chartLibraryMissing(); return; }
-                    applyChartDefaults();
 
-                    /* Distinguish "the server sent nothing" from "this driver has no trips",
-                       which look identical on a blank canvas. */
-                    if (week) drawEarnings(week);
-                    else payloadMissing('earningsChart', 'earningsEmpty', '7-Day Earnings data');
+                    try { applyChartDefaults(); }
+                    catch (e) { cardFailed('earningsChart', 'earningsEmpty', '7-Day Earnings', e.message);
+                                cardFailed('driverTodayRing', 'driverTodayEmpty', "Today's Trips", e.message); return; }
 
-                    if (today) drawDriverToday(today);
-                    else payloadMissing('driverTodayRing', 'driverTodayEmpty', "Today's Trips data");
+                    /* Each card is drawn inside its own guard. Chart.js throws for reasons that
+                       are invisible from here - a canvas already in use, a bad canvas context, a
+                       zero-sized parent - and one throw used to stop the second chart before it
+                       started, which is why both cards went blank together with nothing logged. */
+                    if (week) {
+                        try { drawEarnings(week); }
+                        catch (e) { cardFailed('earningsChart', 'earningsEmpty', '7-Day Earnings', e.message); }
+                    } else {
+                        payloadMissing('earningsChart', 'earningsEmpty', '7-Day Earnings data');
+                    }
+
+                    if (today) {
+                        try { drawDriverToday(today); }
+                        catch (e) { cardFailed('driverTodayRing', 'driverTodayEmpty', "Today's Trips", e.message); }
+                    } else {
+                        payloadMissing('driverTodayRing', 'driverTodayEmpty', "Today's Trips data");
+                    }
                 }
 
                 if (document.readyState === 'loading') {
