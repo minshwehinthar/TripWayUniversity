@@ -47,7 +47,7 @@ namespace TripWay.Driver
         {
             get
             {
-                if (_driverTodayTripsJson == null) LoadDriverTodayTripsData();
+                if (_driverTodayTripsJson == null) LoadTodayTripsData();
                 return _driverTodayTripsJson;
             }
         }
@@ -194,7 +194,7 @@ namespace TripWay.Driver
         /// progress, so the slices add up to the trips actually assigned today. A status added
         /// to the database later then shows up instead of dropping out of the chart.
         /// </summary>
-        private void LoadDriverTodayTripsData()
+        private void LoadTodayTripsData()
         {
             if (_driverTodayTripsJson != null) return;
 
@@ -211,10 +211,29 @@ namespace TripWay.Driver
             foreach (DataRow r in rows.Rows)
             {
                 int c = Convert.ToInt32(r["C"]);
-                string status = r["Status"] == DBNull.Value ? "" : r["Status"].ToString();
-                if (status == "Completed") completed += c;
-                else if (status == "Cancelled") cancelled += c;
-                else inProgress += c;                  /* Requested, Accepted, Arrived, Started */
+                string status = (r["Status"] == DBNull.Value ? "" : r["Status"].ToString()).Trim();
+
+                switch (status)
+                {
+                    case "Completed":
+                        completed += c;
+                        break;
+                    case "Cancelled":
+                        cancelled += c;
+                        break;
+                    case "Requested":
+                    case "Accepted":
+                    case "Arrived":
+                    case "Started":
+                        inProgress += c;
+                        break;
+                    default:
+                        /* A status this build has never heard of is still work sitting on today,
+                           so it counts as in progress rather than dropping out and leaving the ring
+                           short of the trips the driver was actually given. */
+                        inProgress += c;
+                        break;
+                }
             }
 
             _driverTodayTripsJson = new JavaScriptSerializer().Serialize(new
