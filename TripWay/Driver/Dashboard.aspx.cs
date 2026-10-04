@@ -35,21 +35,13 @@ namespace TripWay.Driver
         /// <summary>Seven days of paid fares, oldest first. Drawn as the spline on the page.</summary>
         public string Earnings7DayJson
         {
-            get
-            {
-                if (_earnings7DayJson == null) LoadEarnings7DayData();
-                return _earnings7DayJson;
-            }
+            get { return _earnings7DayJson ?? string.Empty; }
         }
 
         /// <summary>Today's trips split by outcome, for the ring on the page.</summary>
         public string DriverTodayTripsJson
         {
-            get
-            {
-                if (_driverTodayTripsJson == null) LoadTodayTripsData();
-                return _driverTodayTripsJson;
-            }
+            get { return _driverTodayTripsJson ?? string.Empty; }
         }
 
         protected void Page_Load(object sender, EventArgs e)
@@ -120,6 +112,30 @@ namespace TripWay.Driver
                 "SELECT AverageRating FROM Drivers WHERE DriverID=@id",
                 new SqlParameter("@id", DriverId));
             lblRating.Text = rating == null || rating == DBNull.Value ? "New" : Convert.ToDecimal(rating).ToString("0.0") + " " + Helper.TripHelper.StarSvg(true, "size-4");
+
+            /* Both chart payloads are built here, in Page_Load, rather than from a property
+               getter. A getter would first run on the way past a <%= %> during Render, which is
+               after the response has started flushing: a query fault there truncates the page
+               so the cards and headings appear but the script tags carrying the data never
+               arrive, leaving two blank cards and a stuck "MMK 0" with nothing in the console
+               to explain it. Paying for the queries before any output exists means a fault
+               surfaces as a normal error page instead of a silently broken one. */
+            LoadEarnings7DayData();
+            LoadTodayTripsData();
+
+            /* The headings are filled in from the same numbers the charts draw, so the card
+               still states the right week total and date if scripting is off or Chart.js is
+               missing. The script refreshes them from the same payload and cannot disagree. */
+            long weekTotal = 0;
+            if (_earnings7DayJson != null)
+            {
+                var week = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(_earnings7DayJson);
+                weekTotal = week != null && week.ContainsKey("total")
+                    ? Convert.ToInt64(week["total"], CultureInfo.InvariantCulture)
+                    : 0L;
+            }
+            lblWeekTotal.Text = weekTotal.ToString("N0");
+            lblTodayDate.Text = LocalToday().ToString("ddd dd MMM yyyy", CultureInfo.CurrentCulture);
         }
 
         /// <summary>
