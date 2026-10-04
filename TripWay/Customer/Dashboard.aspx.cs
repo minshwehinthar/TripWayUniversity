@@ -153,7 +153,7 @@ namespace TripWay.Customer
             {
                 if (r["D"] == DBNull.Value) continue;
                 DateTime day = Convert.ToDateTime(r["D"]).Date;
-                long amount = Convert.ToDecimal(r["Total"] == DBNull.Value ? 0m : r["Total"]);
+                decimal amount = Convert.ToDecimal(r["Total"] == DBNull.Value ? 0m : r["Total"]);
                 byDay[day] = (long)Math.Round(amount, MidpointRounding.AwayFromZero);
             }
 
