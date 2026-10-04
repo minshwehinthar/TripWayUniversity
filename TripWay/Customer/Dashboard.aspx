@@ -75,7 +75,9 @@
                     <span class="text-xs font-semibold text-gray-500">Total Trips</span>
                     <div class="p-2 rounded-lg bg-[#007AFF]/10 text-[#007AFF] group-hover:bg-[#007AFF] group-hover:text-white transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M18 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6 7v3a3 3 0 0 0 3 3h6a3 3 0 0 1 3 3v1" stroke-dasharray="2.5 2.5" />
 </svg>
                     </div>
                 </div>
@@ -90,7 +92,7 @@
                     <span class="text-xs font-semibold text-gray-500">Trips This Month</span>
                     <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3.75 18.75V7.5A2.25 2.25 0 0 1 6 5.25h12A2.25 2.25 0 0 1 20.25 7.5v11.25m-16.5 0A2.25 2.25 0 0 0 6 21h12a2.25 2.25 0 0 0 2.25-2.25m-16.5 0v-7.5A2.25 2.25 0 0 1 6 9h12a2.25 2.25 0 0 1 2.25 2.25v7.5" />
 </svg>
                     </div>
                 </div>
@@ -105,7 +107,7 @@
                     <span class="text-xs font-semibold text-gray-500">Total Spent</span>
                     <div class="p-2 rounded-lg bg-violet-500/10 text-violet-600">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375A1.125 1.125 0 0 1 2.25 19.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
 </svg>
                     </div>
                 </div>
@@ -120,7 +122,7 @@
                     <span class="text-xs font-semibold text-gray-500">Most Used Ride</span>
                     <div class="p-2 rounded-lg bg-orange-500/10 text-orange-500">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-19.5 0V19.5A2.25 2.25 0 0 0 4.5 21.75h15a2.25 2.25 0 0 0 2.25-2.25V12.75m-19.5 0A2.25 2.25 0 0 0 4.5 15h15a2.25 2.25 0 0 0 2.25-2.25m-19.5 0V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.124-.08M8.25 3.75V4.5m0 0L5.106 5.106M2.25 6.75V7.5m19.5 0v-.75c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V6.75" />
 </svg>
                     </div>
                 </div>
@@ -130,5 +132,386 @@
                 </div>
             </div>
         </div>
+
+        <%-- Charts. Both series are built by Dashboard.aspx.cs, which reads the same Paid
+             rule as Total Spent above and groups on the local day by shifting RequestedAt
+             forward, so a trip booked late at night is counted on the day it was booked. --%>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-start justify-between gap-4 flex-wrap">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 rounded-lg bg-[#007AFF]/10 text-[#007AFF]">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125C16.5 3.504 17.004 3 17.625 3h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+</svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-900">Seven-Day Income</p>
+                            <p class="text-xs text-gray-500">Paid trips per day</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-extrabold text-gray-900" id="incomeTotal">MMK 0</p>
+                        <p class="text-xs text-gray-500">Last 7 days</p>
+                    </div>
+                </div>
+                <div id="incomeChart" class="mt-3 relative"></div>
+            </div>
+
+            <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+</svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900">Today's Trips</p>
+                        <p class="text-xs text-gray-500" id="todayDate">&nbsp;</p>
+                    </div>
+                </div>
+                <div id="todayRing" class="mt-4 flex items-center gap-6 flex-wrap justify-center"></div>
+            </div>
+        </div>
+
+        <script type="application/json" id="incomeData"><%= Income7DayJson %></script>
+        <script type="application/json" id="todayData"><%= TodayTripsJson %></script>
+        <script>
+            (function () {
+                'use strict';
+
+                var reduced = window.matchMedia
+                    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+                function readJson(id) {
+                    var el = document.getElementById(id);
+                    if (!el) return null;
+                    try { return JSON.parse(el.textContent || el.innerText || 'null'); }
+                    catch (e) { return null; }
+                }
+
+                function svgEl(tag, attrs) {
+                    var n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+                    for (var k in attrs) if (attrs[k] != null) n.setAttribute(k, attrs[k]);
+                    return n;
+                }
+
+                function group(n) { return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+                /* Short enough to sit on an axis: 12000 reads as 12k rather than squeezing
+                   four digits into the gutter. */
+                function abbrev(n) {
+                    if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 ? 1 : 0) + 'm';
+                    if (n >= 1000) return (n / 1000).toFixed(n % 1000 ? 1 : 0) + 'k';
+                    return String(Math.round(n));
+                }
+
+                /* Rounds the axis top up to something readable, so the top gridline is a
+                   round figure rather than whatever the biggest day happened to be. */
+                function niceMax(v) {
+                    if (!(v > 0)) return 1;
+                    var exp = Math.floor(Math.log(v) / Math.LN10);
+                    var f = v / Math.pow(10, exp);
+                    var nf = f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10;
+                    return nf * Math.pow(10, exp);
+                }
+
+                /* Monotone cubic interpolation, emitted as cubic beziers: a smooth curve that still
+                   passes through every value, but unlike a plain Catmull-Rom it cannot
+                   overshoot. That mattered here: a day with no income sat on the zero line,
+                   Catmull-Rom bowed through and below it by about 10px, so the line was
+                   drawn under the axis and the fill dipped below the baseline. This form
+                   (Fritsh-Carlson) keeps each segment inside its own two endpoints. */
+                function smoothPath(pts) {
+                    var n = pts.length;
+                    if (n < 2) return '';
+                    if (n === 2) {
+                        return 'M' + pts[0][0].toFixed(2) + ' ' + pts[0][1].toFixed(2) +
+                               'L' + pts[1][0].toFixed(2) + ' ' + pts[1][1].toFixed(2);
+                    }
+
+                    var dx = [], dy = [], slope = [];
+                    for (var i = 0; i < n - 1; i++) {
+                        dx[i] = pts[i + 1][0] - pts[i][0];
+                        dy[i] = pts[i + 1][1] - pts[i][1];
+                        slope[i] = dx[i] === 0 ? 0 : dy[i] / dx[i];
+                    }
+
+                    var m = [slope[0]];
+                    for (var j = 1; j < n - 1; j++) {
+                        m[j] = (slope[j - 1] * dx[j - 1] + slope[j] * dx[j]) /
+                               (dx[j - 1] + dx[j] || 1);
+                    }
+                    m.push(slope[n - 2]);
+
+                    /* Flat run: kill the tangents at both ends so the curve does not swing
+                       out of a plateau on either side of it. */
+                    for (var k = 0; k < n - 1; k++) {
+                        /* Flat run: nothing to slope towards. */
+                        if (slope[k] === 0) { m[k] = 0; m[k + 1] = 0; continue; }
+                        /* A tangent pointing back the way the data came marks a local
+                           extremum. Flattening it is what actually keeps the curve inside
+                           the two points: the steepness limiter below only caps how large a
+                           tangent may be, and on its own still let the curve reach past a
+                           day's value and come back, which put the line under the axis. */
+                        if (m[k] * slope[k] < 0) m[k] = 0;
+                        if (m[k + 1] * slope[k] < 0) m[k + 1] = 0;
+                        var a = m[k] / slope[k], b = m[k + 1] / slope[k];
+                        var s = a * a + b * b;
+                        if (s > 9) {
+                            var tau = 3 / Math.sqrt(s);
+                            m[k] = tau * a * slope[k];
+                            m[k + 1] = tau * b * slope[k];
+                        }
+                    }
+
+                    var d = 'M' + pts[0][0].toFixed(2) + ' ' + pts[0][1].toFixed(2);
+                    for (var q = 0; q < n - 1; q++) {
+                        var h = dx[q] / 3;
+                        d += 'C' + (pts[q][0] + h).toFixed(2) + ' ' + (pts[q][1] + m[q] * h).toFixed(2) +
+                             ',' + (pts[q + 1][0] - h).toFixed(2) + ' ' + (pts[q + 1][1] - m[q + 1] * h).toFixed(2) +
+                             ',' + pts[q + 1][0].toFixed(2) + ' ' + pts[q + 1][1].toFixed(2);
+                    }
+                    return d;
+                }
+
+                function drawIncome(data) {
+                    var host = document.getElementById('incomeChart');
+                    if (!host || !data || !data.values || data.values.length === 0) return;
+
+                    var vals = data.values, labels = data.labels || [], tips = data.tips || [];
+                    var W = 720, H = 260, L = 52, R = 14, T = 16, B = 34;
+                    var plotW = W - L - R, plotH = H - T - B;
+
+                    var max = niceMax(Math.max.apply(null, vals));
+                    var x = function (i) {
+                        return vals.length === 1 ? L + plotW / 2
+                            : L + (plotW * i) / (vals.length - 1);
+                    };
+                    var y = function (v) { return T + plotH - (plotH * v) / max; };
+
+                    var svg = svgEl('svg', {
+                        viewBox: '0 0 ' + W + ' ' + H, class: 'w-full h-auto', role: 'img',
+                        'aria-label': 'Income per day over the last seven days'
+                    });
+
+                    var defs = svgEl('defs', {});
+                    var lg = svgEl('linearGradient', { id: 'twIncomeFill', x1: '0', y1: '0', x2: '0', y2: '1' });
+                    lg.appendChild(svgEl('stop', { offset: '0%', 'stop-color': '#007AFF', 'stop-opacity': '.22' }));
+                    lg.appendChild(svgEl('stop', { offset: '100%', 'stop-color': '#007AFF', 'stop-opacity': '0' }));
+                    defs.appendChild(lg);
+                    svg.appendChild(defs);
+
+                    for (var g = 0; g <= 4; g++) {
+                        var gv = (max / 4) * g;
+                        var gy = y(gv);
+                        svg.appendChild(svgEl('line', {
+                            x1: L, x2: W - R, y1: gy, y2: gy,
+                            stroke: g === 0 ? '#cbd5e1' : '#e2e8f0',
+                            'stroke-width': g === 0 ? 1.5 : 1,
+                            'stroke-dasharray': g === 0 ? null : '4 4'
+                        }));
+                        var gl = svgEl('text', {
+                            x: L - 10, y: gy + 4, 'text-anchor': 'end',
+                            fill: '#94a3b8', 'font-size': 11
+                        });
+                        gl.textContent = abbrev(gv);
+                        svg.appendChild(gl);
+                    }
+
+                    var pts = vals.map(function (v, i) { return [x(i), y(v)]; });
+                    /* A single point has no curve to draw, and letting smoothPath return
+                       nothing here would leave the area with a path that starts mid-string,
+                       so that case is drawn flat across the plot instead. The server always
+                       sends seven days; this only guards the shape of the output. */
+                    var line = pts.length < 2
+                        ? 'M' + L + ' ' + y(vals[0]).toFixed(2) + 'L' + (W - R) + ' ' + y(vals[0]).toFixed(2)
+                        : smoothPath(pts, 1);
+
+                    var base = (T + plotH).toFixed(2);
+                    var area = svgEl('path', {
+                        d: line + 'L' + x(vals.length - 1).toFixed(2) + ' ' + base +
+                           'L' + x(0).toFixed(2) + ' ' + base + 'Z',
+                        fill: 'url(#twIncomeFill)'
+                    });
+                    svg.appendChild(area);
+
+                    var stroke = svgEl('path', {
+                        d: line, fill: 'none', stroke: '#007AFF',
+                        'stroke-width': 2.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
+                    });
+                    svg.appendChild(stroke);
+
+                    vals.forEach(function (v, i) {
+                        var isBest = i === data.bestIndex && v > 0;
+                        svg.appendChild(svgEl('circle', {
+                            cx: x(i), cy: y(v), r: isBest ? 5 : 3.5,
+                            fill: isBest ? '#007AFF' : '#fff',
+                            stroke: '#007AFF', 'stroke-width': 2
+                        }));
+                        var xl = svgEl('text', {
+                            x: x(i), y: H - 12, 'text-anchor': 'middle',
+                            fill: isBest ? '#007AFF' : '#94a3b8',
+                            'font-size': 11, 'font-weight': isBest ? 700 : 400
+                        });
+                        xl.textContent = labels[i] || '';
+                        svg.appendChild(xl);
+                    });
+
+                    if (!reduced) {
+                        var len = 0;
+                        try { len = stroke.getTotalLength(); } catch (e) { len = 0; }
+                        if (len > 0) {
+                            stroke.style.strokeDasharray = len + ' ' + len;
+                            stroke.style.strokeDashoffset = len;
+                            stroke.style.transition = 'stroke-dashoffset 1s ease-out';
+                            /* Read back once so the browser has a start value to animate from,
+                               otherwise the offset is applied and the transition never runs. */
+                            stroke.getBoundingClientRect();
+                            stroke.style.strokeDashoffset = '0';
+                        }
+                    }
+
+                    host.appendChild(svg);
+
+                    var tip = document.createElement('div');
+                    tip.className = 'tw-chart-tip';
+                    tip.style.cssText = 'position:absolute;pointer-events:none;opacity:0;' +
+                        'transition:opacity .12s;background:#0f172a;color:#fff;font-size:.6875rem;' +
+                        'padding:.375rem .5rem;border-radius:.375rem;white-space:nowrap;' +
+                        'transform:translate(-50%,-125%);z-index:5;box-shadow:0 4px 12px rgba(0,0,0,.25)';
+                    host.appendChild(tip);
+
+                    var box = svg.getBoundingClientRect();
+                    var scaleX = box.width ? box.width / W : 1;
+                    var scaleY = box.height ? box.height / H : 1;
+
+                    vals.forEach(function (v, i) {
+                        var hit = svgEl('rect', {
+                            x: x(i) - plotW / (vals.length - 1 || 1) / 2, y: T,
+                            width: plotW / (vals.length - 1 || 1), height: plotH,
+                            fill: 'transparent'
+                        });
+                        hit.style.cursor = 'crosshair';
+                        var show = function () {
+                            tip.textContent = (tips[i] || labels[i] || '') + '  ·  MMK ' + group(v);
+                            tip.style.left = (x(i) * scaleX).toFixed(1) + 'px';
+                            tip.style.top = (y(v) * scaleY).toFixed(1) + 'px';
+                            tip.style.opacity = '1';
+                        };
+                        var hide = function () { tip.style.opacity = '0'; };
+                        hit.addEventListener('mouseenter', show);
+                        hit.addEventListener('mouseleave', hide);
+                        svg.appendChild(hit);
+                    });
+
+                    var total = document.getElementById('incomeTotal');
+                    if (total) total.textContent = 'MMK ' + group(data.total || 0);
+                }
+
+                function drawRing(data) {
+                    var host = document.getElementById('todayRing');
+                    if (!host || !data) return;
+
+                    var slices = [
+                        { key: 'completed', label: 'Completed', value: data.completed || 0, colour: '#059669' },
+                        { key: 'cancelled', label: 'Cancelled', value: data.cancelled || 0, colour: '#e11d48' },
+                        { key: 'inProgress', label: 'In progress', value: data.inProgress || 0, colour: '#007AFF' }
+                    ];
+                    var total = data.total || 0;
+
+                    var S = 150, C = S / 2, R = 56, WIDTH = 18;
+                    var circ = 2 * Math.PI * R;
+
+                    var svg = svgEl('svg', {
+                        viewBox: '0 0 ' + S + ' ' + S, class: 'w-full h-auto shrink-0',
+                        style: 'max-width:190px', role: 'img',
+                        'aria-label': "Today's trips by outcome"
+                    });
+
+                    svg.appendChild(svgEl('circle', {
+                        cx: C, cy: C, r: R, fill: 'none',
+                        stroke: total ? '#f1f5f9' : '#f8fafc', 'stroke-width': WIDTH
+                    }));
+
+                    if (total) {
+                        var offset = 0;
+                        slices.forEach(function (s) {
+                            if (s.value <= 0) return;
+                            var frac = s.value / total;
+                            /* A slice thinner than the gap would vanish, so anything very
+                               small still gets a visible sliver to hover and read. */
+                            var len = Math.max(frac * circ - 2, 1.5);
+                            svg.appendChild(svgEl('circle', {
+                                cx: C, cy: C, r: R, fill: 'none', stroke: s.colour,
+                                'stroke-width': WIDTH, 'stroke-linecap': 'butt',
+                                'stroke-dasharray': len.toFixed(2) + ' ' + (circ - len).toFixed(2),
+                                'stroke-dashoffset': (-offset * circ).toFixed(2),
+                                transform: 'rotate(-90 ' + C + ' ' + C + ')'
+                            }));
+                            offset += frac;
+                        });
+                    }
+
+                    var big = svgEl('text', {
+                        x: C, y: C + 2, 'text-anchor': 'middle',
+                        fill: total ? '#0f172a' : '#cbd5e1',
+                        'font-size': 34, 'font-weight': 800
+                    });
+                    big.textContent = String(total);
+                    svg.appendChild(big);
+
+                    var small = svgEl('text', {
+                        x: C, y: C + 24, 'text-anchor': 'middle', fill: '#94a3b8', 'font-size': 11
+                    });
+                    small.textContent = total === 1 ? 'trip today' : 'trips today';
+                    svg.appendChild(small);
+
+                    host.appendChild(svg);
+
+                    var legend = document.createElement('ul');
+                    legend.className = 'space-y-2 text-sm';
+                    slices.forEach(function (s) {
+                        var li = document.createElement('li');
+                        li.className = 'flex items-center gap-2';
+                        var dot = document.createElement('span');
+                        dot.style.cssText = 'width:.625rem;height:.625rem;border-radius:9999px;' +
+                            'flex:none;background:' + s.colour + (s.value ? '' : ';opacity:.3');
+                        var name = document.createElement('span');
+                        name.className = 'text-gray-600';
+                        name.textContent = s.label;
+                        var num = document.createElement('span');
+                        num.className = 'ml-auto font-bold text-gray-900 tabular-nums';
+                        num.textContent = String(s.value);
+                        li.appendChild(dot);
+                        li.appendChild(name);
+                        li.appendChild(num);
+                        legend.appendChild(li);
+                    });
+                    host.appendChild(legend);
+
+                    var date = document.getElementById('todayDate');
+                    if (date) date.textContent = data.date || '';
+
+                    if (!total) {
+                        var none = document.createElement('p');
+                        none.className = 'w-full text-center text-xs text-gray-400';
+                        none.textContent = 'No trips requested today.';
+                        host.appendChild(none);
+                    }
+                }
+
+                function init() {
+                    drawIncome(readJson('incomeData'));
+                    drawRing(readJson('todayData'));
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', init);
+                } else {
+                    init();
+                }
+            })();
+        </script>
     </div>
 </asp:Content>
