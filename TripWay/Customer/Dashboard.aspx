@@ -202,18 +202,35 @@
                     return String(n);
                 }
 
-                if (!window.Chart) return;
+                /* If this file 404s the page would otherwise show two empty cards with no
+                   complaint of any kind, which is indistinguishable from "no data yet". Say
+                   so on the page instead of failing silently. */
+                function chartLibraryMissing() {
+                    window.console && console.error(
+                        'TripWay: Chart.js did not load, so the dashboard charts cannot be drawn. ' +
+                        'Check that Scripts/chart.js is present in the deployed output.');
 
-                Chart.defaults.font.family = window.getComputedStyle(document.body).fontFamily;
-                Chart.defaults.font.size = 11;
-                Chart.defaults.color = '#9ca3af';
+                    ['incomeChart', 'todayRing'].forEach(function (id) {
+                        var canvas = document.getElementById(id);
+                        if (!canvas || !canvas.parentNode) return;
+                        canvas.classList.add('hidden');
+
+                        var note = document.createElement('p');
+                        note.className = 'absolute inset-0 flex items-center justify-center px-4 text-center text-xs text-gray-400';
+                        note.textContent = 'Charts unavailable: Scripts/chart.js did not load.';
+                        canvas.parentNode.appendChild(note);
+                    });
+                }
+
+                function applyChartDefaults() {
+                    Chart.defaults.font.family = window.getComputedStyle(document.body).fontFamily;
+                    Chart.defaults.font.size = 11;
+                    Chart.defaults.color = '#9ca3af';
+                }
 
                 function drawIncome(data) {
                     var canvas = document.getElementById('incomeChart');
                     if (!canvas || !data) return;
-
-                    var total = document.getElementById('incomeTotal');
-                    if (total) total.textContent = money(data.total);
 
                     new Chart(canvas, {
                         type: 'line',
@@ -270,9 +287,6 @@
                 function drawRing(data) {
                     var canvas = document.getElementById('todayRing');
                     if (!canvas || !data) return;
-
-                    var date = document.getElementById('todayDate');
-                    if (date) date.textContent = data.date || '';
 
                     var slices = [
                         { label: 'Completed',   value: Number(data.completed)   || 0, color: '#0084ff' },
@@ -331,8 +345,24 @@
                 }
 
                 function init() {
-                    drawIncome(readJson('incomeData'));
-                    drawRing(readJson('todayData'));
+                    var income = readJson('incomeData');
+                    var today = readJson('todayData');
+
+                    /* These two numbers come straight from the database, so they are written
+                       before anything to do with drawing. The header used to read MMK 0 when
+                       the chart library was missing, which is worse than no chart at all: it
+                       looks like the customer has spent nothing. */
+                    var totalEl = document.getElementById('incomeTotal');
+                    if (totalEl && income) totalEl.textContent = money(income.total);
+
+                    var dateEl = document.getElementById('todayDate');
+                    if (dateEl && today) dateEl.textContent = today.date || '';
+
+                    if (!window.Chart) { chartLibraryMissing(); return; }
+
+                    applyChartDefaults();
+                    drawIncome(income);
+                    drawRing(today);
                 }
 
                 if (document.readyState === 'loading') {
