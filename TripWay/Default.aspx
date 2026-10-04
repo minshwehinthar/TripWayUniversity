@@ -61,7 +61,24 @@
                 </div>
             </div>
 
-            <!-- Hero visual: featured package cards -->
+            <!-- Hero visual: the photo, then the featured package cards underneath it -->
+            <div class="space-y-4">
+                <!-- The photo fades out and softens towards its own edges instead of ending on a
+                     hard rectangle, so it sits behind the cards rather than boxing them in. The
+                     feather is a mask on a blurred copy of the same image: mask it and the sharp
+                     centre shows through untouched while the edges dissolve, which a plain
+                     blur-radius on the <img> cannot do, since that softens the middle too. -->
+                <div class="relative overflow-hidden rounded-2xl">
+                    <img src='<%= ResolveUrl("~/herosection.jpeg") %>' alt="A TripWay ride in Hpa-An"
+                        class="block w-full h-64 sm:h-72 lg:h-80 object-cover" />
+                    <div aria-hidden="true"
+                        style="position:absolute;inset:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+                               -webkit-mask-image:radial-gradient(ellipse at center, transparent 46%, #000 92%);
+                               mask-image:radial-gradient(ellipse at center, transparent 46%, #000 92%);"></div>
+                    <div aria-hidden="true"
+                        style="position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 45px 10px rgba(255,255,255,0.65);"></div>
+                </div>
+
             <div class="grid grid-cols-2 gap-4">
                 <asp:Repeater ID="rptHeroPackages" runat="server" OnItemDataBound="rptHeroPackages_ItemDataBound">
                     <ItemTemplate>
@@ -94,6 +111,7 @@
                         </div>
                     </a>
                 </asp:Panel>
+            </div>
             </div>
         </div>
     </section>

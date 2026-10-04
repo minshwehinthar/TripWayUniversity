@@ -67,6 +67,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="herosection.jpeg" />
     <Content Include="KPay.jpeg" />
     <Content Include="Wavepay.jpeg" />
     <Content Include="Cash.png" />
