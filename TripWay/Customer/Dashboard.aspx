@@ -155,7 +155,10 @@
                         <p class="text-xs text-gray-500">Last 7 days</p>
                     </div>
                 </div>
-                <div class="mt-3 relative h-64"><canvas id="incomeChart"></canvas></div>
+                <div class="mt-3 relative h-64">
+                    <canvas id="incomeChart"></canvas>
+                    <p id="incomeEmpty" class="absolute inset-0 hidden items-center justify-center px-4 text-center text-xs text-gray-400">No paid trips in the last 7 days.</p>
+                </div>
             </div>
 
             <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
@@ -232,13 +235,26 @@
                     var canvas = document.getElementById('incomeChart');
                     if (!canvas || !data) return;
 
+                    /* Seven days of zero gives a flat line lying on the axis with a 0/0.5/1
+                       scale, which is indistinguishable from a chart that failed to draw.
+                       When there is nothing to plot, say so instead of drawing a flat line. */
+                    var values = (data.values || []).map(Number);
+                    var hasIncome = values.some(function (v) { return v > 0; });
+                    var note = document.getElementById('incomeEmpty');
+                    if (note) {
+                        note.classList.toggle('hidden', hasIncome);
+                        note.classList.toggle('flex', !hasIncome);
+                    }
+                    canvas.classList.toggle('hidden', !hasIncome);
+                    if (!hasIncome) return;
+
                     new Chart(canvas, {
                         type: 'line',
                         data: {
                             labels: data.labels || [],
                             datasets: [{
                                 label: 'Paid income',
-                                data: (data.values || []).map(Number),
+                                data: values,
                                 borderColor: '#007AFF',
                                 backgroundColor: 'rgba(0, 122, 255, 0.10)',
                                 borderWidth: 3,
@@ -305,8 +321,31 @@
                     }
                     canvas.classList.toggle('hidden', total === 0);
 
+                    /* The ring is a share of one day's trips, so a single in-progress trip fills
+                       the whole circle and reads as 100%. Printing the count in the middle
+                       keeps that honest without changing what the ring means. */
+                    var centreLabel = {
+                        id: 'centreLabel',
+                        afterDatasetsDraw: function (chart) {
+                            var arc = chart.getDatasetMeta(0).data[0];
+                            if (!arc) return;
+                            var ctx = chart.ctx;
+                            ctx.save();
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillStyle = '#111827';
+                            ctx.font = '600 24px ' + Chart.defaults.font.family;
+                            ctx.fillText(String(total), arc.x, arc.y - 7);
+                            ctx.fillStyle = '#9ca3af';
+                            ctx.font = '11px ' + Chart.defaults.font.family;
+                            ctx.fillText(total === 1 ? 'trip' : 'trips', arc.x, arc.y + 15);
+                            ctx.restore();
+                        }
+                    };
+
                     new Chart(canvas, {
                         type: 'doughnut',
+                        plugins: [centreLabel],
                         data: {
                             labels: slices.map(function (s) { return s.label; }),
                             datasets: [{
