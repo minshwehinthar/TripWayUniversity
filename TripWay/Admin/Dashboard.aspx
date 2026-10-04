@@ -113,85 +113,207 @@
             </div>
         </div>
 
-        <%-- Live driver map --%>
-        <div class="grid lg:grid-cols-3 gap-5">
-            <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 text-emerald-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
-                        <h2 class="text-sm font-bold text-gray-900">Online Drivers Map</h2>
-                    </div>
-                    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700"><asp:Label ID="lblOnlineCount" runat="server" /></span>
-                </div>
-                <div id="mapOnline" class="h-72 w-full rounded-xl border border-gray-200"></div>
-            </div>
-
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                <div class="flex items-center gap-2 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 text-orange-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
+        <%-- Drivers online. The map and the Recent Trip Activity table were both removed: the map
+             needed Leaflet plus a tile server on every admin page load, and the activity table
+             duplicated what the driver and customer dashboards already show per trip. Fleet
+             availability is the question an admin actually opens this page to answer, so it is a
+             ring. The online list stays underneath it, because a chart cannot open a driver. --%>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between gap-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 text-emerald-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
                     <h2 class="text-sm font-bold text-gray-900">Drivers Online Now</h2>
                 </div>
-                <asp:Repeater ID="rptOnline" runat="server" OnItemCommand="rptOnline_ItemCommand">
-                    <ItemTemplate>
-                        <div class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                            <span class="tw-avatar <%# GetAvatarCss(Eval("DriverID")) %>"><%# GetInitial(Eval("FullName").ToString()) %></span>
-                            <div class="flex-1 min-w-0">
-                                <div class="text-sm font-bold text-gray-900 truncate"><%# Eval("FullName") %></div>
-                                <div class="text-xs text-gray-400"><%# Eval("VehicleTypeName") %></div>
-                            </div>
-                            <asp:LinkButton ID="lbtnView" runat="server" CssClass="tw-action" CommandName="view" CommandArgument='<%# Eval("DriverID") %>' ToolTip="View details" CausesValidation="false"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline-block align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></asp:LinkButton>
-                        </div>
-                    </ItemTemplate>
-                </asp:Repeater>
-                <asp:Panel ID="pnlNoOnline" runat="server" Visible="false" CssClass="tw-empty">No drivers online right now.</asp:Panel>
+                <span class="text-xs font-semibold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700"><asp:Label ID="lblOnlineCount" runat="server" Text=" " /></span>
             </div>
-        </div>
 
-        <%-- Recent trip activity --%>
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <div class="flex items-center gap-2 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 text-violet-500"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
-                <h2 class="text-sm font-bold text-gray-900">Recent Trip Activity</h2>
+            <div class="grid md:grid-cols-5 gap-6 items-center">
+                <div class="md:col-span-2 relative h-56 w-full mx-auto" style="max-width:240px">
+                    <canvas id="driversOnlineRing"></canvas>
+                    <p id="driversOnlineEmpty" class="absolute inset-0 hidden items-center justify-center px-4 text-center text-xs text-gray-400">No drivers registered yet.</p>
+                </div>
+
+                <div class="md:col-span-3">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1">On the road now</p>
+                    <asp:Repeater ID="rptOnline" runat="server" OnItemCommand="rptOnline_ItemCommand">
+                        <ItemTemplate>
+                            <div class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+                                <span class="tw-avatar <%# GetAvatarCss(Eval("DriverID")) %>"><%# GetInitial(Eval("FullName").ToString()) %></span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-bold text-gray-900 truncate"><%# Eval("FullName") %></div>
+                                    <div class="text-xs text-gray-400"><%# Eval("VehicleTypeName") %></div>
+                                </div>
+                                <asp:LinkButton ID="lbtnView" runat="server" CssClass="tw-action" CommandName="view" CommandArgument='<%# Eval("DriverID") %>' ToolTip="View details" CausesValidation="false"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline-block align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></asp:LinkButton>
+                            </div>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                    <asp:Panel ID="pnlNoOnline" runat="server" Visible="false" CssClass="tw-empty">No drivers online right now.</asp:Panel>
+                </div>
             </div>
-            <asp:Repeater ID="rptActivity" runat="server" OnItemCommand="rptActivity_ItemCommand">
-                <HeaderTemplate><table class="tw-table w-full text-sm"><thead><tr><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortstatusA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="status" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortstatusD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="status" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Status</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortserviceA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="service" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortserviceD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="service" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Service</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortstopsA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="stops" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortstopsD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="stops" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Stops</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortcustomerA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="customer" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortcustomerD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="customer" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Customer</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortdriverA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="driver" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortdriverD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="driver" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Driver</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortfareA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="fare" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortfareD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="fare" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Fare</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortrequestedA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="requested" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortrequestedD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="requested" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Requested</span></div></th><th></th></tr></thead><tbody></HeaderTemplate>
-                <ItemTemplate>
-                    <tr class="hover:bg-gray-100 transition-colors">
-                        <td><span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold <%# GetStatusCss(Eval("Status").ToString()) %>"><%# Eval("Status") %></span></td>
-                        <td><%# Eval("ServiceName") %></td>
-                        <td class="text-center"><span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold <%# (int)Eval("StopsCount") > 0 ? "bg-blue-50 text-blue-600" : "bg-gray-100 text-gray-400" %>"><%# ((int)Eval("StopsCount")) > 0 ? Eval("StopsCount") + " pts" : "—" %></span></td>
-                        <td><%# Eval("CustomerName") %></td>
-                        <td class="text-gray-500"><%# String.IsNullOrEmpty(Convert.ToString(Eval("DriverName"))) ? "-" : Eval("DriverName") %></td>
-                        <td class="font-semibold text-gray-900">MMK <%# string.Format("{0:N0}", Eval("Fare")) %></td>
-                        <td class="whitespace-nowrap"><%# FormatTime(Eval("RequestedAt"), "HH:mm") %></td>
-                        <td class="!text-center"><div class="inline-flex items-center justify-center gap-1.5"><asp:LinkButton ID="lbtnView" runat="server" CssClass="tw-action" CommandName="view" CommandArgument='<%# Eval("TripID") %>' ToolTip="View details" CausesValidation="false"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline-block align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></asp:LinkButton></div></td>
-                    </tr>
-                </ItemTemplate>
-                <FooterTemplate>
-                    <tr id="trNoData" runat="server" visible="false">
-                        <td colspan="8" class="px-6 py-14 text-center"><p class="text-sm text-gray-400">No data available...</p></td>
-                    </tr>
-                    </tbody></table>
-                </FooterTemplate>
-            </asp:Repeater>
         </div>
     </div>
 
-    <script src="<%= ResolveUrl("~/Scripts/leaflet.js") %>"></script>
-    <link rel="stylesheet" href="<%= ResolveUrl("~/Styles/leaflet/leaflet.css") %>" />
-    <script>
-        var D = <%= DriversJson %>;
-        document.addEventListener('DOMContentLoaded', function () {
-            var map = L.map('mapOnline').setView([16.890, 97.633], 12);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-            var pts = [];
-            D.forEach(function (d) {
-                if (!d.lat) return;
-                var m = L.marker([d.lat, d.lng], { icon: L.divIcon({ className: '', html: '<span class="block size-4 rounded-full bg-emerald-500 border-2 border-white shadow-lg"></span>' }) }).addTo(map);
-                m.bindPopup('<b>' + d.name + '</b><br/>' + d.vehicle);
-                pts.push([d.lat, d.lng]);
-            });
-            if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.3));
-        });
-    </script>
+        <script type="application/json" id="driversOnlineData"><%= DriversOnlineJson %></script>
+        <script src="<%= ResolveUrl("~/Scripts/chart.js") %>?v=<%= System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/chart.js")).Ticks %>"></script>
+        <script>
+            (function () {
+                'use strict';
+
+                /* A payload that will not parse used to be swallowed and read as an empty fleet,
+                   which put a blank ring on the page with no explanation. Name the fault instead. */
+                function readJson(id) {
+                    var el = document.getElementById(id);
+                    if (!el) {
+                        window.console && console.error('TripWay: #' + id + ' is missing.');
+                        return null;
+                    }
+                    var raw = el.textContent;
+                    if (!raw || !raw.trim()) {
+                        window.console && console.error(
+                            'TripWay: #' + id + ' is empty. DriversOnlineJson rendered nothing, so this is a server-side failure.');
+                        return null;
+                    }
+                    try { return JSON.parse(raw); }
+                    catch (e) {
+                        window.console && console.error('TripWay: #' + id + ' is not valid JSON: ' + e.message +
+                            ' | first 120 chars: ' + raw.replace(/^\s+/, '').slice(0, 120));
+                        return null;
+                    }
+                }
+
+                function setText(id, value) {
+                    var el = document.getElementById(id);
+                    if (el) el.textContent = value;
+                    else window.console && console.error('TripWay: #' + id + ' is missing from the page.');
+                }
+
+                function cardFailed(noteId, what, detail) {
+                    var canvas = document.getElementById('driversOnlineRing');
+                    var note = document.getElementById(noteId);
+                    if (canvas) canvas.classList.add('hidden');
+                    if (!note) return;
+                    note.textContent = what + ' could not be drawn. ' + (detail || '');
+                    note.classList.remove('hidden');
+                    note.classList.add('flex');
+                    window.console && console.error('TripWay: ' + what + ' failed to draw: ' + (detail || 'unknown error'));
+                }
+
+                /* If this file 404s the card would be blank with no complaint of any kind, which
+                   reads the same as nobody being online. Say so instead. */
+                function chartLibraryMissing() {
+                    window.console && console.error(
+                        'TripWay: Chart.js did not load, so the admin fleet ring cannot be drawn. ' +
+                        'Check that Scripts/chart.js is present in the deployed output.');
+                    var canvas = document.getElementById('driversOnlineRing');
+                    var note = document.getElementById('driversOnlineEmpty');
+                    if (canvas) canvas.classList.add('hidden');
+                    if (!note) return;
+                    note.textContent = 'Charts unavailable: Scripts/chart.js did not load.';
+                    note.classList.remove('hidden');
+                    note.classList.add('flex');
+                }
+
+                function drawFleet(data) {
+                    var canvas = document.getElementById('driversOnlineRing');
+                    if (!canvas) return;
+
+                    var total = Number(data.total || 0);
+                    var online = Number(data.online || 0);
+                    var offline = Number(data.offline || 0);
+
+                    /* No drivers at all is a different statement from "none are online right now",
+                       and a ring with two zero slices cannot tell them apart. */
+                    var note = document.getElementById('driversOnlineEmpty');
+                    if (total <= 0) {
+                        canvas.classList.add('hidden');
+                        if (note) {
+                            note.textContent = 'No drivers registered yet.';
+                            note.classList.remove('hidden');
+                            note.classList.add('flex');
+                        }
+                        return;
+                    }
+
+                    var centreLabel = {
+                        id: 'fleetCentre',
+                        afterDatasetsDraw: function (chart) {
+                            var arc = chart.getDatasetMeta(0).data[0];
+                            if (!arc) return;
+                            var ctx = chart.ctx;
+                            ctx.save();
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillStyle = '#111827';
+                            ctx.font = '600 26px ' + Chart.defaults.font.family;
+                            ctx.fillText(String(online), arc.x, arc.y - 7);
+                            ctx.fillStyle = '#9ca3af';
+                            ctx.font = '11px ' + Chart.defaults.font.family;
+                            ctx.fillText(online === 1 ? 'driver online' : 'drivers online', arc.x, arc.y + 15);
+                            ctx.restore();
+                        }
+                    };
+
+                    new Chart(canvas, {
+                        type: 'doughnut',
+                        plugins: [centreLabel],
+                        data: {
+                            labels: ['Online', 'Offline'],
+                            datasets: [{
+                                data: [online, offline],
+                                backgroundColor: ['#10b981', '#e2e8f0'],
+                                borderWidth: 0,
+                                hoverOffset: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '68%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        boxWidth: 12,
+                                        boxHeight: 12,
+                                        padding: 18,
+                                        usePointStyle: true,
+                                        pointStyle: 'circle'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (item) {
+                                            var v = Number(item.parsed) || 0;
+                                            var pct = total ? Math.round(v / total * 100) : 0;
+                                            return item.label + ': ' + v + ' (' + pct + '%)';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                function init() {
+                    var fleet = readJson('driversOnlineData');
+                    if (fleet) setText('lblOnlineCount', fleet.online + ' of ' + fleet.total + ' online');
+
+                    if (!window.Chart) { chartLibraryMissing(); return; }
+
+                    try {
+                        Chart.defaults.font.family = window.getComputedStyle(document.body).fontFamily;
+                        Chart.defaults.font.size = 11;
+                        Chart.defaults.color = '#9ca3af';
+                    } catch (e) { cardFailed('driversOnlineEmpty', 'Drivers Online Now', e.message); return; }
+
+                    if (!fleet) { cardFailed('driversOnlineEmpty', 'Drivers Online Now', 'the server sent no data'); return; }
+
+                    try { drawFleet(fleet); }
+                    catch (e) { cardFailed('driversOnlineEmpty', 'Drivers Online Now', e.message); }
+                }
+
+                if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+                else init();
+            })();
+        </script>
 </asp:Content>

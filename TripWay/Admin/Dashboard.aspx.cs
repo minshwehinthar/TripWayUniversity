@@ -1,30 +1,24 @@
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Text;
+using System.Globalization;
+using System.Web.Script.Serialization;
 
 namespace TripWay.Admin
 {
     public partial class DashboardPage : Helper.ListPageBase
     {
-        public string DriversJson { get; private set; }
+        private string _driversOnlineJson;
 
-        /// <summary>
-        /// Columns the Recent Trip Activity header may sort by. These values are the only
-        /// thing that reaches SQL, and BuildOrderBy drops anything missing from here.
-        /// </summary>
-        private static readonly Dictionary<string, string> ActivitySort =
-            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "status",    "t.Status" },
-                { "service",   "s.Name" },
-                { "stops",     "StopsCount" },
-                { "customer",  "CustomerName" },
-                { "driver",    "DriverName" },
-                { "fare",      "t.Fare" },
-                { "requested", "t.RequestedAt" }
-            };
+        /// <summary>Share of the fleet currently on the road, drawn as the ring on the page.</summary>
+        public string DriversOnlineJson
+        {
+            get { return _driversOnlineJson ?? string.Empty; }
+        }
+
+        // +6:30, the same offset the counters above use, so the ring and the tiles agree about
+        // which day "now" falls on.
+        private const int LocalOffsetMinutes = 390;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -41,94 +35,63 @@ namespace TripWay.Admin
                 Helper.DBHelper.ExecuteScalar(
                     "SELECT ISNULL(SUM(Fare),0) FROM Trips WHERE CAST(DATEADD(MINUTE, 390, RequestedAt) AS DATE) = CAST(DATEADD(MINUTE, 390, SYSUTCDATETIME()) AS DATE) AND Status <> 'Cancelled'"));
 
-            int onlineCount = 0;
-            DataTable online = Helper.DBHelper.ExecuteQuery(
-                @"SELECT d.DriverID, d.FullName, v.Name AS VehicleTypeName
-                  FROM Drivers d INNER JOIN VehicleTypes v ON d.VehicleTypeID = v.VehicleTypeID
-                  WHERE d.IsOnline = 1 AND d.KYCStatus = 'Approved'");
-            onlineCount = online.Rows.Count;
-
-            rptOnline.DataSource = online;
-            rptOnline.DataBind();
-            pnlNoOnline.Visible = online.Rows.Count == 0;
-            rptOnline.Visible = online.Rows.Count > 0;
-            lblOnlineCount.Text = onlineCount + " online";
-
-            BuildDriversJson(onlineCount);
-
-            LoadActivity();
+            LoadDriversOnline();
         }
 
         /// <summary>
-        /// The Recent Trip Activity table. Kept on its own so a header click can reload just
-        /// this table: the counters and the online list above it do not depend on column order.
+        /// How much of the fleet is available right now, which is what the ring shows, plus the
+        /// list of who is online so an admin can still open a driver.
+        ///
+        /// Offline counts every driver who is not currently on the road, including any still
+        /// waiting on KYC. That keeps the two slices adding up to the whole fleet, which is the
+        /// whole point of a ring: "2 of 4 online" has to mean four drivers exist, not that two
+        /// of them are hiding somewhere unaccounted for.
+        ///
+        /// The payload is built here in Page_Load rather than from a property getter. A getter
+        /// would first run from the &lt;%= %&gt; in the markup during Render, once the response has
+        /// started flushing, and a query fault at that point truncates the page so the script
+        /// carrying the data never arrives and the card sits blank with nothing logged.
         /// </summary>
-        private void LoadActivity()
+        private void LoadDriversOnline()
         {
-            string orderBy = Helper.SortHelper.BuildOrderBy(SortKey, SortDir, ActivitySort);
-            if (string.IsNullOrEmpty(orderBy)) orderBy = " ORDER BY t.TripID DESC";
+            DataTable fleet = Helper.DBHelper.ExecuteQuery(
+                "SELECT COUNT(*) AS Total, " +
+                "SUM(CASE WHEN IsOnline = 1 AND KYCStatus = 'Approved' THEN 1 ELSE 0 END) AS OnlineCount " +
+                "FROM Drivers");
 
-            DataTable act = Helper.DBHelper.ExecuteQuery(
-                @"SELECT TOP 10 t.TripID, t.Status, t.Fare, t.RequestedAt,
-                         s.Name AS ServiceName, ISNULL(c.FullName,'—') AS CustomerName,
-                         ISNULL(ISNULL(d.FullName,'Pending'),'—') AS DriverName,
-                         (SELECT COUNT(*) FROM TripStops ts WHERE ts.TripID=t.TripID) AS StopsCount
-                  FROM Trips t
-                  INNER JOIN ServiceTypes s ON t.ServiceTypeID = s.ServiceTypeID
-                  INNER JOIN Customers c ON t.CustomerID = c.CustomerID
-                  LEFT JOIN Drivers d ON t.DriverID = d.DriverID" + orderBy);
-            rptActivity.DataSource = act;
-            rptActivity.DataBind();
-            rptActivity.Visible = true;
-            SetNoDataRow(rptActivity, rptActivity.Items.Count == 0);
-            SetActiveSortArrow(rptActivity, SortKey, SortDir);
-        }
+            int total = Convert.ToInt32(fleet.Rows[0]["Total"]);
+            int online = fleet.Rows[0]["OnlineCount"] == DBNull.Value
+                ? 0
+                : Convert.ToInt32(fleet.Rows[0]["OnlineCount"]);
 
-        /// <summary>SetSort calls this, so a header click reloads the activity table.</summary>
-        protected override void OnPageIndexNavigated()
-        {
-            LoadActivity();
-        }
-
-        private void BuildDriversJson(int onlineCount)
-        {
-            StringBuilder sb = new StringBuilder("[");
-            bool first = true;
-            foreach (DataRow dr in Helper.DBHelper.ExecuteQuery(
-                @"SELECT d.DriverID, d.FullName, v.Name AS VehicleTypeName,
-                         g.Lat, g.Lng
-                  FROM Drivers d
-                  INNER JOIN VehicleTypes v ON d.VehicleTypeID = v.VehicleTypeID
-                  OUTER APPLY (
-                      SELECT TOP 1 g.Lat, g.Lng
-                      FROM Trips t INNER JOIN TripGPSLogs g ON g.TripID = t.TripID
-                      WHERE t.DriverID = d.DriverID
-                      ORDER BY g.LogID DESC
-                  ) g
-                  WHERE d.IsOnline = 1 AND d.KYCStatus = 'Approved'").Rows)
+            _driversOnlineJson = new JavaScriptSerializer().Serialize(new
             {
-                if (!first) sb.Append(",");
-                first = false;
-                sb.Append("{ \"name\": \"").Append(HttpUtilityEscape(dr["FullName"].ToString()))
-                  .Append("\", \"vehicle\": \"").Append(HttpUtilityEscape(dr["VehicleTypeName"].ToString())).Append("\"");
-                if (dr["Lat"] != DBNull.Value)
-                    sb.Append(", \"lat\": ").Append(dr["Lat"]).Append(", \"lng\": ").Append(dr["Lng"]);
-                sb.Append(" }");
-            }
-            sb.Append("]");
-            DriversJson = sb.ToString();
+                online = online,
+                offline = total - online,
+                total = total,
+                date = LocalToday().ToString("ddd dd MMM yyyy", CultureInfo.CurrentCulture)
+            });
+
+            /* The badge is written from the same figures the ring plots, so it states the truth
+               even with scripting off or Chart.js missing, and the script cannot contradict it
+               because it reads the same payload. */
+            lblOnlineCount.Text = online + " of " + total + " online";
+
+            DataTable rows = Helper.DBHelper.ExecuteQuery(
+                @"SELECT d.DriverID, d.FullName, v.Name AS VehicleTypeName
+                  FROM Drivers d INNER JOIN VehicleTypes v ON d.VehicleTypeID = v.VehicleTypeID
+                  WHERE d.IsOnline = 1 AND d.KYCStatus = 'Approved'");
+
+            rptOnline.DataSource = rows;
+            rptOnline.DataBind();
+            pnlNoOnline.Visible = rows.Rows.Count == 0;
+            rptOnline.Visible = rows.Rows.Count > 0;
         }
 
-        private static string HttpUtilityEscape(string s)
+        /// <summary>Today's date in the same local time the counters above group by.</summary>
+        private static DateTime LocalToday()
         {
-            return System.Web.HttpUtility.JavaScriptStringEncode(s ?? "");
-        }
-
-        protected void rptActivity_ItemCommand(object sender, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
-        {
-            if (e.CommandName != "view") return;
-            int tripId = Convert.ToInt32(e.CommandArgument);
-            OpenAppModal(Helper.TripHelper.BuildTripModalHtml(tripId, "TripDetail.aspx?id=" + tripId));
+            return DateTime.UtcNow.AddMinutes(LocalOffsetMinutes).Date;
         }
 
         protected void rptOnline_ItemCommand(object sender, System.Web.UI.WebControls.RepeaterCommandEventArgs e)

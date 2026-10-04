@@ -10,6 +10,5 @@ namespace TripWay.Admin
         protected global::System.Web.UI.WebControls.Label lblOnlineCount;
         protected global::System.Web.UI.WebControls.Repeater rptOnline;
         protected global::System.Web.UI.WebControls.Panel pnlNoOnline;
-        protected global::System.Web.UI.WebControls.Repeater rptActivity;
     }
 }
