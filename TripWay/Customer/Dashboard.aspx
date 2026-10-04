@@ -155,7 +155,7 @@
                         <p class="text-xs text-gray-500">Last 7 days</p>
                     </div>
                 </div>
-                <div id="incomeChart" class="mt-3 relative"></div>
+                <div class="mt-3 relative h-64"><canvas id="incomeChart"></canvas></div>
             </div>
 
             <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
@@ -170,335 +170,164 @@
                         <p class="text-xs text-gray-500" id="todayDate">&nbsp;</p>
                     </div>
                 </div>
-                <div id="todayRing" class="mt-4 flex items-center gap-6 flex-wrap justify-center"></div>
+                <div class="mt-4 relative h-56">
+                    <canvas id="todayRing"></canvas>
+                    <p id="todayEmpty" class="absolute inset-0 hidden items-center justify-center text-xs text-gray-400">No trips requested today.</p>
+                </div>
             </div>
         </div>
 
         <script type="application/json" id="incomeData"><%= Income7DayJson %></script>
         <script type="application/json" id="todayData"><%= TodayTripsJson %></script>
+        <script src="<%= ResolveUrl("~/Scripts/chart.js") %>?v=<%= System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/chart.js")).Ticks %>"></script>
         <script>
             (function () {
                 'use strict';
 
-                var reduced = window.matchMedia
-                    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
                 function readJson(id) {
                     var el = document.getElementById(id);
                     if (!el) return null;
-                    try { return JSON.parse(el.textContent || el.innerText || 'null'); }
-                    catch (e) { return null; }
+                    try { return JSON.parse(el.textContent); } catch (e) { return null; }
                 }
 
-                function svgEl(tag, attrs) {
-                    var n = document.createElementNS('http://www.w3.org/2000/svg', tag);
-                    for (var k in attrs) if (attrs[k] != null) n.setAttribute(k, attrs[k]);
-                    return n;
+                function money(n) {
+                    return 'MMK ' + Number(n || 0).toLocaleString('en-US');
                 }
 
-                function group(n) { return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-
-                /* Short enough to sit on an axis: 12000 reads as 12k rather than squeezing
-                   four digits into the gutter. */
-                function abbrev(n) {
-                    if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 ? 1 : 0) + 'm';
-                    if (n >= 1000) return (n / 1000).toFixed(n % 1000 ? 1 : 0) + 'k';
-                    return String(Math.round(n));
+                /* Axis labels stay short so they cannot crowd the plot: 4,200 reads as 4k. */
+                function shortMoney(n) {
+                    n = Number(n) || 0;
+                    if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 ? 1 : 0) + 'M';
+                    if (n >= 1000) return Math.round(n / 1000) + 'k';
+                    return String(n);
                 }
 
-                /* Rounds the axis top up to something readable, so the top gridline is a
-                   round figure rather than whatever the biggest day happened to be. */
-                function niceMax(v) {
-                    if (!(v > 0)) return 1;
-                    var exp = Math.floor(Math.log(v) / Math.LN10);
-                    var f = v / Math.pow(10, exp);
-                    var nf = f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10;
-                    return nf * Math.pow(10, exp);
-                }
+                if (!window.Chart) return;
 
-                /* Monotone cubic interpolation, emitted as cubic beziers: a smooth curve that still
-                   passes through every value, but unlike a plain Catmull-Rom it cannot
-                   overshoot. That mattered here: a day with no income sat on the zero line,
-                   Catmull-Rom bowed through and below it by about 10px, so the line was
-                   drawn under the axis and the fill dipped below the baseline. This form
-                   (Fritsh-Carlson) keeps each segment inside its own two endpoints. */
-                function smoothPath(pts) {
-                    var n = pts.length;
-                    if (n < 2) return '';
-                    if (n === 2) {
-                        return 'M' + pts[0][0].toFixed(2) + ' ' + pts[0][1].toFixed(2) +
-                               'L' + pts[1][0].toFixed(2) + ' ' + pts[1][1].toFixed(2);
-                    }
-
-                    var dx = [], dy = [], slope = [];
-                    for (var i = 0; i < n - 1; i++) {
-                        dx[i] = pts[i + 1][0] - pts[i][0];
-                        dy[i] = pts[i + 1][1] - pts[i][1];
-                        slope[i] = dx[i] === 0 ? 0 : dy[i] / dx[i];
-                    }
-
-                    var m = [slope[0]];
-                    for (var j = 1; j < n - 1; j++) {
-                        m[j] = (slope[j - 1] * dx[j - 1] + slope[j] * dx[j]) /
-                               (dx[j - 1] + dx[j] || 1);
-                    }
-                    m.push(slope[n - 2]);
-
-                    /* Flat run: kill the tangents at both ends so the curve does not swing
-                       out of a plateau on either side of it. */
-                    for (var k = 0; k < n - 1; k++) {
-                        /* Flat run: nothing to slope towards. */
-                        if (slope[k] === 0) { m[k] = 0; m[k + 1] = 0; continue; }
-                        /* A tangent pointing back the way the data came marks a local
-                           extremum. Flattening it is what actually keeps the curve inside
-                           the two points: the steepness limiter below only caps how large a
-                           tangent may be, and on its own still let the curve reach past a
-                           day's value and come back, which put the line under the axis. */
-                        if (m[k] * slope[k] < 0) m[k] = 0;
-                        if (m[k + 1] * slope[k] < 0) m[k + 1] = 0;
-                        var a = m[k] / slope[k], b = m[k + 1] / slope[k];
-                        var s = a * a + b * b;
-                        if (s > 9) {
-                            var tau = 3 / Math.sqrt(s);
-                            m[k] = tau * a * slope[k];
-                            m[k + 1] = tau * b * slope[k];
-                        }
-                    }
-
-                    var d = 'M' + pts[0][0].toFixed(2) + ' ' + pts[0][1].toFixed(2);
-                    for (var q = 0; q < n - 1; q++) {
-                        var h = dx[q] / 3;
-                        d += 'C' + (pts[q][0] + h).toFixed(2) + ' ' + (pts[q][1] + m[q] * h).toFixed(2) +
-                             ',' + (pts[q + 1][0] - h).toFixed(2) + ' ' + (pts[q + 1][1] - m[q + 1] * h).toFixed(2) +
-                             ',' + pts[q + 1][0].toFixed(2) + ' ' + pts[q + 1][1].toFixed(2);
-                    }
-                    return d;
-                }
+                Chart.defaults.font.family = window.getComputedStyle(document.body).fontFamily;
+                Chart.defaults.font.size = 11;
+                Chart.defaults.color = '#9ca3af';
 
                 function drawIncome(data) {
-                    var host = document.getElementById('incomeChart');
-                    if (!host || !data || !data.values || data.values.length === 0) return;
-
-                    var vals = data.values, labels = data.labels || [], tips = data.tips || [];
-                    var W = 720, H = 260, L = 52, R = 14, T = 16, B = 34;
-                    var plotW = W - L - R, plotH = H - T - B;
-
-                    var max = niceMax(Math.max.apply(null, vals));
-                    var x = function (i) {
-                        return vals.length === 1 ? L + plotW / 2
-                            : L + (plotW * i) / (vals.length - 1);
-                    };
-                    var y = function (v) { return T + plotH - (plotH * v) / max; };
-
-                    var svg = svgEl('svg', {
-                        viewBox: '0 0 ' + W + ' ' + H, class: 'w-full h-auto', role: 'img',
-                        'aria-label': 'Income per day over the last seven days'
-                    });
-
-                    var defs = svgEl('defs', {});
-                    var lg = svgEl('linearGradient', { id: 'twIncomeFill', x1: '0', y1: '0', x2: '0', y2: '1' });
-                    lg.appendChild(svgEl('stop', { offset: '0%', 'stop-color': '#007AFF', 'stop-opacity': '.22' }));
-                    lg.appendChild(svgEl('stop', { offset: '100%', 'stop-color': '#007AFF', 'stop-opacity': '0' }));
-                    defs.appendChild(lg);
-                    svg.appendChild(defs);
-
-                    for (var g = 0; g <= 4; g++) {
-                        var gv = (max / 4) * g;
-                        var gy = y(gv);
-                        svg.appendChild(svgEl('line', {
-                            x1: L, x2: W - R, y1: gy, y2: gy,
-                            stroke: g === 0 ? '#cbd5e1' : '#e2e8f0',
-                            'stroke-width': g === 0 ? 1.5 : 1,
-                            'stroke-dasharray': g === 0 ? null : '4 4'
-                        }));
-                        var gl = svgEl('text', {
-                            x: L - 10, y: gy + 4, 'text-anchor': 'end',
-                            fill: '#94a3b8', 'font-size': 11
-                        });
-                        gl.textContent = abbrev(gv);
-                        svg.appendChild(gl);
-                    }
-
-                    var pts = vals.map(function (v, i) { return [x(i), y(v)]; });
-                    /* A single point has no curve to draw, and letting smoothPath return
-                       nothing here would leave the area with a path that starts mid-string,
-                       so that case is drawn flat across the plot instead. The server always
-                       sends seven days; this only guards the shape of the output. */
-                    var line = pts.length < 2
-                        ? 'M' + L + ' ' + y(vals[0]).toFixed(2) + 'L' + (W - R) + ' ' + y(vals[0]).toFixed(2)
-                        : smoothPath(pts, 1);
-
-                    var base = (T + plotH).toFixed(2);
-                    var area = svgEl('path', {
-                        d: line + 'L' + x(vals.length - 1).toFixed(2) + ' ' + base +
-                           'L' + x(0).toFixed(2) + ' ' + base + 'Z',
-                        fill: 'url(#twIncomeFill)'
-                    });
-                    svg.appendChild(area);
-
-                    var stroke = svgEl('path', {
-                        d: line, fill: 'none', stroke: '#007AFF',
-                        'stroke-width': 2.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
-                    });
-                    svg.appendChild(stroke);
-
-                    vals.forEach(function (v, i) {
-                        var isBest = i === data.bestIndex && v > 0;
-                        svg.appendChild(svgEl('circle', {
-                            cx: x(i), cy: y(v), r: isBest ? 5 : 3.5,
-                            fill: isBest ? '#007AFF' : '#fff',
-                            stroke: '#007AFF', 'stroke-width': 2
-                        }));
-                        var xl = svgEl('text', {
-                            x: x(i), y: H - 12, 'text-anchor': 'middle',
-                            fill: isBest ? '#007AFF' : '#94a3b8',
-                            'font-size': 11, 'font-weight': isBest ? 700 : 400
-                        });
-                        xl.textContent = labels[i] || '';
-                        svg.appendChild(xl);
-                    });
-
-                    if (!reduced) {
-                        var len = 0;
-                        try { len = stroke.getTotalLength(); } catch (e) { len = 0; }
-                        if (len > 0) {
-                            stroke.style.strokeDasharray = len + ' ' + len;
-                            stroke.style.strokeDashoffset = len;
-                            stroke.style.transition = 'stroke-dashoffset 1s ease-out';
-                            /* Read back once so the browser has a start value to animate from,
-                               otherwise the offset is applied and the transition never runs. */
-                            stroke.getBoundingClientRect();
-                            stroke.style.strokeDashoffset = '0';
-                        }
-                    }
-
-                    host.appendChild(svg);
-
-                    var tip = document.createElement('div');
-                    tip.className = 'tw-chart-tip';
-                    tip.style.cssText = 'position:absolute;pointer-events:none;opacity:0;' +
-                        'transition:opacity .12s;background:#0f172a;color:#fff;font-size:.6875rem;' +
-                        'padding:.375rem .5rem;border-radius:.375rem;white-space:nowrap;' +
-                        'transform:translate(-50%,-125%);z-index:5;box-shadow:0 4px 12px rgba(0,0,0,.25)';
-                    host.appendChild(tip);
-
-                    var box = svg.getBoundingClientRect();
-                    var scaleX = box.width ? box.width / W : 1;
-                    var scaleY = box.height ? box.height / H : 1;
-
-                    vals.forEach(function (v, i) {
-                        var hit = svgEl('rect', {
-                            x: x(i) - plotW / (vals.length - 1 || 1) / 2, y: T,
-                            width: plotW / (vals.length - 1 || 1), height: plotH,
-                            fill: 'transparent'
-                        });
-                        hit.style.cursor = 'crosshair';
-                        var show = function () {
-                            tip.textContent = (tips[i] || labels[i] || '') + '  ·  MMK ' + group(v);
-                            tip.style.left = (x(i) * scaleX).toFixed(1) + 'px';
-                            tip.style.top = (y(v) * scaleY).toFixed(1) + 'px';
-                            tip.style.opacity = '1';
-                        };
-                        var hide = function () { tip.style.opacity = '0'; };
-                        hit.addEventListener('mouseenter', show);
-                        hit.addEventListener('mouseleave', hide);
-                        svg.appendChild(hit);
-                    });
+                    var canvas = document.getElementById('incomeChart');
+                    if (!canvas || !data) return;
 
                     var total = document.getElementById('incomeTotal');
-                    if (total) total.textContent = 'MMK ' + group(data.total || 0);
+                    if (total) total.textContent = money(data.total);
+
+                    new Chart(canvas, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels || [],
+                            datasets: [{
+                                label: 'Paid income',
+                                data: (data.values || []).map(Number),
+                                borderColor: '#007AFF',
+                                backgroundColor: 'rgba(0, 122, 255, 0.10)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointBackgroundColor: '#007AFF',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    displayColors: false,
+                                    callbacks: {
+                                        title: function (items) {
+                                            return (data.tips || [])[items[0].dataIndex] || items[0].label;
+                                        },
+                                        label: function (item) { return money(item.parsed.y); }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    border: { display: false },
+                                    grid: { color: '#f1f5f9', drawTicks: false },
+                                    ticks: { padding: 8, maxTicksLimit: 5, callback: function (v) { return shortMoney(v); } }
+                                },
+                                x: {
+                                    border: { display: false },
+                                    grid: { display: false },
+                                    ticks: { padding: 6 }
+                                }
+                            }
+                        }
+                    });
                 }
 
                 function drawRing(data) {
-                    var host = document.getElementById('todayRing');
-                    if (!host || !data) return;
-
-                    var slices = [
-                        { key: 'completed', label: 'Completed', value: data.completed || 0, colour: '#059669' },
-                        { key: 'cancelled', label: 'Cancelled', value: data.cancelled || 0, colour: '#e11d48' },
-                        { key: 'inProgress', label: 'In progress', value: data.inProgress || 0, colour: '#007AFF' }
-                    ];
-                    var total = data.total || 0;
-
-                    var S = 150, C = S / 2, R = 56, WIDTH = 18;
-                    var circ = 2 * Math.PI * R;
-
-                    var svg = svgEl('svg', {
-                        viewBox: '0 0 ' + S + ' ' + S, class: 'w-full h-auto shrink-0',
-                        style: 'max-width:190px', role: 'img',
-                        'aria-label': "Today's trips by outcome"
-                    });
-
-                    svg.appendChild(svgEl('circle', {
-                        cx: C, cy: C, r: R, fill: 'none',
-                        stroke: total ? '#f1f5f9' : '#f8fafc', 'stroke-width': WIDTH
-                    }));
-
-                    if (total) {
-                        var offset = 0;
-                        slices.forEach(function (s) {
-                            if (s.value <= 0) return;
-                            var frac = s.value / total;
-                            /* A slice thinner than the gap would vanish, so anything very
-                               small still gets a visible sliver to hover and read. */
-                            var len = Math.max(frac * circ - 2, 1.5);
-                            svg.appendChild(svgEl('circle', {
-                                cx: C, cy: C, r: R, fill: 'none', stroke: s.colour,
-                                'stroke-width': WIDTH, 'stroke-linecap': 'butt',
-                                'stroke-dasharray': len.toFixed(2) + ' ' + (circ - len).toFixed(2),
-                                'stroke-dashoffset': (-offset * circ).toFixed(2),
-                                transform: 'rotate(-90 ' + C + ' ' + C + ')'
-                            }));
-                            offset += frac;
-                        });
-                    }
-
-                    var big = svgEl('text', {
-                        x: C, y: C + 2, 'text-anchor': 'middle',
-                        fill: total ? '#0f172a' : '#cbd5e1',
-                        'font-size': 34, 'font-weight': 800
-                    });
-                    big.textContent = String(total);
-                    svg.appendChild(big);
-
-                    var small = svgEl('text', {
-                        x: C, y: C + 24, 'text-anchor': 'middle', fill: '#94a3b8', 'font-size': 11
-                    });
-                    small.textContent = total === 1 ? 'trip today' : 'trips today';
-                    svg.appendChild(small);
-
-                    host.appendChild(svg);
-
-                    var legend = document.createElement('ul');
-                    legend.className = 'space-y-2 text-sm';
-                    slices.forEach(function (s) {
-                        var li = document.createElement('li');
-                        li.className = 'flex items-center gap-2';
-                        var dot = document.createElement('span');
-                        dot.style.cssText = 'width:.625rem;height:.625rem;border-radius:9999px;' +
-                            'flex:none;background:' + s.colour + (s.value ? '' : ';opacity:.3');
-                        var name = document.createElement('span');
-                        name.className = 'text-gray-600';
-                        name.textContent = s.label;
-                        var num = document.createElement('span');
-                        num.className = 'ml-auto font-bold text-gray-900 tabular-nums';
-                        num.textContent = String(s.value);
-                        li.appendChild(dot);
-                        li.appendChild(name);
-                        li.appendChild(num);
-                        legend.appendChild(li);
-                    });
-                    host.appendChild(legend);
+                    var canvas = document.getElementById('todayRing');
+                    if (!canvas || !data) return;
 
                     var date = document.getElementById('todayDate');
                     if (date) date.textContent = data.date || '';
 
-                    if (!total) {
-                        var none = document.createElement('p');
-                        none.className = 'w-full text-center text-xs text-gray-400';
-                        none.textContent = 'No trips requested today.';
-                        host.appendChild(none);
+                    var slices = [
+                        { label: 'Completed',   value: Number(data.completed)   || 0, color: '#0084ff' },
+                        { label: 'In progress', value: Number(data.inProgress) || 0, color: '#ff7b00' },
+                        { label: 'Cancelled',   value: Number(data.cancelled)   || 0, color: '#fb7185' }
+                    ];
+                    var total = 0;
+                    slices.forEach(function (s) { total += s.value; });
+
+                    /* An all-zero doughnut draws an empty ring, which reads as broken rather
+                       than as "nothing happened", so the canvas gives way to a line of text. */
+                    var empty = document.getElementById('todayEmpty');
+                    if (empty) {
+                        empty.classList.toggle('hidden', total > 0);
+                        empty.classList.toggle('flex', total === 0);
                     }
+                    canvas.classList.toggle('hidden', total === 0);
+
+                    new Chart(canvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels: slices.map(function (s) { return s.label; }),
+                            datasets: [{
+                                data: slices.map(function (s) { return s.value; }),
+                                backgroundColor: slices.map(function (s) { return s.color; }),
+                                borderWidth: 0,
+                                hoverOffset: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '75%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        boxWidth: 12,
+                                        boxHeight: 12,
+                                        padding: 20,
+                                        usePointStyle: true,
+                                        pointStyle: 'circle'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (ctx) {
+                                            var n = ctx.parsed;
+                                            return ' ' + n + (n === 1 ? ' trip' : ' trips');
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
                 }
 
                 function init() {

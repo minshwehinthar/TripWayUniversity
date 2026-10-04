@@ -73,9 +73,15 @@
     <Content Include="Global.asax" />
     <Content Include="Site.Master" />
     <Content Include="Web.config" />
+    <Content Include="Scripts\chart.js" />
     <Content Include="Scripts\tripway-chat.js" />
     <Content Include="Scripts\tripway-map.js" />
     <Content Include="Scripts\tripway-route.js" />
+    <Content Include="Scripts\tripway-scroll.js" />
+    <Content Include="Scripts\tw-eta.js" />
+    <Content Include="Scripts\tw-place.js" />
+    <Content Include="Scripts\tw-toast.js" />
+    <Content Include="Scripts\tw-upload.js" />
     <Content Include="Scripts\tailwind.js" />
     <Content Include="Scripts\leaflet.js" />
     <Content Include="Styles\leaflet\leaflet.css" />
