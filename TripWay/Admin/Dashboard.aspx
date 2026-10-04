@@ -108,7 +108,51 @@
                 </div>
                 <div class="flex items-baseline justify-between">
                     <asp:Label ID="lblRevenueToday" runat="server" CssClass="text-3xl font-extrabold text-violet-600">0</asp:Label>
-                    <span class="text-xs font-medium text-gray-400">Completed trips</span>
+                    <span class="text-xs font-medium text-gray-400">Paid &amp; completed</span>
+                </div>
+            </div>
+        </div>
+
+        <%-- Income outcome and today's trips. These count the whole platform, not one driver's
+             slice, which is the only difference from the same two charts on the driver dashboard.
+             Both rules are shared with it, though: income is money in for a ride that finished,
+             and today's trips split into the three buckets an admin acts on. --%>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-lg bg-violet-500/10 text-violet-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+</svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900">7-Day Income</p>
+                        <p class="text-xs text-gray-500">MMK <asp:Label ID="lblWeekRevenue" runat="server" Text="0" /> · Last 7 days</p>
+                    </div>
+                </div>
+                <div class="mt-3 relative h-64">
+                    <canvas id="revenueChart"></canvas>
+                    <p id="revenueEmpty" class="absolute inset-0 hidden items-center justify-center px-4 text-center text-xs text-gray-400">No paid trips in the last 7 days.</p>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-lg bg-[#007AFF]/10 text-[#007AFF]">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
+</svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-bold text-gray-900">Today's Trips</p>
+                        <p class="text-xs text-gray-500"><asp:Label ID="lblAdminTodayDate" runat="server" Text=" " /></p>
+                    </div>
+                    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-blue-50 text-blue-600"><asp:Label ID="lblAdminTodayTotal" runat="server" Text=" " /></span>
+                </div>
+                <div class="mt-4 relative h-56">
+                    <canvas id="adminTodayRing"></canvas>
+                    <p id="adminTodayEmpty" class="absolute inset-0 hidden items-center justify-center text-xs text-gray-400">No trips requested today.</p>
                 </div>
             </div>
         </div>
@@ -153,14 +197,17 @@
         </div>
     </div>
 
+        <script type="application/json" id="revenueData"><%= Revenue7DayJson %></script>
+        <script type="application/json" id="adminTodayData"><%= AdminTodayTripsJson %></script>
         <script type="application/json" id="driversOnlineData"><%= DriversOnlineJson %></script>
         <script src="<%= ResolveUrl("~/Scripts/chart.js") %>?v=<%= System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/chart.js")).Ticks %>"></script>
         <script>
             (function () {
                 'use strict';
 
-                /* A payload that will not parse used to be swallowed and read as an empty fleet,
-                   which put a blank ring on the page with no explanation. Name the fault instead. */
+                /* A payload that will not parse used to be swallowed and read as an empty week or
+                   an empty fleet, which put blank canvases on the page with no explanation. Name
+                   the fault instead of guessing which of the two it is. */
                 function readJson(id) {
                     var el = document.getElementById(id);
                     if (!el) {
@@ -170,7 +217,8 @@
                     var raw = el.textContent;
                     if (!raw || !raw.trim()) {
                         window.console && console.error(
-                            'TripWay: #' + id + ' is empty. DriversOnlineJson rendered nothing, so this is a server-side failure.');
+                            'TripWay: #' + id + ' is empty. The code-behind property rendered nothing, ' +
+                            'so this is a server-side failure rather than a drawing problem.');
                         return null;
                     }
                     try { return JSON.parse(raw); }
@@ -187,8 +235,8 @@
                     else window.console && console.error('TripWay: #' + id + ' is missing from the page.');
                 }
 
-                function cardFailed(noteId, what, detail) {
-                    var canvas = document.getElementById('driversOnlineRing');
+                function cardFailed(canvasId, noteId, what, detail) {
+                    var canvas = document.getElementById(canvasId);
                     var note = document.getElementById(noteId);
                     if (canvas) canvas.classList.add('hidden');
                     if (!note) return;
@@ -198,17 +246,200 @@
                     window.console && console.error('TripWay: ' + what + ' failed to draw: ' + (detail || 'unknown error'));
                 }
 
-                /* If this file 404s the card would be blank with no complaint of any kind, which
-                   reads the same as nobody being online. Say so instead. */
+                /* If this file 404s the cards would be blank with no complaint of any kind, which reads the same
+                   as no income, no trips and nobody online. Say so on each one instead. */
                 function chartLibraryMissing() {
                     window.console && console.error(
-                        'TripWay: Chart.js did not load, so the admin fleet ring cannot be drawn. ' +
+                        'TripWay: Chart.js did not load, so the admin dashboard charts cannot be drawn. ' +
                         'Check that Scripts/chart.js is present in the deployed output.');
-                    var canvas = document.getElementById('driversOnlineRing');
-                    var note = document.getElementById('driversOnlineEmpty');
+
+                    [['revenueChart', 'revenueEmpty'],
+                     ['adminTodayRing', 'adminTodayEmpty'],
+                     ['driversOnlineRing', 'driversOnlineEmpty']].forEach(function (pair) {
+                        var canvas = document.getElementById(pair[0]);
+                        var note = document.getElementById(pair[1]);
+                        if (canvas) canvas.classList.add('hidden');
+                        if (!note) return;
+                        note.textContent = 'Charts unavailable: Scripts/chart.js did not load.';
+                        note.classList.remove('hidden');
+                        note.classList.add('flex');
+                    });
+                }
+
+                function applyChartDefaults() {
+                    Chart.defaults.font.family = window.getComputedStyle(document.body).fontFamily;
+                    Chart.defaults.font.size = 11;
+                    Chart.defaults.color = '#9ca3af';
+                }
+
+                function money(n) {
+                    return 'MMK ' + Number(n || 0).toLocaleString('en-US');
+                }
+
+                /* Axis labels stay short so they cannot crowd the plot: 18,900 reads as 19k. */
+                function shortMoney(n) {
+                    n = Number(n) || 0;
+                    if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 ? 1 : 0) + 'M';
+                    if (n >= 1000) return Math.round(n / 1000) + 'k';
+                    return String(n);
+                }
+
+                function drawRevenue(data) {
+                    var canvas = document.getElementById('revenueChart');
+                    if (!canvas || !data) return;
+
+                    /* Seven days of zero gives a flat line lying on the axis with a 0/0.5/1 scale,
+                       which is indistinguishable from a chart that failed to draw. */
+                    var values = (data.values || []).map(Number);
+                    var hasIncome = values.some(function (v) { return v > 0; });
+                    var note = document.getElementById('revenueEmpty');
+                    if (note) {
+                        note.classList.toggle('hidden', hasIncome);
+                        note.classList.toggle('flex', !hasIncome);
+                    }
+                    canvas.classList.toggle('hidden', !hasIncome);
+                    if (!hasIncome) return;
+
+                    new Chart(canvas, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels || [],
+                            datasets: [{
+                                label: 'Paid income',
+                                data: values,
+                                borderColor: '#7c3aed',
+                                backgroundColor: 'rgba(124, 58, 237, 0.10)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointBackgroundColor: '#7c3aed',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    displayColors: false,
+                                    callbacks: {
+                                        title: function (items) {
+                                            return (data.tips || [])[items[0].dataIndex] || items[0].label;
+                                        },
+                                        label: function (item) { return money(item.parsed.y); }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    border: { display: false },
+                                    grid: { color: '#f1f5f9', drawTicks: false },
+                                    ticks: { padding: 8, maxTicksLimit: 5, callback: function (v) { return shortMoney(v); } }
+                                },
+                                x: {
+                                    border: { display: false },
+                                    grid: { display: false },
+                                    ticks: { padding: 6 }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                function drawAdminToday(data) {
+                    var canvas = document.getElementById('adminTodayRing');
+                    if (!canvas || !data) return;
+
+                    var slices = [
+                        { label: 'Completed',   value: Number(data.completed)   || 0, color: '#0084ff' },
+                        { label: 'In progress', value: Number(data.inProgress) || 0, color: '#ff7b00' },
+                        { label: 'Cancelled',   value: Number(data.cancelled)   || 0, color: '#fb7185' }
+                    ];
+                    var total = 0;
+                    slices.forEach(function (s) { total += s.value; });
+
+                    var empty = document.getElementById('adminTodayEmpty');
+                    if (empty) {
+                        empty.classList.toggle('hidden', total > 0);
+                        empty.classList.toggle('flex', total === 0);
+                    }
+                    canvas.classList.toggle('hidden', total === 0);
+
+                    /* One trip in progress is 100% of the day's trips, so the ring draws as an
+                       unbroken circle that looks like a large number rather than a single one.
+                       The count in the middle keeps that honest. */
+                    var centreLabel = {
+                        id: 'adminTodayCentre',
+                        afterDatasetsDraw: function (chart) {
+                            var arc = chart.getDatasetMeta(0).data[0];
+                            if (!arc) return;
+                            var ctx = chart.ctx;
+                            ctx.save();
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillStyle = '#111827';
+                            ctx.font = '600 24px ' + Chart.defaults.font.family;
+                            ctx.fillText(String(total), arc.x, arc.y - 7);
+                            ctx.fillStyle = '#9ca3af';
+                            ctx.font = '11px ' + Chart.defaults.font.family;
+                            ctx.fillText(total === 1 ? 'trip' : 'trips', arc.x, arc.y + 15);
+                            ctx.restore();
+                        }
+                    };
+
+                    new Chart(canvas, {
+                        type: 'doughnut',
+                        plugins: [centreLabel],
+                        data: {
+                            labels: slices.map(function (s) { return s.label; }),
+                            datasets: [{
+                                data: slices.map(function (s) { return s.value; }),
+                                backgroundColor: slices.map(function (s) { return s.color; }),
+                                borderWidth: 0,
+                                hoverOffset: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '75%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        boxWidth: 12,
+                                        boxHeight: 12,
+                                        padding: 20,
+                                        usePointStyle: true,
+                                        pointStyle: 'circle'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (item) {
+                                            var v = Number(item.parsed) || 0;
+                                            var pct = total ? Math.round(v / total * 100) : 0;
+                                            return item.label + ': ' + v + ' (' + pct + '%)';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                function payloadMissing(canvasId, noteId, what) {
+                    var canvas = document.getElementById(canvasId);
+                    var note = document.getElementById(noteId);
                     if (canvas) canvas.classList.add('hidden');
                     if (!note) return;
-                    note.textContent = 'Charts unavailable: Scripts/chart.js did not load.';
+                    note.textContent = what + ' could not be read from the server. See the browser console.';
                     note.classList.remove('hidden');
                     note.classList.add('flex');
                 }
@@ -295,21 +526,55 @@
                 }
 
                 function init() {
+                    /* Headings are written before Chart.js is touched. They come from the database
+                       and have nothing to do with drawing, so they stay truthful when scripting is
+                       off or the library is missing. */
+                    var week = readJson('revenueData');
+                    if (week) setText('lblWeekRevenue', Number(week.total || 0).toLocaleString('en-US'));
+
+                    var today = readJson('adminTodayData');
+                    if (today) {
+                        setText('lblAdminTodayDate', today.date || '');
+                        setText('lblAdminTodayTotal', (Number(today.total) || 0) + ' trips today');
+                    }
+
                     var fleet = readJson('driversOnlineData');
                     if (fleet) setText('lblOnlineCount', fleet.online + ' of ' + fleet.total + ' online');
 
                     if (!window.Chart) { chartLibraryMissing(); return; }
 
-                    try {
-                        Chart.defaults.font.family = window.getComputedStyle(document.body).fontFamily;
-                        Chart.defaults.font.size = 11;
-                        Chart.defaults.color = '#9ca3af';
-                    } catch (e) { cardFailed('driversOnlineEmpty', 'Drivers Online Now', e.message); return; }
+                    try { applyChartDefaults(); }
+                    catch (e) {
+                        cardFailed('revenueChart', 'revenueEmpty', '7-Day Income', e.message);
+                        cardFailed('adminTodayRing', 'adminTodayEmpty', "Today's Trips", e.message);
+                        cardFailed('driversOnlineRing', 'driversOnlineEmpty', 'Drivers Online Now', e.message);
+                        return;
+                    }
 
-                    if (!fleet) { cardFailed('driversOnlineEmpty', 'Drivers Online Now', 'the server sent no data'); return; }
+                    /* Each card is drawn inside its own guard. Chart.js throws for reasons invisible
+                       from here - a canvas already in use, a bad 2d context, a zero-sized parent -
+                       and one throw used to stop the next chart before it started, which is why
+                       every card on the page could go blank together with nothing logged. */
+                    if (week) {
+                        try { drawRevenue(week); }
+                        catch (e) { cardFailed('revenueChart', 'revenueEmpty', '7-Day Income', e.message); }
+                    } else {
+                        payloadMissing('revenueChart', 'revenueEmpty', '7-Day Income data');
+                    }
 
-                    try { drawFleet(fleet); }
-                    catch (e) { cardFailed('driversOnlineEmpty', 'Drivers Online Now', e.message); }
+                    if (today) {
+                        try { drawAdminToday(today); }
+                        catch (e) { cardFailed('adminTodayRing', 'adminTodayEmpty', "Today's Trips", e.message); }
+                    } else {
+                        payloadMissing('adminTodayRing', 'adminTodayEmpty', "Today's Trips data");
+                    }
+
+                    if (fleet) {
+                        try { drawFleet(fleet); }
+                        catch (e) { cardFailed('driversOnlineRing', 'driversOnlineEmpty', 'Drivers Online Now', e.message); }
+                    } else {
+                        payloadMissing('driversOnlineRing', 'driversOnlineEmpty', 'Drivers Online Now data');
+                    }
                 }
 
                 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
