@@ -4,6 +4,9 @@ namespace TripWay.Driver
     {
         protected global::System.Web.UI.WebControls.Label lblName;
         protected global::System.Web.UI.WebControls.Label lblSub;
+        protected global::System.Web.UI.WebControls.Panel pnlPhoto;
+        protected global::System.Web.UI.WebControls.Image imgDriverPhoto;
+        protected global::System.Web.UI.WebControls.Panel pnlPhotoFallback;
         protected global::System.Web.UI.WebControls.LinkButton lnkToggleOnline;
         protected global::System.Web.UI.WebControls.Label lblOnlineText;
         protected global::System.Web.UI.WebControls.Panel pnlKycBanner;
@@ -15,6 +18,7 @@ namespace TripWay.Driver
         protected global::System.Web.UI.WebControls.Label lblTodayTrips;
         protected global::System.Web.UI.WebControls.Label lblTotalTrips;
         protected global::System.Web.UI.WebControls.Label lblRating;
-        protected global::System.Web.UI.WebControls.Repeater rptRecent;
+        protected global::System.Web.UI.WebControls.Label lblWeekTotal;
+        protected global::System.Web.UI.WebControls.Label lblTodayDate;
     }
 }

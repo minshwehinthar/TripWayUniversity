@@ -9,9 +9,16 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
                 <div class="lg:col-span-8 space-y-4">
                     <div class="flex items-center gap-4">
-                        <div class="size-20 rounded-2xl border-2 border-slate-200 bg-blue-50 text-blue-600 shadow-sm flex items-center justify-center shrink-0">
+                        <asp:Panel ID="pnlPhoto" runat="server" Visible="false"
+                            CssClass="size-20 rounded-2xl border-2 border-slate-200 bg-blue-50 shadow-sm overflow-hidden shrink-0">
+                            <asp:Image ID="imgDriverPhoto" runat="server" AlternateText="Driver photo"
+                                CssClass="size-full object-cover"
+                                onerror="this.style.visibility='hidden'" />
+                        </asp:Panel>
+                        <asp:Panel ID="pnlPhotoFallback" runat="server"
+                            CssClass="size-20 rounded-2xl border-2 border-slate-200 bg-blue-50 text-blue-600 shadow-sm flex items-center justify-center shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
-                        </div>
+                        </asp:Panel>
                         <div class="space-y-1">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">Driver</span>
@@ -149,41 +156,277 @@
             </div>
         </div>
 
-        <%-- Recent trips --%>
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
-                <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 text-violet-500"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
-                    <h2 class="text-sm font-bold text-gray-900">Recent Trips</h2>
+    <%-- Charts: the same pair the customer dashboard uses, so a driver reads the page the
+             same way a customer does. Only the subject differs, which is why the ids are
+             earnings7Day and driverToday rather than income and today. --%>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+            <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+</svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-900">7-Day Earnings</p>
+                            <p class="text-xs text-gray-500">MMK <asp:Label ID="lblWeekTotal" runat="server" Text="0" /> · Last 7 days</p>
+                        </div>
+                    </div>
                 </div>
-                <a href="TripHistory.aspx" class="text-xs font-semibold text-[#007AFF] hover:underline inline-flex items-center gap-1">View all <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg></a>
+                <div class="mt-3 relative h-64">
+                    <canvas id="earningsChart"></canvas>
+                    <p id="earningsEmpty" class="absolute inset-0 hidden items-center justify-center px-4 text-center text-xs text-gray-400">No paid trips in the last 7 days.</p>
+                </div>
             </div>
-            <asp:Repeater ID="rptRecent" runat="server" OnItemCommand="rptRecent_ItemCommand">
-                <HeaderTemplate>
-                    <table class="tw-table w-full text-sm">
-                        <thead><tr><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortdateA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="date" OnClick="SortHeaderAsc_Click" ToolTip="Sort oldest first"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortdateD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="date" OnClick="SortHeaderDesc_Click" ToolTip="Sort newest first"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Date</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortserviceA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="service" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortserviceD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="service" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Service</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortstopsA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="stops" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortstopsD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="stops" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Stops</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortcustomerA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="customer" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortcustomerD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="customer" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Customer</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortfareA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="fare" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortfareD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="fare" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Fare</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortstatusA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="status" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortstatusD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="status" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Status</span></div></th><th><div class="flex items-center gap-1.5"><span class="tw-sort"><asp:LinkButton ID="lnkSortpaymentA" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="payment" OnClick="SortHeaderAsc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/></svg></asp:LinkButton><asp:LinkButton ID="lnkSortpaymentD" runat="server" CssClass="tw-sort-arrow" UseSubmitBehavior="false" CommandArgument="payment" OnClick="SortHeaderDesc_Click" ToolTip="('Sort ascending', 'Sort descending')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></asp:LinkButton></span><span>Payment</span></div></th><th></th></tr></thead>
-                        <tbody>
-                </HeaderTemplate>
-                <ItemTemplate>
-                    <tr>
-                        <td class="whitespace-nowrap"><%# FormatTime(Eval("RequestedAt"), "dd MMM yyyy, HH:mm") %></td>
-                        <td><%# Eval("ServiceName") %></td>
-                        <td class="text-center"><span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold <%# (int)Eval("StopsCount") > 0 ? "bg-blue-50 text-blue-600" : "bg-gray-100 text-gray-400" %>"><%# ((int)Eval("StopsCount")) > 0 ? Eval("StopsCount") + " pts" : "—" %></span></td>
-                        <td><%# Eval("CustomerName") %></td>
-                        <td class="font-semibold text-gray-900">MMK <%# string.Format("{0:N0}", Eval("Fare")) %></td>
-                        <td><span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold <%# GetStatusCss(Eval("Status").ToString()) %>"><%# Eval("Status") %></span></td>
-                        <td><span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold <%# GetStatusCss(Eval("PaymentStatus").ToString()) %>"><%# Eval("PaymentStatus") %></span></td>
-                        <td><asp:LinkButton ID="lbtnView" runat="server" CssClass="tw-action" CommandName="view" CommandArgument='<%# Eval("TripID") %>' ToolTip="View details" CausesValidation="false"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline-block align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></asp:LinkButton></td>
-                    </tr>
-                </ItemTemplate>
-                <FooterTemplate>
-                        <tr id="trNoData" runat="server" visible="false">
-                            <td colspan="8" class="px-6 py-14 text-center"><p class="text-sm text-gray-400">No data available...</p></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </FooterTemplate>
-            </asp:Repeater>
+
+            <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-lg bg-[#007AFF]/10 text-[#007AFF]">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+</svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900">Today's Trips</p>
+                        <p class="text-xs text-gray-500"><asp:Label ID="lblTodayDate" runat="server" Text="&nbsp;" /></p>
+                    </div>
+                </div>
+                <div class="mt-4 relative h-56">
+                    <canvas id="driverTodayRing"></canvas>
+                    <p id="driverTodayEmpty" class="absolute inset-0 hidden items-center justify-center text-xs text-gray-400">No trips assigned today.</p>
+                </div>
+            </div>
         </div>
+
+        <script type="application/json" id="earningsData"><%= Earnings7DayJson %></script>
+        <script type="application/json" id="driverTodayData"><%= DriverTodayTripsJson %></script>
+        <script src="<%= ResolveUrl("~/Scripts/chart.js") %>?v=<%= System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/chart.js")).Ticks %>"></script>
+        <script>
+            (function () {
+                'use strict';
+
+                function readJson(id) {
+                    var el = document.getElementById(id);
+                    if (!el) return null;
+                    try { return JSON.parse(el.textContent); } catch (e) { return null; }
+                }
+
+                function money(n) {
+                    return 'MMK ' + Number(n || 0).toLocaleString('en-US');
+                }
+
+                /* Axis labels stay short so they cannot crowd the plot: 18,900 reads as 19k. */
+                function shortMoney(n) {
+                    n = Number(n) || 0;
+                    if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 ? 1 : 0) + 'M';
+                    if (n >= 1000) return Math.round(n / 1000) + 'k';
+                    return String(n);
+                }
+
+                /* If this file 404s the cards would be blank with no complaint of any kind,
+                   which reads the same as a driver who has not worked yet. Say so instead. */
+                function chartLibraryMissing() {
+                    window.console && console.error(
+                        'TripWay: Chart.js did not load, so the driver dashboard charts cannot be drawn. ' +
+                        'Check that Scripts/chart.js is present in the deployed output.');
+
+                    ['earningsChart', 'driverTodayRing'].forEach(function (id) {
+                        var canvas = document.getElementById(id);
+                        if (!canvas || !canvas.parentNode) return;
+                        canvas.classList.add('hidden');
+
+                        var note = document.createElement('p');
+                        note.className = 'absolute inset-0 flex items-center justify-center px-4 text-center text-xs text-gray-400';
+                        note.textContent = 'Charts unavailable: Scripts/chart.js did not load.';
+                        canvas.parentNode.appendChild(note);
+                    });
+                }
+
+                function applyChartDefaults() {
+                    Chart.defaults.font.family = window.getComputedStyle(document.body).fontFamily;
+                    Chart.defaults.font.size = 11;
+                    Chart.defaults.color = '#9ca3af';
+                }
+
+                function drawEarnings(data) {
+                    var canvas = document.getElementById('earningsChart');
+                    if (!canvas || !data) return;
+
+                    /* Seven days of zero gives a flat line lying on the axis with a 0/0.5/1
+                       scale, which is indistinguishable from a chart that failed to draw. */
+                    var values = (data.values || []).map(Number);
+                    var hasEarnings = values.some(function (v) { return v > 0; });
+                    var note = document.getElementById('earningsEmpty');
+                    if (note) {
+                        note.classList.toggle('hidden', hasEarnings);
+                        note.classList.toggle('flex', !hasEarnings);
+                    }
+                    canvas.classList.toggle('hidden', !hasEarnings);
+                    if (!hasEarnings) return;
+
+                    new Chart(canvas, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels || [],
+                            datasets: [{
+                                label: 'Paid earnings',
+                                data: values,
+                                borderColor: '#059669',
+                                backgroundColor: 'rgba(5, 150, 105, 0.10)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointBackgroundColor: '#059669',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    displayColors: false,
+                                    callbacks: {
+                                        title: function (items) {
+                                            return (data.tips || [])[items[0].dataIndex] || items[0].label;
+                                        },
+                                        label: function (item) { return money(item.parsed.y); }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    border: { display: false },
+                                    grid: { color: '#f1f5f9', drawTicks: false },
+                                    ticks: { padding: 8, maxTicksLimit: 5, callback: function (v) { return shortMoney(v); } }
+                                },
+                                x: {
+                                    border: { display: false },
+                                    grid: { display: false },
+                                    ticks: { padding: 6 }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                function drawDriverToday(data) {
+                    var canvas = document.getElementById('driverTodayRing');
+                    if (!canvas || !data) return;
+
+                    var slices = [
+                        { label: 'Completed',   value: Number(data.completed)   || 0, color: '#0084ff' },
+                        { label: 'In progress', value: Number(data.inProgress) || 0, color: '#ff7b00' },
+                        { label: 'Cancelled',   value: Number(data.cancelled)   || 0, color: '#fb7185' }
+                    ];
+                    var total = 0;
+                    slices.forEach(function (s) { total += s.value; });
+
+                    var empty = document.getElementById('driverTodayEmpty');
+                    if (empty) {
+                        empty.classList.toggle('hidden', total > 0);
+                        empty.classList.toggle('flex', total === 0);
+                    }
+                    canvas.classList.toggle('hidden', total === 0);
+
+                    /* One trip in progress is 100% of the day's trips, so the ring draws as an
+                       unbroken circle that looks like a large number rather than a single one.
+                       The count in the middle keeps that honest. */
+                    var centreLabel = {
+                        id: 'centreLabel',
+                        afterDatasetsDraw: function (chart) {
+                            var arc = chart.getDatasetMeta(0).data[0];
+                            if (!arc) return;
+                            var ctx = chart.ctx;
+                            ctx.save();
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillStyle = '#111827';
+                            ctx.font = '600 24px ' + Chart.defaults.font.family;
+                            ctx.fillText(String(total), arc.x, arc.y - 7);
+                            ctx.fillStyle = '#9ca3af';
+                            ctx.font = '11px ' + Chart.defaults.font.family;
+                            ctx.fillText(total === 1 ? 'trip' : 'trips', arc.x, arc.y + 15);
+                            ctx.restore();
+                        }
+                    };
+
+                    new Chart(canvas, {
+                        type: 'doughnut',
+                        plugins: [centreLabel],
+                        data: {
+                            labels: slices.map(function (s) { return s.label; }),
+                            datasets: [{
+                                data: slices.map(function (s) { return s.value; }),
+                                backgroundColor: slices.map(function (s) { return s.color; }),
+                                borderWidth: 0,
+                                hoverOffset: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '75%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        boxWidth: 12,
+                                        boxHeight: 12,
+                                        padding: 20,
+                                        usePointStyle: true,
+                                        pointStyle: 'circle'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (item) {
+                                            var v = Number(item.parsed) || 0;
+                                            var pct = total ? Math.round(v / total * 100) : 0;
+                                            return item.label + ': ' + v + ' (' + pct + '%)';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                function init() {
+                    /* The totals come from the database and have nothing to do with drawing,
+                       so they are written before Chart.js is touched and survive its absence. */
+                    var week = readJson('earningsData');
+                    if (week) {
+                        document.getElementById('lblWeekTotal').textContent =
+                            Number(week.total || 0).toLocaleString('en-US');
+                    }
+
+                    var today = readJson('driverTodayData');
+                    if (today) {
+                        document.getElementById('lblTodayDate').textContent = today.date || '';
+                    }
+
+                    if (!window.Chart) { chartLibraryMissing(); return; }
+                    applyChartDefaults();
+                    drawEarnings(week);
+                    drawDriverToday(today);
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', init);
+                } else {
+                    init();
+                }
+            })();
+        </script>
+
     </div>
 </asp:Content>
