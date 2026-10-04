@@ -11,7 +11,8 @@ namespace TripWay.Admin
         protected global::System.Web.UI.WebControls.Label lblAdminTodayDate;
         protected global::System.Web.UI.WebControls.Label lblAdminTodayTotal;
         protected global::System.Web.UI.WebControls.Label lblOnlineCount;
-        protected global::System.Web.UI.WebControls.Repeater rptOnline;
-        protected global::System.Web.UI.WebControls.Panel pnlNoOnline;
+        protected global::System.Web.UI.WebControls.Label lblOnlineFigure;
+        protected global::System.Web.UI.WebControls.Label lblOfflineFigure;
+        protected global::System.Web.UI.WebControls.Label lblFleetTotal;
     }
 }

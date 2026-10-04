@@ -57,7 +57,7 @@
                     <span class="text-xs font-semibold text-gray-500">Customers</span>
                     <div class="p-2 rounded-lg bg-[#007AFF]/10 text-[#007AFF] group-hover:bg-[#007AFF] group-hover:text-white transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
 </svg>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
                     <span class="text-xs font-semibold text-gray-500">Drivers</span>
                     <div class="p-2 rounded-lg bg-orange-500/10 text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
 </svg>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                     <span class="text-xs font-semibold text-gray-500">Trips Today</span>
                     <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
 </svg>
                     </div>
                 </div>
@@ -102,7 +102,9 @@
                     <span class="text-xs font-semibold text-gray-500">Revenue Today</span>
                     <div class="p-2 rounded-lg bg-violet-500/10 text-violet-600">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75A2.25 2.25 0 0 1 4.5 4.5h15a2.25 2.25 0 0 1 2.25 2.25v10.5A2.25 2.25 0 0 1 19.5 19.5h-15a2.25 2.25 0 0 1-2.25-2.25V6.75Z" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6 9h.008M18 15h.008" />
 </svg>
                     </div>
                 </div>
@@ -157,41 +159,41 @@
             </div>
         </div>
 
-        <%-- Drivers online. The map and the Recent Trip Activity table were both removed: the map
-             needed Leaflet plus a tile server on every admin page load, and the activity table
-             duplicated what the driver and customer dashboards already show per trip. Fleet
-             availability is the question an admin actually opens this page to answer, so it is a
-             ring. The online list stays underneath it, because a chart cannot open a driver. --%>
+        <%-- Fleet availability. The map and the Recent Trip Activity table were both removed: the
+             map needed Leaflet plus a tile server on every admin page load, and the activity
+             table duplicated what the driver and customer dashboards already show per trip. The
+             ring answers the question an admin opens this page for, and the offline figure is
+             spelled out rather than left for the reader to subtract: "1 of 4 online" hides the
+             3 drivers who are not, which is the number most worth seeing.
+             The driver list this card used to carry is gone; DriverManagement.aspx is where
+             an admin goes to open one. --%>
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between gap-3 mb-4">
                 <div class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 text-emerald-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
                     <h2 class="text-sm font-bold text-gray-900">Drivers Online Now</h2>
                 </div>
-                <span class="text-xs font-semibold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700"><asp:Label ID="lblOnlineCount" runat="server" Text=" " /></span>
+                <asp:Label ID="lblOnlineCount" runat="server" Text=" " CssClass="text-xs font-semibold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700" />
             </div>
 
-            <div class="grid md:grid-cols-5 gap-6 items-center">
-                <div class="md:col-span-2 relative h-56 w-full mx-auto" style="max-width:240px">
+            <div class="grid md:grid-cols-2 gap-6 items-center">
+                <div class="relative h-56 w-full mx-auto" style="max-width:240px">
                     <canvas id="driversOnlineRing"></canvas>
                     <p id="driversOnlineEmpty" class="absolute inset-0 hidden items-center justify-center px-4 text-center text-xs text-gray-400">No drivers registered yet.</p>
                 </div>
 
-                <div class="md:col-span-3">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1">On the road now</p>
-                    <asp:Repeater ID="rptOnline" runat="server" OnItemCommand="rptOnline_ItemCommand">
-                        <ItemTemplate>
-                            <div class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                                <span class="tw-avatar <%# GetAvatarCss(Eval("DriverID")) %>"><%# GetInitial(Eval("FullName").ToString()) %></span>
-                                <div class="flex-1 min-w-0">
-                                    <div class="text-sm font-bold text-gray-900 truncate"><%# Eval("FullName") %></div>
-                                    <div class="text-xs text-gray-400"><%# Eval("VehicleTypeName") %></div>
-                                </div>
-                                <asp:LinkButton ID="lbtnView" runat="server" CssClass="tw-action" CommandName="view" CommandArgument='<%# Eval("DriverID") %>' ToolTip="View details" CausesValidation="false"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline-block align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></asp:LinkButton>
-                            </div>
-                        </ItemTemplate>
-                    </asp:Repeater>
-                    <asp:Panel ID="pnlNoOnline" runat="server" Visible="false" CssClass="tw-empty">No drivers online right now.</asp:Panel>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+                        <p class="text-xs font-semibold text-emerald-700">Online</p>
+                        <p class="text-2xl font-extrabold text-emerald-600 mt-0.5"><asp:Label ID="lblOnlineFigure" runat="server" Text="0" /></p>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                        <p class="text-xs font-semibold text-gray-500">Offline</p>
+                        <p class="text-2xl font-extrabold text-gray-500 mt-0.5"><asp:Label ID="lblOfflineFigure" runat="server" Text="0" /></p>
+                    </div>
+                    <p class="col-span-2 text-xs text-gray-400">
+                        <asp:Label ID="lblFleetTotal" runat="server" Text=" " />
+                    </p>
                 </div>
             </div>
         </div>
@@ -539,7 +541,15 @@
                     }
 
                     var fleet = readJson('driversOnlineData');
-                    if (fleet) setText('lblOnlineCount', fleet.online + ' of ' + fleet.total + ' online');
+                    if (fleet) {
+                        setText('lblOnlineCount', fleet.online + ' of ' + fleet.total + ' online');
+                        setText('lblOnlineFigure', Number(fleet.online) || 0);
+                        setText('lblOfflineFigure', Number(fleet.offline) || 0);
+                        setText('lblFleetTotal', (Number(fleet.total) || 0) +
+                            (Number(fleet.total) === 1
+                                ? ' driver registered on the platform'
+                                : ' drivers registered on the platform'));
+                    }
 
                     if (!window.Chart) { chartLibraryMissing(); return; }
 

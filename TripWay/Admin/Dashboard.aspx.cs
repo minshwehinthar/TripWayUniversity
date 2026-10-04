@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Globalization;
 using System.Web.Script.Serialization;
 
@@ -227,28 +226,29 @@ namespace TripWay.Admin
                 ? 0
                 : Convert.ToInt32(fleet.Rows[0]["OnlineCount"]);
 
+            /* Online is the approved, on-the-road drivers; offline is every other driver on file,
+               KYC-pending included, so the two figures always add up to the whole fleet. */
+            int offline = total - online;
+
             _driversOnlineJson = new JavaScriptSerializer().Serialize(new
             {
                 online = online,
-                offline = total - online,
+                offline = offline,
                 total = total,
                 date = LocalToday().ToString("ddd dd MMM yyyy", CultureInfo.CurrentCulture)
             });
 
-            /* The badge is written from the same figures the ring plots, so it states the truth
-               even with scripting off or Chart.js missing, and the script cannot contradict it
-               because it reads the same payload. */
+            /* Every figure on this card is written from the same numbers the ring plots, so they
+               state the truth with scripting off or Chart.js missing, and the script cannot
+               contradict them because it reads the same payload. Offline gets its own number
+               rather than being left to subtract: "1 of 4 online" does not say how many are not,
+               and that is the figure an admin is usually looking for. */
             lblOnlineCount.Text = online + " of " + total + " online";
-
-            DataTable rows = Helper.DBHelper.ExecuteQuery(
-                @"SELECT d.DriverID, d.FullName, v.Name AS VehicleTypeName
-                  FROM Drivers d INNER JOIN VehicleTypes v ON d.VehicleTypeID = v.VehicleTypeID
-                  WHERE d.IsOnline = 1 AND d.KYCStatus = 'Approved'");
-
-            rptOnline.DataSource = rows;
-            rptOnline.DataBind();
-            pnlNoOnline.Visible = rows.Rows.Count == 0;
-            rptOnline.Visible = rows.Rows.Count > 0;
+            lblOnlineFigure.Text = online.ToString(CultureInfo.CurrentCulture);
+            lblOfflineFigure.Text = offline.ToString(CultureInfo.CurrentCulture);
+            lblFleetTotal.Text = total == 1
+                ? "1 driver registered on the platform"
+                : total + " drivers registered on the platform";
         }
 
         /// <summary>Today's date in the same local time the counters above group by.</summary>
@@ -257,11 +257,5 @@ namespace TripWay.Admin
             return DateTime.UtcNow.AddMinutes(LocalOffsetMinutes).Date;
         }
 
-        protected void rptOnline_ItemCommand(object sender, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
-        {
-            if (e.CommandName != "view") return;
-            int driverId = Convert.ToInt32(e.CommandArgument);
-            OpenAppModal(Helper.TripHelper.BuildDriverModalHtml(driverId, "DriverDetail.aspx?id=" + driverId));
-        }
     }
 }
