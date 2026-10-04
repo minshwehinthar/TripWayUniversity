@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
-using System.Text;
+using System.Web.Script.Serialization;
 
 namespace TripWay.Customer
 {
@@ -108,7 +108,7 @@ namespace TripWay.Customer
         {
             get
             {
-                if (_income7DayJson == null) LoadCharts();
+                if (_income7DayJson == null) LoadIncome7DayData();
                 return _income7DayJson;
             }
         }
@@ -120,25 +120,28 @@ namespace TripWay.Customer
         {
             get
             {
-                if (_todayTripsJson == null) LoadCharts();
+                if (_todayTripsJson == null) LoadTodayTripsData();
                 return _todayTripsJson;
             }
         }
 
         /// <summary>
-        /// Builds both series in one pass so the page touches the database once for them.
-        /// The two are independent properties because the markup asks for each where it is
-        /// drawn, and a property that queried on every read would run the same SQL twice.
+        /// Seven days of paid income, one entry per day oldest first, so the line has a point
+        /// for every day rather than only for the days that happened to have a trip. A day
+        /// with no paid trip is a zero, not a gap.
+        ///
+        /// The filter is PaymentStatus, not Status. A trip can be Completed and still Unpaid,
+        /// and counting that as income would overstate what the customer has actually paid. It
+        /// is also the same rule the Total Spent figure above uses, so the chart breaks down a
+        /// number that is already on this page instead of quietly meaning something else.
         /// </summary>
-        private void LoadCharts()
+        private void LoadIncome7DayData()
         {
             if (_income7DayJson != null) return;
 
             DateTime today = LocalToday();
+            DateTime from = today.AddDays(-6);
 
-            // Only paid trips count, which is the same rule the Total Spent figure above uses,
-            // so the seven-day chart adds up to part of a number already on this page rather
-            // than quietly meaning something else by the word income.
             DataTable income = Helper.DBHelper.ExecuteQuery(
                 "SELECT CAST(DATEADD(MINUTE, " + LocalOffsetMinutes + ", RequestedAt) AS DATE) AS D, " +
                 "SUM(Fare) AS Total " +
@@ -146,7 +149,7 @@ namespace TripWay.Customer
                 "AND DATEADD(MINUTE, " + LocalOffsetMinutes + ", RequestedAt) >= @from " +
                 "GROUP BY CAST(DATEADD(MINUTE, " + LocalOffsetMinutes + ", RequestedAt) AS DATE)",
                 new SqlParameter("@id", CustomerId),
-                new SqlParameter("@from", today.AddDays(-6)));
+                new SqlParameter("@from", from));
 
             var byDay = new Dictionary<DateTime, long>();
             foreach (DataRow r in income.Rows)
@@ -157,38 +160,51 @@ namespace TripWay.Customer
                 byDay[day] = (long)Math.Round(amount, MidpointRounding.AwayFromZero);
             }
 
-            var labels = new StringBuilder();
-            var values = new StringBuilder();
-            var tips = new StringBuilder();
+            var labels = new List<string>(7);
+            var values = new List<long>(7);
+            var tips = new List<string>(7);
             long weekTotal = 0;
-            int bestIndex = 0;
             long best = long.MinValue;
+            int bestIndex = 0;
 
             for (int i = 0; i < 7; i++)
             {
-                DateTime day = today.AddDays(-6 + i);
+                DateTime day = from.AddDays(i);
                 long amount = byDay.ContainsKey(day) ? byDay[day] : 0L;
                 if (amount > best) { best = amount; bestIndex = i; }
                 weekTotal += amount;
 
-                if (i > 0) { labels.Append(','); values.Append(','); tips.Append(','); }
-                labels.Append(JavaScriptString(day.ToString("ddd dd", CultureInfo.CurrentCulture)));
-                values.Append(amount.ToString(CultureInfo.InvariantCulture));
-                tips.Append(JavaScriptString(day.ToString("ddd dd MMM yyyy", CultureInfo.CurrentCulture)));
+                labels.Add(day.ToString("ddd dd", CultureInfo.CurrentCulture));
+                values.Add(amount);
+                tips.Add(day.ToString("ddd dd MMM yyyy", CultureInfo.CurrentCulture));
             }
 
-            _income7DayJson =
-                "{\"labels\":[" + labels + "]" +
-                ",\"values\":[" + values + "]" +
-                ",\"tips\":[" + tips + "]" +
-                ",\"total\":" + weekTotal.ToString(CultureInfo.InvariantCulture) +
-                ",\"best\":" + (best == long.MinValue ? 0 : best).ToString(CultureInfo.InvariantCulture) +
-                ",\"bestIndex\":" + bestIndex +
-                ",\"currency\":\"MMK\"}";
+            _income7DayJson = new JavaScriptSerializer().Serialize(new
+            {
+                labels = labels,
+                values = values,
+                tips = tips,
+                total = weekTotal,
+                best = best == long.MinValue ? 0L : best,
+                bestIndex = bestIndex,
+                currency = "MMK"
+            });
+        }
 
-            // Today, by outcome. Anything not finished yet is reported as in progress rather
-            // than left out, so the ring adds up to the trips that were actually requested
-            // today instead of only the two that reached an end state.
+        /// <summary>
+        /// Today's trips split by outcome, for the ring on the page.
+        ///
+        /// Only Completed and Cancelled are matched by name and everything else counts as in
+        /// progress, so the slices add up to the trips actually requested today. A status
+        /// added to the database later then shows up as in progress instead of quietly
+        /// disappearing from the chart.
+        /// </summary>
+        private void LoadTodayTripsData()
+        {
+            if (_todayTripsJson != null) return;
+
+            DateTime today = LocalToday();
+
             DataTable todayRows = Helper.DBHelper.ExecuteQuery(
                 "SELECT Status, COUNT(*) AS C FROM Trips WHERE CustomerID=@id " +
                 "AND CAST(DATEADD(MINUTE, " + LocalOffsetMinutes + ", RequestedAt) AS DATE) = @today " +
@@ -206,12 +222,14 @@ namespace TripWay.Customer
                 else inProgress += c;                  /* Requested, Accepted, Arrived, Started */
             }
 
-            _todayTripsJson =
-                "{\"completed\":" + completed.ToString(CultureInfo.InvariantCulture) +
-                ",\"cancelled\":" + cancelled.ToString(CultureInfo.InvariantCulture) +
-                ",\"inProgress\":" + inProgress.ToString(CultureInfo.InvariantCulture) +
-                ",\"total\":" + (completed + cancelled + inProgress).ToString(CultureInfo.InvariantCulture) +
-                ",\"date\":" + JavaScriptString(today.ToString("ddd dd MMM yyyy", CultureInfo.CurrentCulture)) + "}";
+            _todayTripsJson = new JavaScriptSerializer().Serialize(new
+            {
+                completed = completed,
+                cancelled = cancelled,
+                inProgress = inProgress,
+                total = completed + cancelled + inProgress,
+                date = today.ToString("ddd dd MMM yyyy", CultureInfo.CurrentCulture)
+            });
         }
 
         /// <summary>
@@ -223,9 +241,5 @@ namespace TripWay.Customer
             return DateTime.UtcNow.AddMinutes(LocalOffsetMinutes).Date;
         }
 
-        private static string JavaScriptString(string value)
-        {
-            return System.Web.HttpUtility.JavaScriptStringEncode(value ?? "");
-        }
     }
 }
