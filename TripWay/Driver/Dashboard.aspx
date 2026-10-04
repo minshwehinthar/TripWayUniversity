@@ -207,10 +207,30 @@
             (function () {
                 'use strict';
 
+                /* A payload that will not parse used to be swallowed and read as an empty
+                   week, which put a blank canvas and a frozen "MMK 0" on the page with no
+                   explanation. Say what went wrong instead of guessing which it is. */
                 function readJson(id) {
                     var el = document.getElementById(id);
-                    if (!el) return null;
-                    try { return JSON.parse(el.textContent); } catch (e) { return null; }
+                    if (!el) {
+                        window.console && console.error('TripWay: chart data element #' + id + ' is missing.');
+                        return null;
+                    }
+                    var raw = el.textContent;
+                    if (!raw || !raw.trim()) {
+                        window.console && console.error(
+                            'TripWay: #' + id + ' is empty. The code-behind property rendered nothing, ' +
+                            'so this is a server-side failure rather than a drawing problem.');
+                        return null;
+                    }
+                    try {
+                        return JSON.parse(raw);
+                    } catch (e) {
+                        window.console && console.error(
+                            'TripWay: #' + id + ' is not valid JSON: ' + e.message + ' | first 120 chars: ' +
+                            raw.replace(/^\s+/, '').slice(0, 120));
+                        return null;
+                    }
                 }
 
                 function money(n) {
@@ -400,6 +420,16 @@
                     });
                 }
 
+                function payloadMissing(canvasId, noteId, what) {
+                    var canvas = document.getElementById(canvasId);
+                    var note = document.getElementById(noteId);
+                    if (canvas) canvas.classList.add('hidden');
+                    if (!note) return;
+                    note.textContent = what + ' could not be read from the server. See the browser console.';
+                    note.classList.remove('hidden');
+                    note.classList.add('flex');
+                }
+
                 function init() {
                     /* The totals come from the database and have nothing to do with drawing,
                        so they are written before Chart.js is touched and survive its absence. */
@@ -416,8 +446,14 @@
 
                     if (!window.Chart) { chartLibraryMissing(); return; }
                     applyChartDefaults();
-                    drawEarnings(week);
-                    drawDriverToday(today);
+
+                    /* Distinguish "the server sent nothing" from "this driver has no trips",
+                       which look identical on a blank canvas. */
+                    if (week) drawEarnings(week);
+                    else payloadMissing('earningsChart', 'earningsEmpty', '7-Day Earnings data');
+
+                    if (today) drawDriverToday(today);
+                    else payloadMissing('driverTodayRing', 'driverTodayEmpty', "Today's Trips data");
                 }
 
                 if (document.readyState === 'loading') {
